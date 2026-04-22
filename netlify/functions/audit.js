@@ -1034,8 +1034,212 @@ function detectSignals(text) {
   };
 }
 
+function classifyEvidence(text, signals = {}) {
+  const normalizedText = normalizeText(text);
+  const lower = normalizedText.toLowerCase();
+
+  const uniqueList = (...groups) => [...new Set(groups.flat().filter(Boolean))].slice(0, 10);
+  const strengthFromCount = (count) => {
+    if (count >= 4) return "strong";
+    if (count >= 2) return "moderate";
+    if (count >= 1) return "weak";
+    return "none";
+  };
+
+  const proofSignals = signals.proof || {};
+  const proofMarkers = signals.proof_markers || {};
+  const authorityMarkers = signals.authority_markers || {};
+  const positioningSignals = signals.positioning || {};
+
+  const testimonialPhrases = uniqueList(
+    uniqueMatches(
+      normalizedText,
+      /\b(testimonial|case study|client|customer|student|member|review|rated|feedback|success story|used by)\b/gi
+    ),
+    proofSignals.quote_count > 0 ? ['quoted proof'] : []
+  );
+
+  const quantifiedOutcomePhrases = uniqueList(
+    uniqueMatches(
+      normalizedText,
+      /\b(?:increased?|grew|reduced?|cut|boosted?|improved?|lifted?|saved|generated?|converted?|doubled?|tripled?)\s+(?:by\s+)?(?:\d+(?:[.,]\d+)?%?|\$\s?\d[\d,]*(?:\.\d{2})?|\d+\s*(?:x|times?|days?|weeks?|months?))\b/gi
+    ),
+    uniqueMatches(
+      normalizedText,
+      /\b(?:\d+(?:[.,]\d+)?%|\$\s?\d[\d,]*(?:\.\d{2})?)\s+(?:increase|growth|lift|reduction|drop|gain|roi|return|revenue|sales|conversion|conversions|customers|leads)\b/gi
+    )
+  );
+
+  const expertPhrases = uniqueList(
+    uniqueMatches(
+      normalizedText,
+      /\b(dr\.|doctor|md|phd|specialist|practitioner|clinician|expert|consultant|strategist|certified)\b/gi
+    ),
+    uniqueMatches(
+      normalizedText,
+      /\b(reviewed by|developed by|created by|led by|advised by)\b/gi
+    )
+  );
+
+  const mechanismEvidencePhrases = uniqueList(
+    uniqueMatches(
+      normalizedText,
+      /\b(?:framework|system|method|process|blueprint|playbook|approach|formula|protocol|mechanism)\b.{0,60}\b(?:tested|proven|validated|measured|documented|repeatable|backed by|shown to)\b/gi
+    ),
+    uniqueMatches(
+      normalizedText,
+      /\b(?:tested|proven|validated|measured|documented|repeatable|backed by|shown to)\b.{0,60}\b(?:framework|system|method|process|blueprint|playbook|approach|formula|protocol|mechanism)\b/gi
+    )
+  );
+
+  const operationalPhrases = uniqueList(
+    uniqueMatches(
+      normalizedText,
+      /\b(step-by-step|checklist|walkthrough|implementation|process|protocol|standard operating procedure|sop|template|worksheet)\b/gi
+    ),
+    uniqueMatches(
+      normalizedText,
+      /\b(measured|tracked|documented|recorded|monitored|audited)\b/gi
+    )
+  );
+
+  const productValidationPhrases = uniqueList(
+    uniqueMatches(
+      normalizedText,
+      /\b(trusted by|used by|chosen by|adopted by|loved by|recommended by|customer[s]?|users?|members?|teams?)\b/gi
+    ),
+    uniqueMatches(
+      normalizedText,
+      /\b(\d+(?:[.,]\d+)?\+?\s+(?:customers|users|members|teams|companies|brands))\b/gi
+    )
+  );
+
+  const authorityPhrases = uniqueList(
+    authorityMarkers.authority_phrases || [],
+    uniqueMatches(
+      normalizedText,
+      /\b(featured in|as seen in|award-winning|industry-leading|trusted by|official|recognized by|leading)\b/gi
+    )
+  );
+
+  const testimonialCount = testimonialPhrases.length;
+  const quantifiedCount = quantifiedOutcomePhrases.length;
+  const expertCount = expertPhrases.length;
+  const mechanismCount = mechanismEvidencePhrases.length;
+  const operationalCount = operationalPhrases.length;
+  const productValidationCount = productValidationPhrases.length;
+  const authorityCount = authorityPhrases.length;
+
+  const categories = {
+    testimonial_proof: {
+      strength: strengthFromCount(testimonialCount),
+      marker_count: testimonialCount,
+      phrases: testimonialPhrases
+    },
+    quantified_proof: {
+      strength: strengthFromCount(quantifiedCount),
+      marker_count: quantifiedCount,
+      phrases: quantifiedOutcomePhrases
+    },
+    expert_proof: {
+      strength: strengthFromCount(expertCount),
+      marker_count: expertCount,
+      phrases: expertPhrases
+    },
+    mechanism_proof: {
+      strength: strengthFromCount(mechanismCount),
+      marker_count: mechanismCount,
+      phrases: mechanismEvidencePhrases
+    },
+    operational_proof: {
+      strength: strengthFromCount(operationalCount),
+      marker_count: operationalCount,
+      phrases: operationalPhrases
+    },
+    product_validation: {
+      strength: strengthFromCount(productValidationCount),
+      marker_count: productValidationCount,
+      phrases: productValidationPhrases
+    },
+    authority_proof: {
+      strength: strengthFromCount(authorityCount),
+      marker_count: authorityCount,
+      phrases: authorityPhrases
+    }
+  };
+
+  const proofGaps = [];
+
+  if (!testimonialCount && !productValidationCount) {
+    proofGaps.push("No customer or user validation markers detected.");
+  }
+
+  if (!quantifiedCount) {
+    proofGaps.push("No quantified outcome proof detected.");
+  }
+
+  if (!mechanismCount && positioningSignals.mechanism_phrase_count > 0) {
+    proofGaps.push("Mechanism language appears without supporting evidence markers.");
+  }
+
+  if (!expertCount && !authorityCount) {
+    proofGaps.push("No expert or authority proof detected.");
+  }
+
+  if (!proofMarkers.proof_marker_count && !proofSignals.quote_count && !proofSignals.testimonial_marker_count) {
+    proofGaps.push("No explicit proof framing markers detected.");
+  }
+
+  const detectedTypes = Object.entries(categories)
+    .filter(([, value]) => value.strength !== "none")
+    .map(([key]) => key);
+
+  const rankedTypes = Object.entries(categories)
+    .sort((a, b) => {
+      const strengthRank = { none: 0, weak: 1, moderate: 2, strong: 3 };
+      const strengthDiff = strengthRank[b[1].strength] - strengthRank[a[1].strength];
+      if (strengthDiff !== 0) return strengthDiff;
+      return b[1].marker_count - a[1].marker_count;
+    });
+
+  const dominantEvidence = rankedTypes[0]?.[1]?.strength === "none" ? "missing_proof" : rankedTypes[0]?.[0] || "missing_proof";
+  const meaningfulProofCount = detectedTypes.length;
+  const overallStrength =
+    meaningfulProofCount === 0 ? "none" :
+    rankedTypes[0][1].strength === "strong" || meaningfulProofCount >= 3 ? "strong" :
+    rankedTypes[0][1].strength === "moderate" || meaningfulProofCount >= 2 ? "moderate" :
+    "weak";
+
+  const supportingPhrases = uniqueList(
+    ...Object.values(categories).map((category) => category.phrases),
+    proofMarkers.evidence_phrases || []
+  );
+
+  return {
+    primary_type: dominantEvidence,
+    has_meaningful_proof: meaningfulProofCount > 0,
+    proof_strength: overallStrength,
+    categories: {
+      ...categories,
+      missing_proof: {
+        strength: meaningfulProofCount === 0 ? "strong" : proofGaps.length >= 2 ? "moderate" : proofGaps.length === 1 ? "weak" : "none",
+        marker_count: proofGaps.length,
+        phrases: [],
+        reasons: proofGaps.slice(0, 10)
+      }
+    },
+    summary: {
+      detected_types: detectedTypes,
+      dominant_evidence: dominantEvidence,
+      proof_gaps: proofGaps.slice(0, 10),
+      supporting_phrases: supportingPhrases
+    }
+  };
+}
+
 function buildSingleAuditPacket(payload) {
   const fullSignals = detectSignals(payload.copy);
+  const evidence = classifyEvidence(payload.copy, fullSignals);
   const signals = {
     meta: fullSignals.meta,
     cta: fullSignals.cta,
@@ -1044,6 +1248,7 @@ function buildSingleAuditPacket(payload) {
     positioning: fullSignals.positioning,
     cadence: fullSignals.cadence
   };
+  void evidence;
   return {
     mode: payload.mode,
     copy_type: payload.copy_type,
