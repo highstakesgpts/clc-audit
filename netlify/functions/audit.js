@@ -1615,6 +1615,15 @@ function sanitizeEnum(value, allowed, fallback) {
 }
 
 const STANDARD_SEVERITY_ENUM = ["None", "Low", "Moderate", "High", "Critical"];
+const LAUNCH_VERDICT_LADDER = ["No-Go", "Hold", "Conditional Go", "Test-Only Go", "Go", "Scale-Ready"];
+const LEGACY_LAUNCH_VERDICT_MAP = {
+  "No-Go": "Do Not Launch",
+  Hold: "Do Not Launch",
+  "Conditional Go": "Safe To Test",
+  "Test-Only Go": "Safe To Test",
+  Go: "Safe To Scale",
+  "Scale-Ready": "Safe To Scale"
+};
 
 function sanitizePersuasionShape(result) {
   if (!result || typeof result !== "object" || Array.isArray(result)) {
@@ -1739,6 +1748,252 @@ function sanitizeDecisionSynthesisShape(result) {
     ),
     reason: String(result.reason || ""),
     fix_instruction: String(result.fix_instruction || "")
+  };
+}
+
+function severityRank(value) {
+  return STANDARD_SEVERITY_ENUM.indexOf(sanitizeEnum(value, STANDARD_SEVERITY_ENUM, "Moderate"));
+}
+
+function substantiationRank(value) {
+  const allowed = ["Unsupported", "Partially Supported", "Supported", "Unclear"];
+  const normalized = sanitizeEnum(value, allowed, "Unclear");
+  const mapping = {
+    Unsupported: 0,
+    "Partially Supported": 1,
+    Unclear: 1,
+    Supported: 2
+  };
+
+  return mapping[normalized] ?? 1;
+}
+
+function downgradeVerdictIndex(index, steps = 1) {
+  return Math.max(0, index - Math.max(0, steps));
+}
+
+function countUnclearValues(value) {
+  if (typeof value === "string") return value === "Unclear" ? 1 : 0;
+  if (Array.isArray(value)) return value.reduce((sum, item) => sum + countUnclearValues(item), 0);
+  if (!value || typeof value !== "object") return 0;
+
+  return Object.values(value).reduce((sum, item) => sum + countUnclearValues(item), 0);
+}
+
+function resolvePrimaryBlocker(subsystemResults, decisionBasis = "Mixed") {
+  const results = subsystemResults && typeof subsystemResults === "object" && !Array.isArray(subsystemResults) ? subsystemResults : {};
+  const claimExposure = results.claim_exposure && typeof results.claim_exposure === "object" && !Array.isArray(results.claim_exposure) ? results.claim_exposure : {};
+  const proofStrength = results.proof_strength && typeof results.proof_strength === "object" && !Array.isArray(results.proof_strength) ? results.proof_strength : {};
+  const persuasion = results.persuasion && typeof results.persuasion === "object" && !Array.isArray(results.persuasion) ? results.persuasion : {};
+  const skepticism = results.skepticism && typeof results.skepticism === "object" && !Array.isArray(results.skepticism) ? results.skepticism : {};
+
+  const candidates = [
+    {
+      key: "claim_exposure",
+      basis: "Claim Risk Failure",
+      failed:
+        Boolean(claimExposure.pass) === false
+        || severityRank(claimExposure.overall_claim_risk) >= severityRank("High")
+        || substantiationRank(claimExposure.substantiation_status) <= 1,
+      blocker: String(claimExposure.primary_claim_risk || ""),
+      failure_mode: String(claimExposure.primary_claim_risk || "")
+    },
+    {
+      key: "proof_strength",
+      basis: "Proof Failure",
+      failed:
+        Boolean(proofStrength.pass) === false
+        || severityRank(proofStrength.overall) <= severityRank("Low")
+        || severityRank(proofStrength.product_validation) <= severityRank("Low")
+        || severityRank(proofStrength.mechanism_substantiation) <= severityRank("Low"),
+      blocker: String(proofStrength.proof_gap || ""),
+      failure_mode: String(proofStrength.proof_gap || "")
+    },
+    {
+      key: "persuasion",
+      basis: "Persuasion Failure",
+      failed:
+        Boolean(persuasion.pass) === false
+        || Number(persuasion.score) < 60
+        || ["offer", "cta"].includes(String(persuasion.weakest_area || "")),
+      blocker: String(persuasion.primary_break || ""),
+      failure_mode: String(persuasion.primary_break || "")
+    },
+    {
+      key: "skepticism",
+      basis: "Skepticism Failure",
+      failed:
+        Boolean(skepticism.pass) === false
+        || Number(skepticism.skepticism_pressure_score) >= 50
+        || severityRank(skepticism.commodity_positioning_risk) >= severityRank("High")
+        || severityRank(skepticism.agreement_without_action_risk) >= severityRank("High")
+        || severityRank(skepticism.ai_pattern_risk) >= severityRank("High"),
+      blocker: String(skepticism.trust_break || ""),
+      failure_mode: String(skepticism.trust_break || "")
+    }
+  ];
+
+  const chosen = candidates.find((candidate) => candidate.failed)
+    || candidates.find((candidate) => candidate.basis === decisionBasis && (candidate.blocker || candidate.failure_mode))
+    || candidates.find((candidate) => candidate.blocker || candidate.failure_mode);
+
+  return {
+    subsystem: chosen?.key || "",
+    primary_blocker: String(chosen?.blocker || ""),
+    highest_risk_failure_mode: String(chosen?.failure_mode || chosen?.blocker || "")
+  };
+}
+
+function resolveLaunchVerdict(context, subsystemResults) {
+  const normalizedContext = context && typeof context === "object" && !Array.isArray(context) ? context : {};
+  const results = subsystemResults && typeof subsystemResults === "object" && !Array.isArray(subsystemResults) ? subsystemResults : {};
+  const persuasion = results.persuasion && typeof results.persuasion === "object" && !Array.isArray(results.persuasion) ? results.persuasion : {};
+  const proofStrength = results.proof_strength && typeof results.proof_strength === "object" && !Array.isArray(results.proof_strength) ? results.proof_strength : {};
+  const skepticism = results.skepticism && typeof results.skepticism === "object" && !Array.isArray(results.skepticism) ? results.skepticism : {};
+  const claimExposure = results.claim_exposure && typeof results.claim_exposure === "object" && !Array.isArray(results.claim_exposure) ? results.claim_exposure : {};
+  let verdictIndex = LAUNCH_VERDICT_LADDER.length - 1;
+  let confidenceIndex = 2;
+  const blockers = [];
+  const failureModes = [];
+  const basis = [];
+
+  const addBasis = (value) => {
+    if (value && !basis.includes(value)) basis.push(value);
+  };
+
+  const capVerdictAt = (label) => {
+    const index = LAUNCH_VERDICT_LADDER.indexOf(label);
+    if (index >= 0) verdictIndex = Math.min(verdictIndex, index);
+  };
+
+  const claimRiskRank = severityRank(claimExposure.overall_claim_risk);
+  const proofOverallRank = severityRank(proofStrength.overall);
+  const productValidationRank = severityRank(proofStrength.product_validation);
+  const mechanismSubstantiationRank = severityRank(proofStrength.mechanism_substantiation);
+  const aiPatternRiskRank = severityRank(skepticism.ai_pattern_risk);
+  const commodityRiskRank = severityRank(skepticism.commodity_positioning_risk);
+  const agreementRiskRank = severityRank(skepticism.agreement_without_action_risk);
+  const substantiation = sanitizeEnum(
+    claimExposure.substantiation_status,
+    ["Unsupported", "Partially Supported", "Supported", "Unclear"],
+    "Unclear"
+  );
+  const competitiveMaturity = severityRank(normalizedContext.competitive_maturity);
+
+  if (claimRiskRank >= severityRank("Critical") && substantiationRank(substantiation) <= 1) {
+    capVerdictAt("No-Go");
+    blockers.push(String(claimExposure.primary_claim_risk || "Critical claim exposure with weak substantiation."));
+    failureModes.push(String(claimExposure.primary_claim_risk || "Critical claim exposure."));
+    addBasis("Claim Risk Failure");
+  } else if (claimRiskRank >= severityRank("High") && substantiationRank(substantiation) === 0) {
+    capVerdictAt("No-Go");
+    blockers.push(String(claimExposure.primary_claim_risk || "High claim risk with unsupported substantiation."));
+    failureModes.push(String(claimExposure.primary_claim_risk || "Unsupported high-risk claim."));
+    addBasis("Claim Risk Failure");
+  } else if (claimRiskRank >= severityRank("High") && substantiationRank(substantiation) <= 1) {
+    capVerdictAt("Hold");
+    blockers.push(String(claimExposure.primary_claim_risk || "High claim risk requires stronger substantiation."));
+    failureModes.push(String(claimExposure.primary_claim_risk || "Weakly substantiated claim risk."));
+    addBasis("Claim Risk Failure");
+  }
+
+  if (proofOverallRank <= severityRank("Low") || productValidationRank <= severityRank("Low") || mechanismSubstantiationRank <= severityRank("Low")) {
+    capVerdictAt("Conditional Go");
+    blockers.push(String(proofStrength.proof_gap || "Proof is too weak to support launch confidence."));
+    failureModes.push(String(proofStrength.proof_gap || "Weak proof structure."));
+    addBasis("Proof Failure");
+  }
+
+  if (Boolean(persuasion.pass) === false || Number(persuasion.score) < 60 || ["offer", "cta"].includes(String(persuasion.weakest_area || ""))) {
+    capVerdictAt("Test-Only Go");
+    blockers.push(String(persuasion.primary_break || "Persuasion system is not strong enough for scale."));
+    failureModes.push(String(persuasion.primary_break || "Weak persuasion or conversion logic."));
+    addBasis("Persuasion Failure");
+  }
+
+  if (Number(skepticism.skepticism_pressure_score) >= 75) {
+    capVerdictAt("Conditional Go");
+    blockers.push(String(skepticism.trust_break || "Reader skepticism pressure is too high."));
+    failureModes.push(String(skepticism.trust_break || "High skepticism pressure."));
+    addBasis("Skepticism Failure");
+  } else if (Number(skepticism.skepticism_pressure_score) >= 50 || commodityRiskRank >= severityRank("High") || agreementRiskRank >= severityRank("High")) {
+    capVerdictAt("Test-Only Go");
+    blockers.push(String(skepticism.trust_break || "Positioning friction is limiting launch confidence."));
+    failureModes.push(String(skepticism.trust_break || "Commodity or agreement-without-action risk."));
+    addBasis("Skepticism Failure");
+  }
+
+  if (aiPatternRiskRank >= severityRank("High") && competitiveMaturity >= severityRank("High")) {
+    capVerdictAt("Go");
+    blockers.push(String(skepticism.trust_break || "AI-pattern risk is too visible for a competitive market."));
+    failureModes.push(String(skepticism.trust_break || "High AI-pattern risk in a competitive market."));
+    addBasis("Skepticism Failure");
+  }
+
+  const unclearCount = countUnclearValues({ persuasion, proofStrength, skepticism, claimExposure });
+  if (unclearCount >= 2) {
+    verdictIndex = downgradeVerdictIndex(verdictIndex, 1);
+    confidenceIndex = Math.max(0, confidenceIndex - 1);
+  }
+
+  const failureCount = [
+    persuasion.pass === false,
+    proofStrength.pass === false,
+    skepticism.pass === false,
+    claimExposure.pass === false
+  ].filter(Boolean).length;
+
+  if (failureCount >= 3) {
+    verdictIndex = downgradeVerdictIndex(verdictIndex, 2);
+    confidenceIndex = Math.max(0, confidenceIndex - 2);
+  } else if (failureCount >= 2) {
+    verdictIndex = downgradeVerdictIndex(verdictIndex, 1);
+    confidenceIndex = Math.max(0, confidenceIndex - 1);
+  }
+
+  const meetsScaleReadyRequirements =
+    claimRiskRank <= severityRank("Moderate") &&
+    proofOverallRank >= severityRank("High") &&
+    productValidationRank >= severityRank("High") &&
+    Number(persuasion.score) >= 80 &&
+    Number(skepticism.skepticism_pressure_score) < 50 &&
+    aiPatternRiskRank <= severityRank("Moderate");
+
+  if (!meetsScaleReadyRequirements) {
+    capVerdictAt("Go");
+  }
+
+  if (basis.length === 0) {
+    addBasis("Mixed");
+  }
+
+  const launchVerdict = LAUNCH_VERDICT_LADDER[verdictIndex] || "Hold";
+  const legacyLaunchVerdict = LEGACY_LAUNCH_VERDICT_MAP[launchVerdict] || "Do Not Launch";
+  const confidenceLevels = ["Low", "Moderate", "High"];
+  const verdictConfidence = confidenceLevels[Math.max(0, Math.min(confidenceIndex, confidenceLevels.length - 1))];
+  const decisionBasis = basis.length > 1 ? "Mixed" : basis[0];
+  const blockerResolution = resolvePrimaryBlocker(
+    {
+      persuasion,
+      proof_strength: proofStrength,
+      skepticism,
+      claim_exposure: claimExposure
+    },
+    decisionBasis
+  );
+  const primaryBlocker = blockerResolution.primary_blocker || blockers[0] || "";
+  const highestRiskFailureMode = blockerResolution.highest_risk_failure_mode || failureModes[0] || "";
+
+  return {
+    launch_verdict: launchVerdict,
+    legacy_launch_verdict: legacyLaunchVerdict,
+    verdict_confidence: verdictConfidence,
+    safe_to_test: ["Conditional Go", "Test-Only Go", "Go", "Scale-Ready"].includes(launchVerdict),
+    safe_to_scale: ["Go", "Scale-Ready"].includes(launchVerdict),
+    primary_blocker: String(primaryBlocker || ""),
+    highest_risk_failure_mode: String(highestRiskFailureMode || ""),
+    decision_basis: String(decisionBasis || "Mixed"),
+    certified: ["Go", "Scale-Ready"].includes(launchVerdict)
   };
 }
 
@@ -2002,6 +2257,12 @@ function formatLabel(value, fallback = "Unknown") {
 }
 
 function buildLegacySingleAuditShape({ packet, evidence, persuasion, proofStrength, skepticism, claimExposure, synthesis }) {
+  const resolvedVerdict = resolveLaunchVerdict(packet.context, {
+    persuasion,
+    proof_strength: proofStrength,
+    skepticism,
+    claim_exposure: claimExposure
+  });
   const proofDimension = mapProofStrengthToLegacyDimension(proofStrength.overall);
   const dimension_scores = {
     hook: clampInt(persuasion.dimension_scores?.hook, 1, 10),
@@ -2056,9 +2317,9 @@ function buildLegacySingleAuditShape({ packet, evidence, persuasion, proofStreng
   );
   const bigIdeaStrength = persuasion.score >= 80 ? "Strong" : persuasion.score >= 60 ? "Moderate" : "Weak";
   const audienceState = formatLabel(packet.context?.audience_temperature, "Unknown");
-  const riskNarrative = synthesis.highest_risk_failure_mode || claimExposure.primary_claim_risk || skepticism.trust_break || "";
+  const riskNarrative = resolvedVerdict.highest_risk_failure_mode || synthesis.highest_risk_failure_mode || claimExposure.primary_claim_risk || skepticism.trust_break || "";
   const rawLegacy = {
-    certified: Boolean(synthesis.certified),
+    certified: Boolean(resolvedVerdict.certified),
     total_score: mapPersuasionScoreToLegacyTotal(persuasion.score),
     dimension_scores,
     weakest_dimension: sanitizeEnum(persuasion.weakest_area, ["hook", "lead", "body", "mechanism", "proof", "offer", "cta"], "mechanism"),
@@ -2102,6 +2363,14 @@ function buildLegacySingleAuditShape({ packet, evidence, persuasion, proofStreng
 
   return {
     ...sanitizedLegacy,
+    launch_verdict: resolvedVerdict.legacy_launch_verdict,
+    resolved_launch_verdict: resolvedVerdict.launch_verdict,
+    verdict_confidence: resolvedVerdict.verdict_confidence,
+    safe_to_test: resolvedVerdict.safe_to_test,
+    safe_to_scale: resolvedVerdict.safe_to_scale,
+    primary_blocker: resolvedVerdict.primary_blocker,
+    highest_risk_failure_mode: resolvedVerdict.highest_risk_failure_mode,
+    decision_basis: resolvedVerdict.decision_basis,
     evidence,
     engines: {
       persuasion,
