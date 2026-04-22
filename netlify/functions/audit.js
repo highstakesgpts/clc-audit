@@ -1568,23 +1568,37 @@ function classifyEvidence(text, signals = {}) {
   };
 }
 
-function buildSingleAuditPacket(payload) {
-  const fullSignals = detectSignals(payload.copy);
-  const evidence = classifyEvidence(payload.copy, fullSignals);
-  const signals = {
-    meta: fullSignals.meta,
-    cta: fullSignals.cta,
-    proof: fullSignals.proof,
-    offer: fullSignals.offer,
-    positioning: fullSignals.positioning,
-    cadence: fullSignals.cadence
-  };
-  void evidence;
+function buildInternalSingleAuditPacket(payload) {
+  const context = payload?.context && typeof payload.context === "object" && !Array.isArray(payload.context) ? payload.context : {};
+  const signals = detectSignals(payload.copy);
+  const evidence = classifyEvidence(payload.copy, signals);
+
   return {
     mode: payload.mode,
     copy_type: payload.copy_type,
     goal: payload.goal,
     copy: payload.copy,
+    context,
+    signals,
+    evidence
+  };
+}
+
+function buildSingleAuditPacket(payload) {
+  const internalPacket = buildInternalSingleAuditPacket(payload);
+  const signals = {
+    meta: internalPacket.signals.meta,
+    cta: internalPacket.signals.cta,
+    proof: internalPacket.signals.proof,
+    offer: internalPacket.signals.offer,
+    positioning: internalPacket.signals.positioning,
+    cadence: internalPacket.signals.cadence
+  };
+  return {
+    mode: internalPacket.mode,
+    copy_type: internalPacket.copy_type,
+    goal: internalPacket.goal,
+    copy: internalPacket.copy,
     signals
   };
 }
@@ -1960,23 +1974,174 @@ async function runDecisionSynthesis(packet, subsystemResults) {
   return sanitizeDecisionSynthesisShape(parsed);
 }
 
+function mapPersuasionScoreToLegacyTotal(score) {
+  return clampInt((Number(score) || 0) * 0.7, 0, 70);
+}
+
+function mapProofStrengthToLegacyDimension(overall) {
+  const normalized = sanitizeEnum(overall, STANDARD_SEVERITY_ENUM, "Moderate");
+  const mapping = {
+    None: 1,
+    Low: 3,
+    Moderate: 5,
+    High: 8,
+    Critical: 10
+  };
+
+  return mapping[normalized] || 5;
+}
+
+function formatLabel(value, fallback = "Unknown") {
+  const normalized = normalizeText(value);
+  if (!normalized) return fallback;
+  return normalized
+    .split(/[_\s]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function buildLegacySingleAuditShape({ packet, evidence, persuasion, proofStrength, skepticism, claimExposure, synthesis }) {
+  const proofDimension = mapProofStrengthToLegacyDimension(proofStrength.overall);
+  const dimension_scores = {
+    hook: clampInt(persuasion.dimension_scores?.hook, 1, 10),
+    lead: clampInt(persuasion.dimension_scores?.lead, 1, 10),
+    body: clampInt(persuasion.dimension_scores?.body, 1, 10),
+    mechanism: clampInt(persuasion.dimension_scores?.mechanism, 1, 10),
+    proof: clampInt(proofDimension, 1, 10),
+    offer: clampInt(persuasion.dimension_scores?.offer, 1, 10),
+    cta: clampInt(persuasion.dimension_scores?.cta, 1, 10)
+  };
+  const ctaActions = packet.signals?.cta?.action_phrases || [];
+  const ctaUrgency = packet.signals?.cta?.urgency_phrases || [];
+  const priceMentions = packet.signals?.offer?.price_mentions || [];
+  const mechanismPhrases = packet.signals?.positioning?.mechanism_phrases || [];
+  const supportingPhrases = evidence?.summary?.supporting_phrases || [];
+  const firstSentence = splitSentences(packet.copy)[0] || "";
+  const corePromise = truncate(firstSentence || supportingPhrases[0] || packet.copy_type || "", 180);
+  const mechanismSummary = mechanismPhrases[0]
+    ? truncate(`Mechanism signal: ${mechanismPhrases[0]}.`, 180)
+    : truncate(
+        evidence?.categories?.mechanism_proof?.phrases?.[0]
+          || `${formatLabel(proofStrength.mechanism_substantiation, "Moderate")} mechanism substantiation.`,
+        180
+      );
+  const proofSummary = truncate(
+    [
+      `${formatLabel(evidence.primary_type, "Missing Proof")} proof with ${String(proofStrength.overall || "Moderate").toLowerCase()} strength.`,
+      proofStrength.proof_gap
+    ].filter(Boolean).join(" "),
+    220
+  );
+  const offerSummary = truncate(
+    [
+      priceMentions.length ? `Price mentions: ${priceMentions.join(", ")}.` : "",
+      packet.signals?.offer?.deliverable_count ? `${packet.signals.offer.deliverable_count} deliverable signals detected.` : "",
+      packet.signals?.offer?.bonus_count ? `${packet.signals.offer.bonus_count} bonus signals detected.` : "",
+      packet.signals?.offer?.guarantee_count ? `${packet.signals.offer.guarantee_count} guarantee signals detected.` : ""
+    ].filter(Boolean).join(" ") || "Offer clarity requires manual review.",
+    220
+  );
+  const ctaSummary = truncate(
+    [
+      ctaActions.length ? `CTA actions: ${ctaActions.join(", ")}.` : "No clear CTA actions detected.",
+      ctaUrgency.length ? `Urgency: ${ctaUrgency.join(", ")}.` : ""
+    ].filter(Boolean).join(" "),
+    220
+  );
+  const distinctnessStrength = sanitizeEnum(
+    skepticism.commodity_positioning_risk,
+    STANDARD_SEVERITY_ENUM,
+    "Moderate"
+  );
+  const bigIdeaStrength = persuasion.score >= 80 ? "Strong" : persuasion.score >= 60 ? "Moderate" : "Weak";
+  const audienceState = formatLabel(packet.context?.audience_temperature, "Unknown");
+  const riskNarrative = synthesis.highest_risk_failure_mode || claimExposure.primary_claim_risk || skepticism.trust_break || "";
+  const rawLegacy = {
+    certified: Boolean(synthesis.certified),
+    total_score: mapPersuasionScoreToLegacyTotal(persuasion.score),
+    dimension_scores,
+    weakest_dimension: sanitizeEnum(persuasion.weakest_area, ["hook", "lead", "body", "mechanism", "proof", "offer", "cta"], "mechanism"),
+    reason: String(synthesis.reason || ""),
+    fix_instruction: String(synthesis.fix_instruction || ""),
+    asset_role: String(packet.copy_type || "Unknown"),
+    audience_state: audienceState,
+    core_promise: String(corePromise || ""),
+    mechanism_summary: String(mechanismSummary || ""),
+    proof_summary: String(proofSummary || ""),
+    offer_summary: String(offerSummary || ""),
+    cta_summary: String(ctaSummary || ""),
+    big_idea: {
+      statement: String(corePromise || ""),
+      strength: bigIdeaStrength,
+      distinctness: distinctnessStrength,
+      ownability: String(proofStrength.evidence_uniqueness || "Moderate"),
+      type: mechanismPhrases.length ? "Mechanism-led" : priceMentions.length ? "Offer-led" : "Promise-led",
+      emotional_charge: audienceState,
+      headline_anchor_strength: `${dimension_scores.hook}/10 hook strength`,
+      mechanism_alignment: mechanismPhrases.length
+        ? `${mechanismPhrases.length} mechanism signal${mechanismPhrases.length === 1 ? "" : "s"} detected`
+        : "No clear mechanism signal detected",
+      offer_alignment: packet.signals?.offer?.price_mention_count || packet.signals?.offer?.deliverable_count
+        ? `${packet.signals.offer.price_mention_count} price and ${packet.signals.offer.deliverable_count} deliverable signals detected`
+        : "Offer structure is not yet clearly signaled",
+      cta_alignment: packet.signals?.cta?.has_cta_signal
+        ? `${packet.signals.cta.action_phrase_count} CTA action signals detected`
+        : "CTA continuity remains weak",
+      notes: String(synthesis.decision_basis || "")
+    },
+    big_idea_diagnosis: {
+      hidden_idea_present: Boolean(corePromise),
+      why_it_works: String(persuasion.pass ? "The copy shows a recognizable commercial through-line." : ""),
+      why_it_is_not_yet_dominant: String(persuasion.primary_break || ""),
+      what_is_missing: String(synthesis.primary_blocker || proofStrength.proof_gap || ""),
+      commercial_risk_if_unchanged: String(riskNarrative || "")
+    }
+  };
+  const sanitizedLegacy = sanitizeSingleAuditShape(rawLegacy);
+
+  return {
+    ...sanitizedLegacy,
+    evidence,
+    engines: {
+      persuasion,
+      proof_strength: proofStrength,
+      skepticism,
+      claim_exposure: claimExposure,
+      decision_synthesis: synthesis
+    }
+  };
+}
+
 async function runSingleAssetAudit(assetKey, copy, meta = {}) {
   const payload = {
     mode: "single",
     copy,
     copy_type: meta.copy_type || assetKey,
-    goal: meta.goal || "Drive sales"
+    goal: meta.goal || "Drive sales",
+    context: meta.context && typeof meta.context === "object" && !Array.isArray(meta.context) ? meta.context : {}
   };
-
-  const packet = buildSingleAuditPacket(payload);
-  const parsed = await runJsonModel({
-    systemPrompt: SINGLE_AUDIT_SYSTEM_PROMPT,
-    schemaName: `single_audit_${assetKey}`,
-    schema: SINGLE_AUDIT_SCHEMA,
-    userPayload: packet
+  const packet = buildInternalSingleAuditPacket(payload);
+  const persuasion = await runPersuasionAudit(packet);
+  const proofStrength = await runProofStrengthAudit(packet);
+  const skepticism = await runSkepticismAudit(packet);
+  const claimExposure = await runClaimExposureAudit(packet);
+  const synthesis = await runDecisionSynthesis(packet, {
+    persuasion,
+    proof_strength: proofStrength,
+    skepticism,
+    claim_exposure: claimExposure
   });
 
-  return sanitizeSingleAuditShape(parsed);
+  return buildLegacySingleAuditShape({
+    packet,
+    evidence: packet.evidence,
+    persuasion,
+    proofStrength,
+    skepticism,
+    claimExposure,
+    synthesis
+  });
 }
 
 function buildCampaignSummaryPacket(goal, assetAudits) {
