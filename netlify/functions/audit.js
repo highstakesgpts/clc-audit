@@ -841,6 +841,102 @@ function detectSignals(text) {
     text,
     /\b(framework|system|method|process|blueprint|playbook|approach|formula|standard|protocol|mechanism)\b/gi
   );
+  const claimPhrases = uniqueMatches(
+    text,
+    /\b(proven to|designed to|helps? you|allows? you to|so you can|you will|you'll|without having to|in as little as|results? in|works to|built to)\b/gi
+  );
+  const outcomeClaimPhrases = uniqueMatches(
+    text,
+    /\b(increase|grow|scale|boost|improve|accelerate|reduce|eliminate|maximize|unlock|achieve|transform)\b/gi
+  );
+  const speedClaimPhrases = uniqueMatches(
+    text,
+    /\b(instantly|immediately|fast|faster|quickly|rapid|overnight|in minutes|in days|in weeks)\b/gi
+  );
+  const certaintyClaimPhrases = uniqueMatches(
+    text,
+    /\b(proven|guaranteed|predictable|reliable|consistent|always|never fails|scientifically|backed by)\b/gi
+  );
+  const proofMarkerPhrases = uniqueMatches(
+    text,
+    /\b(case study|testimonial|review|results?|data|study|studies|evidence|measured|tracked|documented|reported)\b/gi
+  );
+  const specificityMarkerPhrases = uniqueMatches(
+    text,
+    /\b(exactly|specifically|for example|for instance|step-by-step|measured|documented|according to)\b/gi
+  );
+  const authorityPhrases = uniqueMatches(
+    text,
+    /\b(expert|specialist|authority|leader|trusted by|featured in|as seen in|certified|award-winning|industry-leading)\b/gi
+  );
+  const credentialPhrases = uniqueMatches(
+    text,
+    /\b(md|phd|dr\.|doctor|founder|ceo|coach|consultant|strategist|practitioner)\b/gi
+  );
+  const comparisonPhrases = uniqueMatches(
+    text,
+    /\b(unlike|different from|instead of|compared to|versus|vs\.?|rather than|not just|better than)\b/gi
+  );
+  const superiorityPhrases = uniqueMatches(
+    text,
+    /\b(best|only|first|leading|top-rated|exclusive|unique|superior|more effective|most complete)\b/gi
+  );
+  const guaranteePhrases = uniqueMatches(
+    text,
+    /\b(guarantee|guaranteed|money back|refund|risk[- ]free|satisfaction guaranteed|cancel anytime|no questions asked)\b/gi
+  );
+  const reversalPhrases = uniqueMatches(
+    text,
+    /\b(your money back|we take the risk|all the risk is on us|try it risk[- ]free|love it or)\b/gi
+  );
+  const scarcityPhrases = uniqueMatches(
+    text,
+    /\b(limited time|last chance|closing soon|ends tonight|deadline|before it's gone|spots are limited|final hours)\b/gi
+  );
+  const deadlinePhrases = uniqueMatches(
+    text,
+    /\b(today|tonight|now|immediately|before midnight|this week only|enrollment closes|offer ends)\b/gi
+  );
+  const aiPatternPhrases = uniqueMatches(
+    text,
+    /\b(game[- ]changing|unlock the power of|revolutionary|cutting-edge|next-level|seamless|whether you're|in today's world|the truth is|imagine this)\b/gi
+  );
+  const hypePhrases = uniqueMatches(
+    text,
+    /\b(amazing|incredible|ultimate|world-class|unparalleled|unleash|transformative|breakthrough)\b/gi
+  );
+  const fillerPhrases = uniqueMatches(
+    text,
+    /\b(not only\.\.\. but also|it's not just about|more than just|here's the thing|the fact is)\b/gi
+  );
+  const distinctnessPhrases = uniqueMatches(
+    text,
+    /\b(only|exclusive|proprietary|signature|unique|one-of-a-kind|unlike anything|different from)\b/gi
+  );
+  const coinedMechanismPhrases = uniqueMatches(
+    text,
+    /\b[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+){0,2}\s+(?:method|system|framework|formula|protocol|blueprint|process)\b/g
+  );
+  const offerStackPhrases = uniqueMatches(
+    text,
+    /\b(included|includes|you get|you'll get|comes with|plus|bonus|bonuses|stack|bundle|package)\b/gi
+  );
+  const bundlePhrases = uniqueMatches(
+    text,
+    /\b(bundle|package|vault|library|toolkit|suite|collection)\b/gi
+  );
+  const complianceRiskPhrases = uniqueMatches(
+    text,
+    /\b(cure|treat|heal|reverse|guaranteed results|effortless|instant results|no risk|works for everyone)\b/gi
+  );
+  const claimRiskPhrases = uniqueMatches(
+    text,
+    /\b(always|never|everyone|anyone|all you have to do|without any effort|zero risk)\b/gi
+  );
+  const pressureRiskPhrases = uniqueMatches(
+    text,
+    /\b(act now|don't wait|last chance|before it's too late|urgent|final notice)\b/gi
+  );
 
   return {
     meta: {
@@ -877,12 +973,77 @@ function detectSignals(text) {
     cadence: {
       paragraph_count: paragraphs.length,
       sentence_count: sentences.length
+    },
+    claims: {
+      claim_count: claimPhrases.length,
+      outcome_claim_count: outcomeClaimPhrases.length,
+      speed_claim_count: speedClaimPhrases.length,
+      certainty_claim_count: certaintyClaimPhrases.length,
+      claims: [...claimPhrases, ...outcomeClaimPhrases, ...speedClaimPhrases, ...certaintyClaimPhrases].slice(0, 10)
+    },
+    proof_markers: {
+      proof_marker_count: proofMarkerPhrases.length,
+      specificity_marker_count: specificityMarkerPhrases.length,
+      evidence_phrases: [...proofMarkerPhrases, ...specificityMarkerPhrases].slice(0, 10)
+    },
+    authority_markers: {
+      authority_marker_count: authorityPhrases.length,
+      credential_marker_count: credentialPhrases.length,
+      authority_phrases: [...authorityPhrases, ...credentialPhrases].slice(0, 10)
+    },
+    comparative_markers: {
+      comparison_marker_count: comparisonPhrases.length,
+      superiority_marker_count: superiorityPhrases.length,
+      comparison_phrases: [...comparisonPhrases, ...superiorityPhrases].slice(0, 10)
+    },
+    guarantee_markers: {
+      guarantee_marker_count: guaranteePhrases.length,
+      reversal_marker_count: reversalPhrases.length,
+      guarantee_phrases: [...guaranteePhrases, ...reversalPhrases].slice(0, 10)
+    },
+    urgency_markers: {
+      urgency_marker_count: ctaUrgencyPhrases.length,
+      scarcity_marker_count: scarcityPhrases.length,
+      deadline_marker_count: deadlinePhrases.length,
+      urgency_phrases: [...ctaUrgencyPhrases, ...scarcityPhrases, ...deadlinePhrases].slice(0, 10)
+    },
+    ai_pattern_markers: {
+      ai_pattern_count: aiPatternPhrases.length,
+      hype_phrase_count: hypePhrases.length,
+      filler_phrase_count: fillerPhrases.length,
+      ai_phrases: [...aiPatternPhrases, ...hypePhrases, ...fillerPhrases].slice(0, 10)
+    },
+    distinctness_markers: {
+      distinctness_marker_count: distinctnessPhrases.length,
+      uniqueness_marker_count: countMatches(lower, /\b(only|exclusive|unique|proprietary|signature|one-of-a-kind)\b/g),
+      coined_mechanism_count: coinedMechanismPhrases.length,
+      distinctness_phrases: [...distinctnessPhrases, ...coinedMechanismPhrases].slice(0, 10)
+    },
+    offer_stack_markers: {
+      stack_marker_count: offerStackPhrases.length,
+      bonus_marker_count: countMatches(lower, /\bbonus(?:es)?\b/g),
+      bundle_marker_count: bundlePhrases.length,
+      stack_phrases: [...offerStackPhrases, ...bundlePhrases].slice(0, 10)
+    },
+    risk_markers: {
+      compliance_risk_count: complianceRiskPhrases.length,
+      claim_risk_count: claimRiskPhrases.length,
+      pressure_risk_count: pressureRiskPhrases.length,
+      risk_phrases: [...complianceRiskPhrases, ...claimRiskPhrases, ...pressureRiskPhrases].slice(0, 10)
     }
   };
 }
 
 function buildSingleAuditPacket(payload) {
-  const signals = detectSignals(payload.copy);
+  const fullSignals = detectSignals(payload.copy);
+  const signals = {
+    meta: fullSignals.meta,
+    cta: fullSignals.cta,
+    proof: fullSignals.proof,
+    offer: fullSignals.offer,
+    positioning: fullSignals.positioning,
+    cadence: fullSignals.cadence
+  };
   return {
     mode: payload.mode,
     copy_type: payload.copy_type,
