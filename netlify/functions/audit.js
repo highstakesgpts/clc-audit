@@ -1600,6 +1600,134 @@ function sanitizeEnum(value, allowed, fallback) {
   return allowed.includes(normalized) ? normalized : fallback;
 }
 
+const STANDARD_SEVERITY_ENUM = ["None", "Low", "Moderate", "High", "Critical"];
+
+function sanitizePersuasionShape(result) {
+  if (!result || typeof result !== "object" || Array.isArray(result)) {
+    throw new Error("Invalid persuasion audit object.");
+  }
+
+  const dimension_scores = result.dimension_scores || {};
+  return {
+    engine: String(result.engine || ""),
+    pass: Boolean(result.pass),
+    score: clampInt(result.score, 0, 100),
+    weakest_area: sanitizeEnum(
+      result.weakest_area,
+      ["hook", "lead", "body", "mechanism", "offer", "cta"],
+      "mechanism"
+    ),
+    primary_break: String(result.primary_break || ""),
+    fix_instruction: String(result.fix_instruction || ""),
+    dimension_scores: {
+      hook: clampInt(dimension_scores.hook, 0, 10),
+      lead: clampInt(dimension_scores.lead, 0, 10),
+      body: clampInt(dimension_scores.body, 0, 10),
+      mechanism: clampInt(dimension_scores.mechanism, 0, 10),
+      offer: clampInt(dimension_scores.offer, 0, 10),
+      cta: clampInt(dimension_scores.cta, 0, 10)
+    }
+  };
+}
+
+function sanitizeProofStrengthShape(result) {
+  if (!result || typeof result !== "object" || Array.isArray(result)) {
+    throw new Error("Invalid proof strength object.");
+  }
+
+  return {
+    engine: String(result.engine || ""),
+    pass: Boolean(result.pass),
+    overall: sanitizeEnum(result.overall, STANDARD_SEVERITY_ENUM, "Moderate"),
+    proof_type_balance: sanitizeEnum(result.proof_type_balance, STANDARD_SEVERITY_ENUM, "Moderate"),
+    mechanism_substantiation: sanitizeEnum(result.mechanism_substantiation, STANDARD_SEVERITY_ENUM, "Moderate"),
+    product_validation: sanitizeEnum(result.product_validation, STANDARD_SEVERITY_ENUM, "Moderate"),
+    operational_verifiability: sanitizeEnum(result.operational_verifiability, STANDARD_SEVERITY_ENUM, "Moderate"),
+    testimonial_quality: sanitizeEnum(result.testimonial_quality, STANDARD_SEVERITY_ENUM, "Moderate"),
+    authority_quality: sanitizeEnum(result.authority_quality, STANDARD_SEVERITY_ENUM, "Moderate"),
+    evidence_uniqueness: sanitizeEnum(result.evidence_uniqueness, STANDARD_SEVERITY_ENUM, "Moderate"),
+    proof_gap: String(result.proof_gap || ""),
+    fix_instruction: String(result.fix_instruction || "")
+  };
+}
+
+function sanitizeSkepticismShape(result) {
+  if (!result || typeof result !== "object" || Array.isArray(result)) {
+    throw new Error("Invalid skepticism engine object.");
+  }
+
+  return {
+    engine: String(result.engine || ""),
+    pass: Boolean(result.pass),
+    skepticism_pressure_score: clampInt(result.skepticism_pressure_score, 0, 100),
+    ai_pattern_risk: sanitizeEnum(result.ai_pattern_risk, STANDARD_SEVERITY_ENUM, "Moderate"),
+    commodity_positioning_risk: sanitizeEnum(result.commodity_positioning_risk, STANDARD_SEVERITY_ENUM, "Moderate"),
+    agreement_without_action_risk: sanitizeEnum(result.agreement_without_action_risk, STANDARD_SEVERITY_ENUM, "Moderate"),
+    reader_resistance_points: Array.isArray(result.reader_resistance_points)
+      ? result.reader_resistance_points.map(String).slice(0, 8)
+      : [],
+    genericity_flags: Array.isArray(result.genericity_flags)
+      ? result.genericity_flags.map(String).slice(0, 8)
+      : [],
+    false_distinctness_flags: Array.isArray(result.false_distinctness_flags)
+      ? result.false_distinctness_flags.map(String).slice(0, 8)
+      : [],
+    trust_break: String(result.trust_break || ""),
+    fix_instruction: String(result.fix_instruction || "")
+  };
+}
+
+function sanitizeClaimExposureShape(result) {
+  if (!result || typeof result !== "object" || Array.isArray(result)) {
+    throw new Error("Invalid claim exposure object.");
+  }
+
+  return {
+    engine: String(result.engine || ""),
+    pass: Boolean(result.pass),
+    overall_claim_risk: sanitizeEnum(result.overall_claim_risk, STANDARD_SEVERITY_ENUM, "Moderate"),
+    performance_claims_present: Boolean(result.performance_claims_present),
+    implied_superiority_claims_present: Boolean(result.implied_superiority_claims_present),
+    safety_claims_present: Boolean(result.safety_claims_present),
+    guarantee_language_present: Boolean(result.guarantee_language_present),
+    disclosure_visibility: sanitizeEnum(result.disclosure_visibility, ["Absent", "Weak", "Adequate", "Strong"], "Absent"),
+    substantiation_status: sanitizeEnum(
+      result.substantiation_status,
+      ["Unsupported", "Partially Supported", "Supported", "Unclear"],
+      "Unclear"
+    ),
+    primary_claim_risk: String(result.primary_claim_risk || ""),
+    fix_instruction: String(result.fix_instruction || "")
+  };
+}
+
+function sanitizeDecisionSynthesisShape(result) {
+  if (!result || typeof result !== "object" || Array.isArray(result)) {
+    throw new Error("Invalid decision synthesis object.");
+  }
+
+  return {
+    certified: Boolean(result.certified),
+    launch_verdict: sanitizeEnum(
+      result.launch_verdict,
+      ["Do Not Launch", "Safe To Test", "Safe To Scale"],
+      "Do Not Launch"
+    ),
+    verdict_confidence: sanitizeEnum(result.verdict_confidence, ["Low", "Moderate", "High"], "Low"),
+    safe_to_test: Boolean(result.safe_to_test),
+    safe_to_scale: Boolean(result.safe_to_scale),
+    primary_blocker: String(result.primary_blocker || ""),
+    highest_risk_failure_mode: String(result.highest_risk_failure_mode || ""),
+    decision_basis: sanitizeEnum(
+      result.decision_basis,
+      ["Persuasion Failure", "Proof Failure", "Skepticism Failure", "Claim Risk Failure", "Mixed"],
+      "Mixed"
+    ),
+    reason: String(result.reason || ""),
+    fix_instruction: String(result.fix_instruction || "")
+  };
+}
+
 function sanitizeSingleAuditShape(audit) {
   if (!audit || typeof audit !== "object" || Array.isArray(audit)) {
     throw new Error("Invalid single audit object.");
