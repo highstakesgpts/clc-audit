@@ -1,0 +1,3467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Certified Legendary Copy™ — DEC</title>
+  <meta
+    name="description"
+    content="Pre-traffic decision system for evaluating commercial readiness before traffic, budget, or list attention is committed."
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root{
+      --clc-dark:#4A2F17;
+      --clc-brown:#24170f;
+      --clc-brown-deep:#1a100a;
+      --clc-brown-soft:#372318;
+      --clc-gold:#b0a068;
+      --clc-gold-border:#8c7c4f;
+      --clc-gold-hover:#c2b27a;
+      --clc-paper:#f7f0e2;
+      --clc-paper-soft:#fbf7ee;
+      --clc-ink:#24160f;
+      --dec-bg:#e9e4db;
+      --dec-paper:var(--clc-paper);
+      --dec-panel:var(--clc-paper-soft);
+      --dec-panel-2:#f1ece4;
+      --dec-ink:var(--clc-ink);
+      --dec-ink-soft:#50575f;
+      --dec-ink-faint:#707985;
+      --dec-line:#c8c1b6;
+      --dec-line-strong:#9b9387;
+      --dec-dark:var(--clc-dark);
+      --dec-dark-2:#3b2413;
+      --dec-danger:#912f2f;
+      --dec-warning:#9a6a12;
+      --dec-success:#246046;
+      --dec-hold:#5f4c92;
+      --dec-chip:#ebe6dd;
+      --dec-shadow:0 10px 24px rgba(18,22,27,.08);
+      --dec-max:1440px;
+      --dec-radius:8px;
+      --dec-radius-sm:6px;
+      --dec-serif:"IBM Plex Serif", Georgia, serif;
+      --dec-sans:"IBM Plex Sans","Segoe UI",Arial,sans-serif;
+      --verdict-red:#b83232;
+      --verdict-red-border:#8a1c1c;
+      --verdict-amber:#7a5c1e;
+      --verdict-amber-border:#5a3e0e;
+      --verdict-green:#2a6b3c;
+      --verdict-green-border:#1a4a28;
+      --verdict-hold:#1e2a3a;
+      --verdict-hold-border:#0e1620;
+      --verdict-text:#f9fafb;
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box}
+    html{-webkit-text-size-adjust:100%}
+    html,body{min-height:100dvh}
+    body{
+      font-family:var(--dec-sans);
+      color:var(--dec-ink);
+      background:
+        linear-gradient(180deg, #d9d1c4 0%, #e8e0d1 180px, #ece5d9 100%);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding-left:env(safe-area-inset-left);
+      padding-right:env(safe-area-inset-right);
+      overflow-x:hidden;
+    }
+
+    .container{
+      width:min(var(--dec-max), calc(100% - 2rem));
+      margin:0 auto;
+    }
+
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+
+    .dec-body{
+      color:var(--dec-ink);
+    }
+
+    .dec-masthead{
+      background:linear-gradient(180deg, var(--clc-dark) 0%, #3b2413 100%);
+      color:#f2efe9;
+      border-bottom:2px solid rgba(176,160,104,.34);
+      box-shadow:inset 0 -1px 0 rgba(255,244,225,.04);
+    }
+
+    .dec-masthead-inner{
+      display:grid;
+      grid-template-columns:minmax(0,1.55fr) minmax(280px,.75fr);
+      gap:1.15rem;
+      padding:1rem 0 .95rem;
+      align-items:start;
+    }
+
+    .dec-kicker,
+    .dec-section-kicker,
+    .dec-mini-kicker,
+    .dec-panel-kicker,
+    .dec-panel-head .dec-panel-chip,
+    .dec-meta-label,
+    .clc-report-meta,
+    .clc-fix-note-label,
+    .clc-fix-chip-label{
+      font-size:.72rem;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+    }
+
+    .dec-kicker{
+      color:var(--clc-gold);
+      margin-bottom:.35rem;
+    }
+
+    .dec-title{
+      font-family:var(--dec-serif);
+      font-size:clamp(1.85rem, 3vw, 2.85rem);
+      line-height:.98;
+      font-weight:600;
+      letter-spacing:-.03em;
+    }
+
+    .dec-subtitle{
+      margin-top:.5rem;
+      max-width:52rem;
+      color:var(--clc-gold);
+      line-height:1.5;
+      font-size:.96rem;
+    }
+
+    .dec-masthead-right{
+      display:grid;
+      gap:.45rem;
+      padding:.85rem .95rem;
+      border:1px solid rgba(176,160,104,.24);
+      background:linear-gradient(180deg, rgba(255,248,236,.055) 0%, rgba(74,47,23,.18) 100%);
+    }
+
+    .dec-meta-row{
+      display:flex;
+      justify-content:space-between;
+      gap:1rem;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      padding-bottom:.4rem;
+    }
+
+    .dec-meta-row:last-child{
+      border-bottom:none;
+      padding-bottom:0;
+    }
+
+    .dec-meta-label{
+      color:#b7a885;
+    }
+
+    .dec-meta-value{
+      color:#f5efe3;
+      font-weight:600;
+      text-align:right;
+    }
+
+    .dec-main{
+      padding:.75rem 0 2.4rem;
+    }
+
+    .dec-intake-wrap,
+    .clc-loading,
+    .dec-results{
+      margin-top:.75rem;
+    }
+
+    .dec-intake-panel,
+    .clc-loading-card,
+    .dec-results-shell,
+    .dec-panel,
+    .dec-rail-card,
+    .dec-subpanel{
+      border:1px solid var(--dec-line);
+      background:var(--dec-paper);
+      box-shadow:0 8px 18px rgba(26,16,10,.06);
+    }
+
+    .dec-intake-panel,
+    .dec-results-shell{
+      padding:1.1rem;
+    }
+
+    .dec-section-head{
+      padding-bottom:.9rem;
+      border-bottom:1px solid var(--dec-line);
+      margin-bottom:.9rem;
+    }
+
+    .dec-section-kicker{
+      color:var(--dec-ink-faint);
+      margin-bottom:.4rem;
+    }
+
+    .dec-section-title{
+      font-family:var(--dec-serif);
+      font-size:clamp(1.55rem,2.3vw,2.2rem);
+      line-height:1.06;
+      font-weight:600;
+      letter-spacing:-.02em;
+    }
+
+    .dec-section-copy,
+    .dec-helper,
+    .dec-context-copy,
+    .dec-summary-copy,
+    .dec-chief-main p,
+    .dec-chief-note-box p,
+    .clc-helper,
+    .clc-loading-sub{
+      color:var(--dec-ink-soft);
+      line-height:1.65;
+    }
+
+    .dec-form{
+      display:grid;
+      gap:1rem;
+    }
+
+    .dec-field,
+    .clc-field{
+      display:grid;
+      gap:.45rem;
+    }
+
+    .dec-field label,
+    .clc-field label{
+      font-size:.88rem;
+      font-weight:700;
+      color:var(--dec-ink);
+    }
+
+    .dec-form-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:.9rem;
+    }
+
+    .clc-mode-switch{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:.55rem;
+    }
+
+    .clc-mode-pill,
+    .clc-button,
+    .clc-report-button,
+    .clc-upload-button{
+      font:inherit;
+      cursor:pointer;
+      transition:background-color .16s ease,color .16s ease,border-color .16s ease,transform .16s ease;
+    }
+
+    .clc-mode-pill{
+      border:1px solid var(--dec-line);
+      background:#ede7de;
+      color:var(--dec-ink-soft);
+      min-height:48px;
+      padding:.85rem .9rem;
+      font-size:.92rem;
+      font-weight:700;
+    }
+
+    .clc-mode-pill:hover,
+    .clc-button:hover,
+    .clc-report-button:hover,
+    .clc-upload-button:hover{
+      transform:translateY(-1px);
+    }
+
+    .clc-mode-pill.active{
+      background:var(--dec-dark);
+      color:#f4efe6;
+      border-color:var(--dec-dark);
+    }
+
+    .clc-select,
+    .clc-textarea{
+      width:100%;
+      border:1px solid var(--dec-line);
+      background:#fffdfa;
+      color:var(--dec-ink);
+      padding:.9rem .95rem;
+      font:inherit;
+      outline:none;
+      border-radius:0;
+    }
+
+    .clc-select:focus,
+    .clc-textarea:focus{
+      border-color:var(--dec-line-strong);
+      box-shadow:0 0 0 3px rgba(117,126,139,.12);
+    }
+
+    .clc-textarea{
+      min-height:220px;
+      resize:vertical;
+      line-height:1.68;
+    }
+
+    .clc-textarea-lg{
+      min-height:340px;
+    }
+
+    .clc-submission-well{
+      border:1px solid var(--dec-line);
+      background:#f3eee6;
+      padding:.7rem;
+    }
+
+    .clc-upload-toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      gap:.7rem;
+      padding:.75rem .85rem;
+      border:1px solid var(--dec-line);
+      background:#fbf9f5;
+      margin-bottom:.7rem;
+    }
+
+    .clc-upload-button{
+      border:1px solid var(--dec-line);
+      background:#ece6dc;
+      color:var(--dec-ink);
+      padding:.7rem .9rem;
+      border-radius:0;
+      font-size:.86rem;
+      font-weight:700;
+    }
+
+    .clc-upload-input{
+      position:absolute;
+      width:1px;
+      height:1px;
+      overflow:hidden;
+      clip:rect(0 0 0 0);
+      clip-path:inset(50%);
+      white-space:nowrap;
+    }
+
+    .clc-upload-meta{
+      color:var(--dec-ink-faint);
+      font-size:.85rem;
+      line-height:1.55;
+      max-width:38rem;
+    }
+
+    .dec-intake-footer{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) minmax(280px, 332px);
+      gap:1.2rem;
+      align-items:center;
+      padding-top:.9rem;
+      border-top:1px solid var(--dec-line);
+    }
+
+    .dec-intake-preview{
+      border:1px solid var(--dec-line);
+      background:var(--dec-panel);
+      padding:.9rem .95rem;
+      min-width:0;
+    }
+
+    .dec-preview-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:.75rem;
+      margin-top:.55rem;
+    }
+
+    .dec-preview-grid div{
+      display:grid;
+      gap:.2rem;
+      border-left:2px solid var(--dec-line);
+      padding-left:.7rem;
+    }
+
+    .dec-preview-grid span{
+      font-size:.74rem;
+      text-transform:uppercase;
+      letter-spacing:.11em;
+      color:var(--dec-ink-faint);
+      font-weight:700;
+    }
+
+    .dec-preview-grid strong{
+      font-size:.95rem;
+      font-weight:700;
+      color:var(--dec-ink);
+    }
+
+    .dec-intake-actions{
+      display:flex;
+      flex-direction:column;
+      align-items:stretch;
+      justify-content:center;
+      gap:.7rem;
+      min-width:280px;
+      width:100%;
+      padding-left:1.1rem;
+      border-left:1px solid var(--dec-line);
+    }
+
+    .clc-error{
+      display:none;
+      border:1px solid rgba(145,47,47,.25);
+      background:#fff1f1;
+      color:var(--dec-danger);
+      padding:.85rem .95rem;
+      line-height:1.55;
+      font-weight:600;
+    }
+
+    .clc-error.show{
+      display:block;
+    }
+
+    .clc-button{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:48px;
+      padding:.9rem 1rem;
+      text-decoration:none;
+      border:1px solid var(--dec-dark);
+      border-radius:2px;
+      font-weight:700;
+    }
+
+    .clc-button-primary{
+      background:var(--clc-gold);
+      color:#1a130c;
+      border-color:var(--clc-gold-border);
+      box-shadow:none;
+    }
+
+    .clc-report-button{
+      background:var(--dec-dark);
+      color:#f4efe6;
+      border-color:var(--clc-brown-soft);
+      box-shadow:none;
+    }
+
+    .clc-button-secondary{
+      background:transparent;
+      color:var(--dec-ink);
+      border-color:var(--dec-line-strong);
+    }
+
+    .clc-button-primary:hover{
+      background:var(--clc-gold-hover);
+      border-color:var(--clc-gold-border);
+      color:#1a130c;
+    }
+
+    .clc-report-button:hover{
+      background:var(--clc-brown-soft);
+      border-color:var(--clc-brown-soft);
+      color:#f4efe6;
+    }
+
+    .clc-button-primary:focus-visible{
+      outline:2px solid rgba(176,160,104,.28);
+      outline-offset:2px;
+    }
+
+    .clc-report-button:focus-visible{
+      outline:2px solid rgba(55,35,24,.22);
+      outline-offset:2px;
+    }
+
+    .dec-intake-actions .clc-button-primary{
+      min-width:280px;
+      width:100%;
+    }
+
+    .clc-button:disabled,
+    .clc-report-button:disabled,
+    .clc-upload-button:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+      transform:none;
+    }
+
+    .clc-loading{
+      display:none;
+    }
+
+    .clc-loading.show{
+      display:block;
+    }
+
+    .clc-loading-card{
+      padding:1rem 1.1rem;
+      text-align:center;
+    }
+
+    .clc-loading-label{
+      font-family:var(--dec-serif);
+      font-size:1.35rem;
+      margin-bottom:.35rem;
+    }
+
+    .dec-results{
+      display:none;
+    }
+
+    .dec-results.show{
+      display:block;
+    }
+
+    .dec-results-shell{
+      display:grid;
+      gap:.9rem;
+      background:transparent;
+      padding:0;
+      border:none;
+      box-shadow:none;
+    }
+
+    .dec-verdict-banner{
+      display:grid;
+      grid-template-columns:minmax(0,1.08fr) minmax(320px,.92fr);
+      gap:.85rem;
+      border:1px solid #1f2730;
+      border-bottom:2px solid #151b22;
+      padding:.95rem 1rem;
+      background:#1a222b;
+      color:var(--verdict-text);
+    }
+
+    .dec-verdict-main{
+      min-width:0;
+      display:grid;
+      align-content:start;
+      gap:.35rem;
+    }
+
+    .dec-verdict-label{
+      font-size:.78rem;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.16em;
+      color:rgba(249,250,251,.72);
+      margin-bottom:.2rem;
+    }
+
+    .dec-verdict-command{
+      font-family:var(--dec-serif);
+      font-size:clamp(2.05rem,4.2vw,3.15rem);
+      line-height:.9;
+      letter-spacing:-.03em;
+      font-weight:600;
+      color:var(--verdict-text);
+      text-wrap:balance;
+    }
+
+    .dec-verdict-reason{
+      margin-top:.25rem;
+      max-width:50rem;
+      color:rgba(249,250,251,.82);
+      line-height:1.48;
+      font-size:.96rem;
+    }
+
+    .dec-verdict-stats{
+      display:grid;
+      gap:.65rem;
+      align-content:start;
+    }
+
+    .dec-stat-card{
+      border:1px solid rgba(249,250,251,.16);
+      padding:.8rem .9rem;
+      background:rgba(255,255,255,.06);
+    }
+
+    .dec-stat-label,
+    .dec-chip-label{
+      display:block;
+      font-size:.72rem;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      font-weight:700;
+      margin-bottom:.2rem;
+      color:rgba(249,250,251,.66);
+      opacity:1;
+    }
+
+    .dec-stat-value,
+    .dec-chief-score-value{
+      display:flex;
+      align-items:flex-end;
+      gap:.15rem;
+      font-family:var(--dec-serif);
+      font-size:3rem;
+      line-height:.88;
+      letter-spacing:-.04em;
+    }
+
+    .dec-stat-value span:last-child,
+    .dec-chief-score-value span:last-child{
+      font-size:.42em;
+      font-family:var(--dec-sans);
+      letter-spacing:0;
+      color:inherit;
+      opacity:.7;
+      margin-bottom:.18rem;
+    }
+
+    .dec-stat-sub{
+      margin-top:.2rem;
+      font-size:.95rem;
+      font-weight:700;
+      color:var(--verdict-text);
+    }
+
+    .dec-stat-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:.6rem;
+    }
+
+    .dec-stat-chip{
+      border:1px solid rgba(249,250,251,.14);
+      padding:.72rem .78rem;
+      background:rgba(255,255,255,.05);
+      min-height:72px;
+      display:grid;
+      align-content:start;
+      gap:.15rem;
+    }
+
+    .dec-stat-chip strong{
+      display:block;
+      font-size:.98rem;
+      line-height:1.28;
+      font-weight:700;
+      color:var(--verdict-text);
+    }
+
+    .verdict-neutral{
+      color:var(--verdict-text);
+      background:#1e2731;
+      border-bottom:2px solid #121920;
+    }
+
+    .verdict-danger{
+      color:var(--verdict-text);
+      background:var(--verdict-red);
+      border-bottom:2px solid var(--verdict-red-border);
+      border-color:var(--verdict-red-border);
+    }
+
+    .verdict-warning{
+      color:var(--verdict-text);
+      background:var(--verdict-amber);
+      border-bottom:2px solid var(--verdict-amber-border);
+      border-color:var(--verdict-amber-border);
+    }
+
+    .verdict-success{
+      color:var(--verdict-text);
+      background:var(--verdict-green);
+      border-bottom:2px solid var(--verdict-green-border);
+      border-color:var(--verdict-green-border);
+    }
+
+    .verdict-hold{
+      color:var(--verdict-text);
+      background:var(--verdict-hold);
+      border-bottom:2px solid var(--verdict-hold-border);
+      border-color:var(--verdict-hold-border);
+    }
+
+    .dec-verdict-banner.verdict-danger .dec-verdict-command,
+    .dec-verdict-banner.verdict-warning .dec-verdict-command,
+    .dec-verdict-banner.verdict-success .dec-verdict-command,
+    .dec-verdict-banner.verdict-hold .dec-verdict-command,
+    .dec-verdict-banner.verdict-danger .dec-verdict-reason,
+    .dec-verdict-banner.verdict-warning .dec-verdict-reason,
+    .dec-verdict-banner.verdict-success .dec-verdict-reason,
+    .dec-verdict-banner.verdict-hold .dec-verdict-reason,
+    .dec-verdict-banner.verdict-danger .dec-stat-label,
+    .dec-verdict-banner.verdict-warning .dec-stat-label,
+    .dec-verdict-banner.verdict-success .dec-stat-label,
+    .dec-verdict-banner.verdict-hold .dec-stat-label,
+    .dec-verdict-banner.verdict-danger .dec-chip-label,
+    .dec-verdict-banner.verdict-warning .dec-chip-label,
+    .dec-verdict-banner.verdict-success .dec-chip-label,
+    .dec-verdict-banner.verdict-hold .dec-chip-label,
+    .dec-verdict-banner.verdict-danger .dec-stat-sub,
+    .dec-verdict-banner.verdict-warning .dec-stat-sub,
+    .dec-verdict-banner.verdict-success .dec-stat-sub,
+    .dec-verdict-banner.verdict-hold .dec-stat-sub,
+    .dec-verdict-banner.verdict-danger .dec-stat-chip strong,
+    .dec-verdict-banner.verdict-warning .dec-stat-chip strong,
+    .dec-verdict-banner.verdict-success .dec-stat-chip strong,
+    .dec-verdict-banner.verdict-hold .dec-stat-chip strong,
+    .dec-verdict-banner.verdict-danger .dec-stat-value,
+    .dec-verdict-banner.verdict-warning .dec-stat-value,
+    .dec-verdict-banner.verdict-success .dec-stat-value,
+    .dec-verdict-banner.verdict-hold .dec-stat-value{
+      color:var(--verdict-text);
+    }
+
+    .dec-verdict-banner.verdict-danger .dec-stat-card,
+    .dec-verdict-banner.verdict-warning .dec-stat-card,
+    .dec-verdict-banner.verdict-success .dec-stat-card,
+    .dec-verdict-banner.verdict-hold .dec-stat-card,
+    .dec-verdict-banner.verdict-danger .dec-stat-chip,
+    .dec-verdict-banner.verdict-warning .dec-stat-chip,
+    .dec-verdict-banner.verdict-success .dec-stat-chip,
+    .dec-verdict-banner.verdict-hold .dec-stat-chip{
+      border-color:rgba(249,250,251,.16);
+      background:rgba(255,255,255,.07);
+    }
+
+    .dec-decision-row,
+    .dec-report-grid,
+    .dec-context-grid,
+    .dec-chief-summary,
+    .dec-two-up{
+      display:grid;
+      gap:.9rem;
+    }
+
+    .dec-decision-row{
+      grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+      align-items:start;
+    }
+
+    .dec-report-grid{
+      grid-template-columns:minmax(0,1.18fr) minmax(300px,.62fr);
+      align-items:start;
+    }
+
+    .dec-main-column{
+      display:grid;
+      gap:1rem;
+    }
+
+    .dec-panel{
+      padding:.95rem;
+    }
+
+    .dec-panel-head{
+      display:flex;
+      justify-content:space-between;
+      gap:1rem;
+      align-items:flex-start;
+      margin-bottom:.7rem;
+      padding-bottom:.65rem;
+      border-bottom:1px solid var(--dec-line);
+    }
+
+    .dec-panel-head h3,
+    .dec-panel h3{
+      font-family:var(--dec-serif);
+      font-size:1.25rem;
+      line-height:1.08;
+      font-weight:600;
+      letter-spacing:-.02em;
+    }
+
+    .dec-panel-kicker,
+    .dec-mini-kicker{
+      color:var(--dec-ink-faint);
+      margin-bottom:.3rem;
+    }
+
+    .dec-panel-chip{
+      border:1px solid var(--dec-line);
+      padding:.4rem .55rem;
+      background:var(--dec-chip);
+      color:var(--dec-ink-soft);
+      white-space:nowrap;
+    }
+
+    .dec-summary-flags,
+    .dec-context-stack{
+      display:flex;
+      flex-wrap:wrap;
+      gap:.55rem;
+      margin-top:.9rem;
+    }
+
+    .dec-flag,
+    .dec-context-chip{
+      display:inline-flex;
+      align-items:center;
+      min-height:34px;
+      padding:.45rem .75rem;
+      border:1px solid var(--dec-line);
+      background:var(--dec-chip);
+      color:var(--dec-ink-soft);
+      font-size:.84rem;
+      font-weight:700;
+    }
+
+    .dec-financial-risk,
+    .dec-next-action-box,
+    .dec-chief-note-box{
+      margin-top:1rem;
+      border-top:1px solid var(--dec-line);
+      padding-top:.9rem;
+    }
+
+    .clc-stack{
+      display:grid;
+      gap:.75rem;
+    }
+
+    .clc-item,
+    .clc-fix-card,
+    .dec-signal-item,
+    .dec-support-card,
+    .dec-subpanel{
+      border:1px solid var(--dec-line);
+      background:var(--dec-panel);
+    }
+
+    .clc-item,
+    .clc-fix-card,
+    .dec-signal-item,
+    .dec-support-card,
+    .dec-subpanel{
+      padding:.9rem;
+    }
+
+    .clc-item h4,
+    .clc-fix-title,
+    .dec-signal-item h4{
+      font-size:1rem;
+      font-weight:700;
+      color:var(--dec-ink);
+      margin-bottom:.35rem;
+    }
+
+    .clc-item p,
+    .dec-signal-item p,
+    .clc-fix-note,
+    .clc-fix-chip{
+      color:var(--dec-ink-soft);
+      line-height:1.62;
+    }
+
+    .clc-item .impact{
+      color:var(--dec-ink-faint);
+    }
+
+    .dec-report-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:.7rem;
+      align-items:center;
+      margin-top:1rem;
+    }
+
+    .clc-report-button{
+      min-height:44px;
+      padding:.85rem 1rem;
+      border:1px solid var(--clc-brown-soft);
+      border-radius:2px;
+      font-weight:700;
+    }
+
+    .clc-report-meta{
+      color:var(--dec-ink-faint);
+    }
+
+    .dec-signal-list,
+    .dec-support-grid{
+      display:grid;
+      gap:.75rem;
+    }
+
+    .dec-signal-item{
+      display:grid;
+      gap:.45rem;
+      border-left:4px solid var(--dec-line-strong);
+    }
+
+    .dec-signal-item.signal-danger{border-left-color:var(--dec-danger)}
+    .dec-signal-item.signal-warning{border-left-color:var(--dec-warning)}
+    .dec-signal-item.signal-success{border-left-color:var(--dec-success)}
+
+    .dec-signal-meta{
+      color:var(--dec-ink-faint);
+      font-size:.84rem;
+      font-weight:700;
+    }
+
+    .dec-compliance-summary-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:.75rem;
+      margin-bottom:.9rem;
+    }
+
+    .dec-compliance-summary-card{
+      border:1px solid var(--dec-line);
+      background:var(--dec-panel);
+      padding:.85rem .9rem;
+      display:grid;
+      gap:.3rem;
+    }
+
+    .dec-compliance-summary-card span{
+      font-size:.72rem;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      color:var(--dec-ink-faint);
+      font-weight:700;
+    }
+
+    .dec-compliance-summary-card strong{
+      font-size:1rem;
+      font-weight:700;
+      color:var(--dec-ink);
+    }
+
+    .dec-table-wrap{
+      overflow:auto;
+      border:1px solid var(--dec-line);
+      background:#fffdfa;
+    }
+
+    .dec-table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:680px;
+    }
+
+    .dec-table th,
+    .dec-table td{
+      text-align:left;
+      padding:.85rem .9rem;
+      border-bottom:1px solid var(--dec-line);
+      vertical-align:top;
+      line-height:1.55;
+    }
+
+    .dec-table th{
+      background:#efebe3;
+      font-size:.78rem;
+      text-transform:uppercase;
+      letter-spacing:.11em;
+      color:var(--dec-ink-soft);
+      font-weight:700;
+    }
+
+    .dec-table tbody tr:last-child td{
+      border-bottom:none;
+    }
+
+    .dec-support-grid{
+      grid-template-columns:repeat(3,minmax(0,1fr));
+    }
+
+    .dec-support-card{
+      display:grid;
+      gap:.3rem;
+    }
+
+    .dec-support-label{
+      color:var(--dec-ink-faint);
+      font-size:.75rem;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      font-weight:700;
+    }
+
+    .dec-support-value{
+      color:var(--dec-ink);
+      font-size:1.05rem;
+      font-weight:700;
+      line-height:1.45;
+    }
+
+    .dec-chief-summary{
+      grid-template-columns:minmax(0,1fr) minmax(240px,.44fr);
+      margin-bottom:1rem;
+    }
+
+    .dec-chief-score-box{
+      border:1px solid var(--dec-line);
+      background:var(--dec-panel);
+      padding:1rem;
+      display:grid;
+      align-content:start;
+      gap:.35rem;
+    }
+
+    .dec-chief-verdict{
+      color:var(--dec-ink-soft);
+      font-size:.95rem;
+      font-weight:700;
+    }
+
+    .clc-list{
+      list-style:none;
+      display:grid;
+      gap:.7rem;
+    }
+
+    .clc-list li{
+      border:1px solid var(--dec-line);
+      background:var(--dec-panel);
+      padding:.8rem .85rem;
+      line-height:1.6;
+      color:var(--dec-ink-soft);
+    }
+
+    .dec-deep-analysis{
+      border:1px solid var(--dec-line);
+      background:var(--dec-paper);
+      padding:1rem;
+    }
+
+    .dec-deep-analysis > summary{
+      list-style:none;
+      cursor:pointer;
+      font-family:var(--dec-serif);
+      font-size:1.2rem;
+      font-weight:600;
+      color:var(--dec-ink);
+    }
+
+    .dec-deep-analysis > summary::-webkit-details-marker{
+      display:none;
+    }
+
+    .dec-deep-analysis > summary::after{
+      content:"+";
+      float:right;
+      font-family:var(--dec-sans);
+      color:var(--dec-ink-faint);
+    }
+
+    .dec-deep-analysis[open] > summary::after{
+      content:"−";
+    }
+
+    .dec-deep-analysis > *:not(summary){
+      margin-top:1rem;
+    }
+
+    .dec-rail{
+      position:relative;
+    }
+
+    .dec-rail-card{
+      position:sticky;
+      top:1rem;
+      display:grid;
+      gap:.9rem;
+      padding:1rem;
+    }
+
+    .dec-rail-section{
+      border:1px solid var(--dec-line);
+      background:var(--dec-panel);
+      padding:.85rem .9rem;
+    }
+
+    .dec-rail-kicker{
+      font-size:.72rem;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      color:var(--dec-ink-faint);
+      margin-bottom:.45rem;
+    }
+
+    .dec-rail-score{
+      display:flex;
+      align-items:flex-end;
+      gap:.18rem;
+      font-family:var(--dec-serif);
+      line-height:.9;
+    }
+
+    .dec-rail-score-number{
+      font-size:2.6rem;
+      letter-spacing:-.04em;
+    }
+
+    .dec-rail-score-label{
+      font-size:1rem;
+      color:var(--dec-ink-faint);
+      margin-bottom:.2rem;
+    }
+
+    .dec-rail-score-verdict{
+      margin-top:.35rem;
+      font-size:.92rem;
+      font-weight:700;
+      color:var(--dec-ink-soft);
+    }
+
+    .dec-rail-list{
+      display:grid;
+      gap:.55rem;
+    }
+
+    .dec-rail-row{
+      display:flex;
+      justify-content:space-between;
+      gap:.8rem;
+      padding:.45rem 0;
+      border-bottom:1px solid var(--dec-line);
+      line-height:1.45;
+    }
+
+    .dec-rail-row:last-child{
+      border-bottom:none;
+      padding-bottom:0;
+    }
+
+    .dec-rail-row span{
+      color:var(--dec-ink-soft);
+      font-size:.9rem;
+    }
+
+    .dec-rail-row strong{
+      color:var(--dec-ink);
+      font-size:.9rem;
+      font-weight:700;
+      text-align:right;
+    }
+
+    .dec-dimension-row strong{
+      min-width:3.25rem;
+    }
+
+    .status-aligned{
+      color:var(--dec-success);
+      border-color:rgba(36,96,70,.28);
+      background:rgba(36,96,70,.08);
+    }
+
+    .status-misaligned{
+      color:var(--dec-warning);
+      border-color:rgba(154,106,18,.28);
+      background:rgba(154,106,18,.08);
+    }
+
+    .status-unknown{
+      color:var(--dec-ink-soft);
+    }
+
+    .clc-cta-wrap{
+      display:grid;
+    }
+
+    .clc-cta-card{
+      border:1px solid var(--dec-line);
+      background:var(--dec-paper);
+      padding:1rem;
+    }
+
+    .clc-cta-card h3{
+      font-family:var(--dec-serif);
+      font-size:1.45rem;
+      margin-bottom:.45rem;
+    }
+
+    .clc-cta-card > p,
+    .clc-cta-note,
+    .clc-cta-option p{
+      color:var(--dec-ink-soft);
+      line-height:1.6;
+    }
+
+    .clc-cta-options{
+      margin-top:1rem;
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:.8rem;
+    }
+
+    .clc-cta-option{
+      border:1px solid var(--dec-line);
+      background:var(--dec-panel);
+      padding:.9rem;
+    }
+
+    .clc-cta-option h4{
+      font-size:1rem;
+      margin-bottom:.3rem;
+    }
+
+    .dec-footer{
+      padding:1.4rem 0 1.8rem;
+      text-align:center;
+      color:var(--dec-ink-faint);
+      font-size:.92rem;
+    }
+
+    .dec-footer strong{
+      color:var(--dec-ink);
+      display:block;
+      margin-bottom:.3rem;
+      text-transform:uppercase;
+      letter-spacing:.1em;
+      font-size:.78rem;
+    }
+
+    @media (max-width: 1160px){
+      .dec-report-grid{
+        grid-template-columns:1fr;
+      }
+
+      .dec-rail-card{
+        position:static;
+      }
+    }
+
+    @media (max-width: 980px){
+      .dec-masthead-inner,
+      .dec-verdict-banner,
+      .dec-decision-row,
+      .dec-chief-summary,
+      .dec-two-up,
+      .dec-context-grid{
+        grid-template-columns:1fr;
+      }
+
+      .dec-compliance-summary-grid,
+      .dec-support-grid{
+        grid-template-columns:1fr;
+      }
+
+      .dec-verdict-stats{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width: 760px){
+      .container{
+        width:min(var(--dec-max), calc(100% - 1rem));
+      }
+
+      .dec-intake-panel,
+      .dec-results-shell,
+      .dec-panel,
+      .dec-rail-card,
+      .clc-loading-card,
+      .dec-deep-analysis{
+        padding:.9rem;
+      }
+
+      .dec-form-grid,
+      .clc-mode-switch,
+      .dec-preview-grid,
+      .clc-cta-options,
+      .dec-stat-grid{
+        grid-template-columns:1fr;
+      }
+
+      .dec-masthead-inner{
+        gap:.9rem;
+        padding:.9rem 0;
+      }
+
+      .dec-verdict-banner{
+        padding:.85rem;
+        gap:.75rem;
+      }
+
+      .dec-verdict-command{
+        font-size:clamp(1.75rem, 9vw, 2.35rem);
+      }
+
+      .dec-verdict-reason{
+        font-size:.92rem;
+      }
+
+      .dec-intake-footer{
+        grid-template-columns:1fr;
+      }
+
+      .dec-intake-actions{
+        width:100%;
+        min-width:0;
+        padding-left:0;
+        border-left:none;
+      }
+
+      .dec-report-actions{
+        flex-direction:column;
+        align-items:stretch;
+      }
+
+      .clc-button,
+      .clc-report-button,
+      .clc-upload-button{
+        width:100%;
+      }
+    }
+
+    @media (max-width: 1120px){
+      .dec-intake-footer{
+        grid-template-columns:1fr;
+      }
+
+      .dec-intake-actions{
+        min-width:0;
+        padding-left:0;
+        border-left:none;
+      }
+    }
+  </style>
+</head>
+
+<body class="dec-body">
+  <header class="dec-masthead">
+    <div class="container dec-masthead-inner">
+      <div class="dec-masthead-left">
+        <div class="dec-kicker">Certified Legendary Copy™</div>
+        <h1 class="dec-title">Pre-Traffic Decision Report</h1>
+        <p class="dec-subtitle">
+          Launch decision system for evaluating commercial readiness before traffic, budget, or list attention is committed.
+        </p>
+      </div>
+
+      <div class="dec-masthead-right">
+        <div class="dec-meta-row">
+          <span class="dec-meta-label">Asset</span>
+          <span id="assetTypeMeta" class="dec-meta-value">Pending</span>
+        </div>
+        <div class="dec-meta-row">
+          <span class="dec-meta-label">Mode</span>
+          <span id="auditModeMeta" class="dec-meta-value">Single Asset Audit</span>
+        </div>
+        <div class="dec-meta-row">
+          <span class="dec-meta-label">Date</span>
+          <span id="auditDateMeta" class="dec-meta-value">Pending</span>
+        </div>
+        <div class="dec-meta-row">
+          <span class="dec-meta-label">Report ID</span>
+          <span id="reportIdMeta" class="dec-meta-value">DEC-PENDING</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="dec-main">
+    <div class="container">
+      <section class="dec-intake-wrap">
+        <div class="dec-intake-panel">
+          <div class="dec-section-head">
+            <div>
+              <div class="dec-section-kicker">Submission Console</div>
+              <h2 class="dec-section-title">Submit the asset. Get the decision before spend.</h2>
+              <p class="dec-section-copy">
+                Default output is the launch verdict. Expert craft analysis remains available below as the Copy Chief layer.
+              </p>
+            </div>
+          </div>
+
+          <form id="auditForm" class="dec-form">
+            <div class="sr-only" aria-hidden="true">
+              <label for="auditMode">Review Type</label>
+              <select id="auditMode" class="clc-select">
+                <option value="single">Single Asset Audit</option>
+                <option value="campaign">Campaign Fit Audit</option>
+              </select>
+            </div>
+
+            <div class="dec-field">
+              <label>Review Type</label>
+              <div class="clc-mode-switch" role="tablist" aria-label="Audit mode selector">
+                <button type="button" class="clc-mode-pill active" data-mode="single">Single Asset Audit</button>
+                <button type="button" class="clc-mode-pill" data-mode="campaign">Campaign Fit Audit</button>
+              </div>
+              <span id="helperText" class="dec-helper">Best for emails, ads, landing pages, sales assets, and campaign flow checks.</span>
+            </div>
+
+            <div id="singleAuditInputs">
+              <div class="dec-form-grid">
+                <div class="dec-field">
+                  <label for="copyType">Copy type</label>
+                  <select id="copyType" class="clc-select">
+                    <option value="">Select one</option>
+                    <option value="Email">Email</option>
+                    <option value="Landing Page">Landing Page</option>
+                    <option value="Sales Page">Sales Page</option>
+                    <option value="Ad">Ad</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div class="dec-field">
+                  <label for="goal">Primary goal</label>
+                  <select id="goal" class="clc-select">
+                    <option value="">Select one</option>
+                    <option value="Get clicks">Get clicks</option>
+                    <option value="Drive sales">Drive sales</option>
+                    <option value="Book calls">Book calls</option>
+                    <option value="Get replies">Get replies</option>
+                    <option value="Generate leads">Generate leads</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="dec-field">
+                <label for="copyText">Primary submission surface</label>
+                <div class="clc-submission-well">
+                  <textarea
+                    id="copyText"
+                    class="clc-textarea clc-textarea-lg"
+                    placeholder="Paste your email, ad, landing page, sales page, or campaign copy here for structured readiness review..."
+                  ></textarea>
+                </div>
+                <span class="dec-helper">
+                  The system evaluates launch readiness, persuasion risk, structural gaps, and decision blockers before issuing a verdict.
+                </span>
+              </div>
+            </div>
+
+            <div id="campaignInputs" style="display:none;">
+              <div class="dec-field">
+                <label for="goalCampaign">Campaign Context</label>
+                <select id="goalCampaign" class="clc-select">
+                  <option value="">Select one</option>
+                  <option value="Get clicks">Get clicks</option>
+                  <option value="Drive sales">Drive sales</option>
+                  <option value="Book calls">Book calls</option>
+                  <option value="Get replies">Get replies</option>
+                  <option value="Generate leads">Generate leads</option>
+                </select>
+              </div>
+
+              <div class="dec-field">
+                <label for="campaignAd">Ad / Top of Funnel (optional)</label>
+                <div class="clc-submission-well">
+                  <textarea id="campaignAd" class="clc-textarea" placeholder="Paste ad or traffic source copy..."></textarea>
+                </div>
+              </div>
+
+              <div class="dec-field">
+                <label for="campaignLanding">Landing Page / Main Page (required)</label>
+                <div class="clc-submission-well">
+                  <textarea id="campaignLanding" class="clc-textarea" placeholder="Paste landing page or main page copy..."></textarea>
+                </div>
+              </div>
+
+              <div class="dec-field">
+                <label for="campaignEmail">Email / Follow-up (optional)</label>
+                <div class="clc-submission-well">
+                  <textarea id="campaignEmail" class="clc-textarea" placeholder="Paste follow-up email copy..."></textarea>
+                </div>
+              </div>
+
+              <div class="dec-field">
+                <label for="campaignSalesPage">Sales Page / Offer Page (optional)</label>
+                <div class="clc-submission-well">
+                  <textarea id="campaignSalesPage" class="clc-textarea" placeholder="Paste sales page or offer page copy..."></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="dec-intake-footer">
+              <div class="dec-intake-preview">
+                <div class="dec-mini-kicker">Submission preview</div>
+                <div class="dec-preview-grid">
+                  <div><span>Mode</span><strong id="intakeModePreview">Single Asset Review</strong></div>
+                  <div><span>Goal</span><strong id="intakeGoalPreview">Not selected</strong></div>
+                  <div><span>Type</span><strong id="intakeTypePreview">Not selected</strong></div>
+                </div>
+              </div>
+
+              <div class="dec-intake-actions">
+                <div id="formError" class="clc-error" role="alert"></div>
+                <button id="submitButton" type="submit" class="clc-button clc-button-primary">Run Decision Review</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section id="loadingSection" class="clc-loading">
+        <div class="clc-loading-card">
+          <p class="clc-loading-label">Running decision review...</p>
+          <p id="loadingSub" class="clc-loading-sub">
+            Evaluating launch readiness, structural blockers, and compliance signals.
+          </p>
+        </div>
+      </section>
+
+      <section id="resultsSection" class="dec-results">
+        <div class="dec-results-shell">
+          <section class="dec-verdict-banner verdict-neutral" id="verdictBanner">
+            <div class="dec-verdict-main">
+              <div class="dec-verdict-label">Launch Decision</div>
+              <div id="verdictCommand" class="dec-verdict-command">Awaiting audit</div>
+              <p id="verdictReasonLine" class="dec-verdict-reason">
+                Run the audit to see whether this asset is ready to launch, what blocks performance first, and what must be fixed before spend.
+              </p>
+              <div id="decisionLabel" class="sr-only">Awaiting decision</div>
+              <div id="decisionSub" class="sr-only">Run the audit to see whether this asset is ready to launch.</div>
+            </div>
+
+            <div class="dec-verdict-stats">
+              <div id="scoreCard" class="dec-stat-card">
+                <span class="dec-stat-label">Score</span>
+                <div class="dec-stat-value"><span id="scoreValue">0</span><span>/100</span></div>
+                <div id="scoreVerdict" class="dec-stat-sub">Awaiting audit</div>
+              </div>
+
+              <div class="dec-stat-grid">
+                <div class="dec-stat-chip">
+                  <span class="dec-chip-label">Readiness</span>
+                  <strong id="launchReadinessText">Pending</strong>
+                </div>
+                <div class="dec-stat-chip">
+                  <span class="dec-chip-label">Compliance Risk</span>
+                  <strong id="complianceRiskFlag">Pending</strong>
+                </div>
+                <div class="dec-stat-chip">
+                  <span class="dec-chip-label">Blocking Signals</span>
+                  <strong id="blockingSignalsCount">0</strong>
+                </div>
+                <div class="dec-stat-chip">
+                  <span class="dec-chip-label">Confidence</span>
+                  <strong id="decisionConfidenceFlag">Confidence: Medium</strong>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="dec-decision-row">
+            <div class="dec-decision-summary dec-panel">
+              <div class="dec-panel-head">
+                <div>
+                  <div class="dec-panel-kicker">Decision Summary</div>
+                  <h3>Why this verdict was issued</h3>
+                </div>
+              </div>
+              <p id="summaryText" class="dec-summary-copy"></p>
+
+              <div class="dec-summary-flags">
+                <span id="decisionRiskFlag" class="dec-flag">Risk: —</span>
+              </div>
+
+              <div class="dec-financial-risk">
+                <div class="dec-mini-kicker">Risk if ignored</div>
+                <p id="financialRiskText">Commercial risk framing will appear here after the audit completes.</p>
+              </div>
+            </div>
+
+            <div class="dec-primary-action dec-panel">
+              <div class="dec-panel-head">
+                <div>
+                  <div class="dec-panel-kicker">Primary Blocker</div>
+                  <h3>What must change before launch</h3>
+                </div>
+              </div>
+
+              <div id="bottleneckBlock" class="clc-stack"></div>
+
+              <div class="dec-next-action-box">
+                <div class="dec-mini-kicker">Required next action</div>
+                <div id="nextActionBlock" class="clc-item"></div>
+              </div>
+
+              <div class="dec-report-actions">
+                <button id="printReportButton" type="button" class="clc-report-button">Print / Save PDF Report</button>
+                <span id="reportMeta" class="clc-report-meta">Generate a decision record after a completed run.</span>
+              </div>
+            </div>
+          </section>
+
+          <div class="dec-report-grid">
+            <div class="dec-main-column">
+              <section class="dec-panel">
+                <div class="dec-panel-head">
+                  <div>
+                    <div class="dec-panel-kicker">Blocking Signals</div>
+                    <h3>What prevents confident launch right now</h3>
+                  </div>
+                </div>
+                <div id="blockingSignalsList" class="dec-signal-list"></div>
+              </section>
+
+              <section class="dec-panel">
+                <div class="dec-panel-head">
+                  <div>
+                    <div class="dec-panel-kicker">Watch Signals</div>
+                    <h3>What weakens performance even if launch proceeds</h3>
+                  </div>
+                </div>
+                <div id="watchSignalsList" class="dec-signal-list"></div>
+              </section>
+
+              <section class="dec-panel">
+                <div class="dec-panel-head">
+                  <div>
+                    <div class="dec-panel-kicker">Compliance Signals</div>
+                    <h3>Risk signals that matter before paid traffic</h3>
+                  </div>
+                  <div class="dec-panel-chip">Signals, not legal rulings</div>
+                </div>
+
+                <div id="complianceSummaryGrid" class="dec-compliance-summary-grid"></div>
+
+                <div class="dec-table-wrap">
+                  <table class="dec-table">
+                    <thead>
+                      <tr>
+                        <th>Signal</th>
+                        <th>Severity</th>
+                        <th>Finding</th>
+                        <th>Required action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="complianceFlagsTableBody">
+                      <tr>
+                        <td colspan="4">Compliance signal rows will appear here after the audit completes.</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section class="dec-panel">
+                <div class="dec-panel-head">
+                  <div>
+                    <div class="dec-panel-kicker">Big Idea</div>
+                    <h3>Core strategic promise and distinctness</h3>
+                  </div>
+                </div>
+                <div id="bigIdeaBlock" class="clc-stack"></div>
+              </section>
+
+              <section class="dec-context-grid">
+                <div class="dec-panel">
+                  <div class="dec-panel-kicker">Asset Role Awareness</div>
+                  <div class="dec-context-stack">
+                    <span id="assetRoleBadge" class="dec-context-chip">Asset role: Unknown</span>
+                    <span id="roleFamilyBadge" class="dec-context-chip">Dashboard family: Launch Decision + Copy Chief</span>
+                  </div>
+                  <p id="assetRoleHint" class="dec-context-copy">
+                    Role awareness will appear here when the audit identifies the asset’s actual job in the funnel.
+                  </p>
+                </div>
+
+                <div class="dec-panel">
+                  <div class="dec-panel-kicker">Goal Alignment</div>
+                  <div class="dec-context-stack">
+                    <span id="goalAlignmentBadge" class="dec-context-chip status-unknown">Goal alignment: Pending</span>
+                  </div>
+                  <p id="goalAlignmentText" class="dec-context-copy">
+                    Goal alignment commentary will appear here when available.
+                  </p>
+                </div>
+              </section>
+
+              <section class="dec-panel">
+                <div class="dec-panel-head">
+                  <div>
+                    <div class="dec-panel-kicker">Priority Action Plan</div>
+                    <h3>Fix these in order before more spend is committed</h3>
+                  </div>
+                </div>
+
+                <div class="dec-table-wrap">
+                  <table class="dec-table">
+                    <thead>
+                      <tr>
+                        <th>Priority</th>
+                        <th>Action Required</th>
+                        <th>Category</th>
+                        <th>Why It Matters</th>
+                        <th>Impact</th>
+                      </tr>
+                    </thead>
+                    <tbody id="priorityActionTableBody">
+                      <tr>
+                        <td colspan="5">Priority actions will appear here after the audit completes.</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div id="priorityFixList" class="clc-stack" style="display:none;"></div>
+              </section>
+
+              <section class="dec-panel">
+                <div class="dec-panel-head">
+                  <div>
+                    <div class="dec-panel-kicker">Decision Support</div>
+                    <h3>Fast operator read before deeper craft analysis</h3>
+                  </div>
+                </div>
+
+                <div class="dec-support-grid">
+                  <div class="dec-support-card">
+                    <div class="dec-support-label">Message distinctness</div>
+                    <div id="supportDistinctness" class="dec-support-value">—</div>
+                  </div>
+                  <div class="dec-support-card">
+                    <div class="dec-support-label">Proof sufficiency</div>
+                    <div id="supportProof" class="dec-support-value">—</div>
+                  </div>
+                  <div id="supportActionCard" class="dec-support-card">
+                    <div class="dec-support-label">Action pressure</div>
+                    <div id="supportAction" class="dec-support-value">—</div>
+                  </div>
+                </div>
+
+                <div id="goalMismatchCard" style="display:none; margin-top:1rem;">
+                  <div id="goalMismatchText" class="clc-item"></div>
+                </div>
+
+                <div id="certificationCard" style="display:none; margin-top:1rem;">
+                  <ul id="certificationList" class="clc-list"></ul>
+                </div>
+              </section>
+
+              <section class="dec-panel">
+                <div class="dec-panel-head">
+                  <div>
+                    <div class="dec-panel-kicker">Copy Chief Dashboard</div>
+                    <h3>Expert persuasion read for the asset’s actual job</h3>
+                  </div>
+                </div>
+
+                <div class="dec-chief-summary">
+                  <div class="dec-chief-main">
+                    <div class="dec-mini-kicker">Chief summary</div>
+                    <p id="chiefSummaryText">The expert craft read will appear here after the audit completes.</p>
+
+                    <div class="dec-chief-note-box">
+                      <div class="dec-mini-kicker">Chief note</div>
+                      <p id="chiefNoteText">Judge the asset against its actual role and persuasion job, not against a different format.</p>
+                    </div>
+                  </div>
+
+                  <div class="dec-chief-score-box">
+                    <div class="dec-mini-kicker">Copy Chief score</div>
+                    <div class="dec-chief-score-value"><span id="copyChiefScoreValue">0</span><span>/100</span></div>
+                    <div id="chiefVerdictText" class="dec-chief-verdict">Awaiting audit</div>
+                  </div>
+                </div>
+
+                <div class="dec-two-up">
+                  <div class="dec-subpanel">
+                    <div class="dec-mini-kicker">Craft strengths</div>
+                    <ul id="craftStrengthsList" class="clc-list"></ul>
+                  </div>
+                  <div class="dec-subpanel">
+                    <div class="dec-mini-kicker">Craft weaknesses</div>
+                    <ul id="craftWeaknessesList" class="clc-list"></ul>
+                  </div>
+                </div>
+              </section>
+
+              <details class="dec-deep-analysis">
+                <summary>Open deeper reasoning</summary>
+
+                <div class="dec-two-up">
+                  <div class="dec-panel">
+                    <h3>Authority vs Proof</h3>
+                    <div id="authorityProofBlock" class="clc-stack"></div>
+                  </div>
+                  <div class="dec-panel">
+                    <h3>Persuasion Profile</h3>
+                    <div id="persuasionProfileBlock" class="clc-stack"></div>
+                  </div>
+                </div>
+
+                <div class="dec-two-up">
+                  <div class="dec-panel">
+                    <h3>What’s Working</h3>
+                    <div id="workingList" class="clc-stack"></div>
+                  </div>
+                  <div class="dec-panel">
+                    <h3>What Needs Improvement</h3>
+                    <div id="improvementList" class="clc-stack"></div>
+                  </div>
+                </div>
+
+                <div class="dec-two-up">
+                  <div class="dec-panel">
+                    <h3>Improvement Direction</h3>
+                    <ul id="improvementDirectionList" class="clc-list"></ul>
+                  </div>
+                  <div class="dec-panel">
+                    <h3>Conversion Risks</h3>
+                    <div id="conversionRisksList" class="clc-stack"></div>
+                  </div>
+                </div>
+
+                <div class="dec-panel">
+                  <div class="dec-mini-kicker">Closing note</div>
+                  <p id="authorityCloseText" class="dec-context-copy">
+                    This copy is functional, but it is not yet operating at a Certified Legendary level.
+                  </p>
+                </div>
+              </details>
+
+              <section id="ctaSection" class="clc-cta-wrap" style="display:none;">
+                <div id="ctaContent"></div>
+              </section>
+            </div>
+
+            <aside class="dec-rail">
+              <div class="dec-rail-card">
+                <div class="dec-rail-section">
+                  <div class="dec-rail-kicker">Composite Score</div>
+                  <div class="dec-rail-score">
+                    <div class="dec-rail-score-number" id="railScoreValue">0</div>
+                    <div class="dec-rail-score-label">/100</div>
+                  </div>
+                  <div id="railScoreVerdict" class="dec-rail-score-verdict">Awaiting audit</div>
+                </div>
+
+                <div class="dec-rail-section">
+                  <div class="dec-rail-kicker">Dimension Scores</div>
+                  <div id="dimensionScoresRail" class="dec-rail-list"></div>
+                </div>
+
+                <div class="dec-rail-section">
+                  <div class="dec-rail-kicker">Asset Profile</div>
+                  <div class="dec-rail-list">
+                    <div class="dec-rail-row"><span>Word count</span><strong id="railWordCount">—</strong></div>
+                    <div class="dec-rail-row"><span>Reading level</span><strong id="railReadingLevel">—</strong></div>
+                    <div class="dec-rail-row"><span>CTA count</span><strong id="railCtaCount">—</strong></div>
+                  </div>
+                </div>
+
+                <div class="dec-rail-section">
+                  <div class="dec-rail-kicker">Commercial Structure</div>
+                  <div class="dec-rail-list">
+                    <div class="dec-rail-row"><span>Mechanism revealed</span><strong id="railMechanismStatus">—</strong></div>
+                    <div class="dec-rail-row"><span>Price anchored</span><strong id="railPriceAnchoring">—</strong></div>
+                    <div class="dec-rail-row"><span>Guarantee</span><strong id="railGuarantee">—</strong></div>
+                    <div class="dec-rail-row"><span>Proof density</span><strong id="railProofDensity">—</strong></div>
+                  </div>
+                </div>
+
+                <div class="dec-rail-section">
+                  <div class="dec-rail-kicker">Claim / Proof Exposure</div>
+                  <div class="dec-rail-list">
+                    <div class="dec-rail-row"><span>Income claims</span><strong id="railIncomeClaims">—</strong></div>
+                    <div class="dec-rail-row"><span>Testimonials</span><strong id="railTestimonials">—</strong></div>
+                    <div class="dec-rail-row"><span>Disclosure</span><strong id="railDisclosureVisibility">—</strong></div>
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="dec-footer">
+    <div class="container">
+      <strong>Certified Legendary Copy™</strong>
+      <div>Decision-first diagnostics for clearer launch gates and stronger commercial readiness before spend.</div>
+    </div>
+  </footer>
+
+  <script>
+    window.CLC_AUDIT_ENDPOINT = window.CLC_AUDIT_ENDPOINT || "";
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.js"></script>
+  <script>
+    const auditForm = document.getElementById("auditForm");
+    const auditMode = document.getElementById("auditMode");
+    const helperText = document.getElementById("helperText");
+    const loadingSub = document.getElementById("loadingSub");
+
+    function resolveAuditEndpoint() {
+      const configured = String(window.CLC_AUDIT_ENDPOINT || "").trim();
+      if (configured) return configured;
+
+      if (window.location.protocol === "http:" || window.location.protocol === "https:") {
+        return `${window.location.origin}/.netlify/functions/audit`;
+      }
+
+      throw new Error("This HTML file is running locally, so the audit API path cannot be resolved automatically. Set window.CLC_AUDIT_ENDPOINT to your deployed Netlify function URL, or open this page from your deployed site.");
+    }
+
+    async function parseJsonSafely(response) {
+      const rawText = await response.text();
+      if (!rawText || !rawText.trim()) return {};
+
+      try {
+        return JSON.parse(rawText);
+      } catch (error) {
+        console.error("Non-JSON response from audit endpoint:", rawText);
+        throw new Error(
+          response.ok
+            ? "Server returned an invalid response. Please try again."
+            : "Audit endpoint returned an invalid error response."
+        );
+      }
+    }
+
+    function getReadableError(error, fallback) {
+      if (!error) return fallback;
+      const message = typeof error === "string" ? error : (error.message || fallback);
+      return String(message).trim() || fallback;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function toTitleCase(value) {
+      return String(value || "")
+        .toLowerCase()
+        .split(/[_\s-]+/)
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ");
+    }
+
+    function sentenceCase(value) {
+      const text = String(value || "").trim();
+      if (!text) return "";
+      return text.charAt(0).toUpperCase() + text.slice(1);
+    }
+
+    function normalizeArray(items) {
+      return Array.isArray(items) ? items.filter(Boolean) : [];
+    }
+
+    function getAssetRoleHint(role) {
+      const normalized = String(role || "").toUpperCase();
+      if (normalized === "CONVERSION") return "This asset is being judged as direct response copy responsible for producing action, not just informing.";
+      if (normalized === "AUTHORITY") return "This asset is being judged as authority-building copy that earns trust and permission rather than forcing immediate conversion.";
+      if (normalized === "NURTURE") return "This asset is being judged as nurture copy that advances belief, relationship, and readiness over immediate response pressure.";
+      if (normalized === "BRIDGE") return "This asset is being judged as bridge copy whose job is to move the reader toward the next commercial step without overreaching.";
+      return "Role awareness will appear here when the audit identifies the asset’s actual job in the funnel.";
+    }
+
+    function getDecisionVerdict(score) {
+      if (score < 65) {
+        return {
+          label: "NO-GO",
+          sub: "Do not launch this as-is. The current version is likely to waste spend or suppress performance until the primary blockers are fixed.",
+          risk: "High",
+          confidence: "Medium",
+          nextStep: "Fix the root bottleneck, rebuild the decision path, then re-test before launch."
+        };
+      }
+      if (score < 75) {
+        return {
+          label: "CONDITIONAL GO",
+          sub: "There is enough working here to continue, but important issues should be resolved before meaningful spend or traffic is sent through this asset.",
+          risk: "Moderate",
+          confidence: "Medium",
+          nextStep: "Launch only in a controlled setting after the top fixes are addressed."
+        };
+      }
+      return {
+        label: "GO",
+        sub: "This is structurally sound enough for controlled launch or testing. Focus on optimization rather than rescue work.",
+        risk: "Managed",
+        confidence: "Medium",
+        nextStep: "Launch in a controlled setting and optimize from live response data."
+      };
+    }
+
+    function getScoreState(score) {
+      if (score < 65) return { verdict: "Performance risk is elevated", tone: "verdict-danger" };
+      if (score < 75) return { verdict: "Launch requires conditions", tone: "verdict-warning" };
+      return { verdict: "In controlled launch range", tone: "verdict-success" };
+    }
+
+    function formatDimensionLabel(key) {
+      const label = toTitleCase(key || "");
+      return label === "Cta" ? "CTA" : label || "Dimension";
+    }
+
+    function normalizeScore70To100(value) {
+      const numeric = Number(value) || 0;
+      return Math.max(0, Math.min(100, Math.round((numeric / 70) * 100)));
+    }
+
+    function describeTenPointScore(score) {
+      const numeric = Number(score) || 0;
+      if (numeric >= 9) return "Excellent";
+      if (numeric >= 7) return "Strong";
+      if (numeric >= 5) return "Developing";
+      return "Weak";
+    }
+
+    function describeHundredPointScore(score) {
+      if (score >= 83) return "Strong";
+      if (score >= 70) return "Workable";
+      return "Weak";
+    }
+
+    function summarizeForHero(textValue) {
+      const text = String(textValue || "").replace(/\s+/g, " ").trim();
+      if (!text) return "";
+      const sentences = text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [text];
+      const shortText = sentences.slice(0, 2).join(" ").trim();
+      return shortText.length > 280 ? `${shortText.slice(0, 277).trim()}…` : shortText;
+    }
+
+    async function extractTextFromPdf(file) {
+      if (!window.pdfjsLib) throw new Error("PDF extractor failed to load.");
+      if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.js";
+      }
+
+      const buffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+      const pages = [];
+
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum += 1) {
+        const page = await pdf.getPage(pageNum);
+        const content = await page.getTextContent();
+        const lines = content.items.map((item) => item.str || "").join(" ");
+        pages.push(lines.replace(/\s+/g, " ").trim());
+      }
+
+      return pages.filter(Boolean).join("\n\n");
+    }
+
+    function setupPdfExtractors() {
+      document.querySelectorAll(".clc-submission-well textarea").forEach((textarea) => {
+        if (textarea.dataset.extractorReady === "true") return;
+        textarea.dataset.extractorReady = "true";
+
+        const toolbar = document.createElement("div");
+        toolbar.className = "clc-upload-toolbar";
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "clc-upload-button";
+        button.textContent = "Import PDF";
+
+        const meta = document.createElement("div");
+        meta.className = "clc-upload-meta";
+        meta.innerHTML = "<strong>Integrated intake:</strong> upload a PDF and the system will extract selectable text directly into this submission surface.";
+
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = ".pdf,application/pdf";
+        input.className = "clc-upload-input";
+
+        button.addEventListener("click", () => input.click());
+
+        input.addEventListener("change", async () => {
+          const [file] = input.files || [];
+          if (!file) return;
+
+          const previousLabel = button.textContent;
+          button.disabled = true;
+          button.textContent = "Extracting PDF...";
+
+          try {
+            const extracted = await extractTextFromPdf(file);
+            if (!extracted || extracted.length < 20) {
+              throw new Error("This PDF did not contain enough selectable text to extract.");
+            }
+
+            textarea.value = extracted;
+            textarea.dispatchEvent(new Event("input", { bubbles: true }));
+            textarea.dispatchEvent(new Event("change", { bubbles: true }));
+            meta.innerHTML = `<strong>Loaded:</strong> ${escapeHtml(file.name)} • ${extracted.length.toLocaleString()} characters extracted.`;
+          } catch (error) {
+            meta.innerHTML = `<strong>PDF extraction failed:</strong> ${escapeHtml(error.message || "Please paste the copy manually.")}`;
+          } finally {
+            button.disabled = false;
+            button.textContent = previousLabel;
+            input.value = "";
+          }
+        });
+
+        toolbar.appendChild(button);
+        toolbar.appendChild(meta);
+        textarea.parentNode.insertBefore(toolbar, textarea);
+        textarea.parentNode.appendChild(input);
+      });
+    }
+
+    function buildPrintableReport(dashboard) {
+      const score = dashboard?.hero?.score ?? 0;
+      const fixes = normalizeArray(dashboard?.topFixes);
+      const risks = normalizeArray(dashboard?.evidence?.risks);
+      const craftStrengths = normalizeArray(dashboard?.copyChief?.craftStrengths);
+      const craftWeaknesses = normalizeArray(dashboard?.copyChief?.craftWeaknesses);
+      const generatedAt = new Date().toLocaleString();
+
+      return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Certified Legendary Copy™ — Decision Report</title>
+<style>
+  body{font-family:Arial,Helvetica,sans-serif;color:#11161b;margin:28px;background:#fffdfa;}
+  h1,h2,h3{margin:0 0 10px;}
+  .hero,.card,.fix{border:1px solid #c8c1b6;background:#f7f4ee;}
+  .hero{padding:22px;margin-bottom:18px;}
+  .card{padding:16px;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;}
+  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#707985;margin-bottom:8px;}
+  .score{font-size:40px;font-weight:800;}
+  .fix{margin-top:14px;padding:14px;}
+  ul{margin:10px 0 0 18px;padding:0;}
+  li{margin:0 0 8px;}
+  @media print { body{margin:16px;} .hero,.card,.fix{break-inside:avoid;} }
+</style>
+</head>
+<body>
+  <div class="hero">
+    <div class="eyebrow">Certified Legendary Copy™ — Decision Record</div>
+    <h1>${escapeHtml(dashboard?.hero?.decision?.label || "Decision")}</h1>
+    <p>${escapeHtml(dashboard?.hero?.decision?.sub || "")}</p>
+    <div class="grid">
+      <div class="card">
+        <div class="eyebrow">Composite score</div>
+        <div class="score">${escapeHtml(String(score))}/100</div>
+        <p><strong>Risk:</strong> ${escapeHtml(dashboard?.hero?.decision?.risk || "—")}<br><strong>Confidence:</strong> ${escapeHtml(dashboard?.hero?.decision?.confidence || "—")}</p>
+      </div>
+      <div class="card">
+        <div class="eyebrow">Primary blocker</div>
+        <h3>${escapeHtml(dashboard?.primaryBottleneck?.title || "Not returned")}</h3>
+        <p>${escapeHtml(dashboard?.primaryBottleneck?.body || "")}</p>
+      </div>
+    </div>
+    <p style="margin-top:14px;"><strong>Generated:</strong> ${escapeHtml(generatedAt)}</p>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="eyebrow">Decision summary</div>
+      <p>${escapeHtml(dashboard?.hero?.summary || "")}</p>
+    </div>
+    <div class="card">
+      <div class="eyebrow">Required next action</div>
+      <p>${escapeHtml(dashboard?.hero?.decision?.nextStep || "—")}</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <div class="eyebrow">Priority action plan</div>
+    ${fixes.length ? fixes.map((fix, index) => `
+      <div class="fix">
+        <h3>${index + 1}. ${escapeHtml(fix.title || `Fix ${index + 1}`)}</h3>
+        <p><strong>Problem:</strong> ${escapeHtml(fix.problem || "—")}</p>
+        <p><strong>Required action:</strong> ${escapeHtml(fix.action || "—")}</p>
+        <p><strong>Impact:</strong> ${escapeHtml(fix.impactPreview || fix.impact || "—")}</p>
+      </div>
+    `).join("") : "<p>No priority actions returned.</p>"}
+  </div>
+
+  <div class="grid" style="margin-top:16px;">
+    <div class="card">
+      <div class="eyebrow">Top risks</div>
+      ${risks.length ? `<ul>${risks.map((item) => `<li>${escapeHtml(item.title || "Risk")}: ${escapeHtml(item.impact || item.description || "")}</li>`).join("")}</ul>` : "<p>No conversion risks returned.</p>"}
+    </div>
+    <div class="card">
+      <div class="eyebrow">Copy Chief</div>
+      <p><strong>Strengths</strong></p>
+      ${craftStrengths.length ? `<ul>${craftStrengths.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>No craft strengths returned.</p>"}
+      <p style="margin-top:12px;"><strong>Weaknesses</strong></p>
+      ${craftWeaknesses.length ? `<ul>${craftWeaknesses.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>No craft weaknesses returned.</p>"}
+    </div>
+  </div>
+</body>
+</html>`;
+    }
+
+    function printDashboardReport() {
+      if (!latestDashboard) return;
+      const reportWindow = window.open("", "_blank", "noopener,noreferrer,width=980,height=760");
+      if (!reportWindow) {
+        alert("Please allow pop-ups to print or save the report.");
+        return;
+      }
+
+      reportWindow.document.open();
+      reportWindow.document.write(buildPrintableReport(latestDashboard));
+      reportWindow.document.close();
+      reportWindow.focus();
+      setTimeout(() => {
+        try {
+          reportWindow.print();
+        } catch (error) {
+          console.error("Print failed:", error);
+          alert("Print could not be started. Please allow printing in your browser.");
+        }
+      }, 300);
+    }
+
+    function getSingleDimensionDetail(audit, dimension) {
+      const details = {
+        mechanism: audit?.mechanism_summary,
+        proof: audit?.proof_summary,
+        offer: audit?.offer_summary,
+        cta: audit?.cta_summary
+      };
+      return String(details[dimension] || audit?.reason || "").trim();
+    }
+
+    function buildSingleDimensionLists(audit) {
+      const scores = audit?.dimension_scores || {};
+      const dimensions = Object.entries(scores)
+        .map(([key, value]) => ({
+          key,
+          label: formatDimensionLabel(key),
+          score: Number(value) || 0,
+          detail: getSingleDimensionDetail(audit, key)
+        }))
+        .sort((a, b) => a.score - b.score);
+
+      const weaknesses = dimensions.slice(0, 3).map((item, index) => ({
+        title: `${item.label} needs reinforcement`,
+        impact: `${describeTenPointScore(item.score)} • ${item.score}/10`,
+        problem: index === 0
+          ? (audit?.reason || item.detail || `${item.label} is limiting the asset.`)
+          : (item.detail || `${item.label} is underpowered relative to the rest of the piece.`),
+        action: index === 0
+          ? (audit?.fix_instruction || `Raise ${item.label} so it stops dragging down the whole asset.`)
+          : `Tighten ${item.label} so it supports the same promise and conversion path as the stronger sections.`,
+        pass: `${item.label} moves into the 8-10/10 range and reads as commercially convincing.`,
+        impactPreview: `${item.label} is currently ${item.score}/10, so improving it should lift overall readiness.`,
+        evidence: item.detail,
+        whyFlagged: `${item.label} is one of the lowest-scoring dimensions in this audit.`,
+        category: item.label
+      }));
+
+      const strengths = dimensions
+        .slice()
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 3)
+        .map((item) => `${item.label} is ${describeTenPointScore(item.score).toLowerCase()} at ${item.score}/10${item.detail ? ` — ${item.detail}` : ""}`);
+
+      return { dimensions, weaknesses, strengths };
+    }
+
+    function buildCoherenceEntries(campaignFit) {
+      const scores = campaignFit?.coherence_scores || {};
+      return Object.entries(scores)
+        .map(([key, value]) => ({
+          key,
+          label: formatDimensionLabel(key),
+          score: Number(value) || 0
+        }))
+        .sort((a, b) => a.score - b.score);
+    }
+
+    function normalizeAssetAuditEntry(entry) {
+      if (!entry || typeof entry !== "object") return null;
+      return entry.audit && typeof entry.audit === "object" ? entry.audit : entry;
+    }
+
+    function summarizeAssetAudit(assetKey, entry) {
+      const audit = normalizeAssetAuditEntry(entry);
+      if (!audit) return null;
+      const score100 = normalizeScore70To100(audit.total_score);
+      return {
+        key: assetKey,
+        label: formatDimensionLabel(assetKey.replace(/_/g, " ")),
+        score100,
+        role: audit.asset_role || "Unknown",
+        weakestDimension: formatDimensionLabel(audit.weakest_dimension || ""),
+        reason: audit.reason || "",
+        audienceState: audit.audience_state || "",
+        audit
+      };
+    }
+
+    function buildSingleDashboard(api, submitted = {}) {
+      const audit = api?.audit || {};
+      const score = normalizeScore70To100(audit.total_score);
+      const decision = getDecisionVerdict(score);
+      const weakestLabel = formatDimensionLabel(audit.weakest_dimension || "");
+      const dimensionLists = buildSingleDimensionLists(audit);
+      const roleLabel = audit.asset_role || submitted.copy_type || "Unknown";
+      const audienceState = audit.audience_state || "Unknown";
+
+      return {
+        mode: "single",
+        hero: {
+          score,
+          summary: audit.reason || "Audit completed.",
+          decision: {
+            label: audit.certified ? "GO" : decision.label,
+            sub: audit.reason || decision.sub,
+            risk: decision.risk,
+            confidence: audit.certified ? "High" : decision.confidence,
+            nextStep: audit.fix_instruction || decision.nextStep
+          }
+        },
+        primaryBottleneck: {
+          title: weakestLabel ? `${weakestLabel} is the primary blocker` : "Primary blocker identified",
+          body: [audit.reason, audit.fix_instruction].filter(Boolean).join(" "),
+          impact: weakestLabel
+            ? `${weakestLabel} scored ${Number(audit?.dimension_scores?.[audit.weakest_dimension]) || 0}/10 and is dragging down launch readiness.`
+            : "A weak dimension is reducing launch readiness."
+        },
+        assetRole: roleLabel,
+        goalAlignment: {
+          status: "unknown",
+          label: "Audience state",
+          statusText: audienceState,
+          explanation: `Audience state: ${audienceState}${audit.core_promise ? ` • Core promise: ${audit.core_promise}` : ""}`
+        },
+        goalMismatch: "",
+        toAchieveCertification: dimensionLists.weaknesses.map((item) => `${item.title}: ${item.action}`),
+        topFixes: dimensionLists.weaknesses,
+        support: {
+          messageDistinctness: audit?.big_idea?.distinctness || `${describeTenPointScore(audit?.dimension_scores?.hook || 0)} message distinctness`,
+          proofSufficiency: audit?.proof_summary || `${describeTenPointScore(audit?.dimension_scores?.proof || 0)} proof support`,
+          actionPressure: `${describeTenPointScore(audit?.dimension_scores?.cta || 0)} CTA pressure${audit?.cta_summary ? ` — ${audit.cta_summary}` : ""}`
+        },
+        evidence: {
+          whatsWorking: [
+            audit.core_promise ? `Core promise: ${audit.core_promise}` : "",
+            audit.mechanism_summary ? `Mechanism: ${audit.mechanism_summary}` : "",
+            audit.offer_summary ? `Offer: ${audit.offer_summary}` : "",
+            ...dimensionLists.strengths
+          ].filter(Boolean),
+          improvementDirection: [
+            audit.fix_instruction,
+            audit?.big_idea_diagnosis?.what_is_missing,
+            audit?.big_idea_diagnosis?.why_it_is_not_yet_dominant
+          ].filter(Boolean),
+          risks: [
+            audit?.big_idea_diagnosis?.commercial_risk_if_unchanged
+          ].filter(Boolean).map((text) => ({
+            title: "Commercial risk if unchanged",
+            description: text,
+            impact: text
+          })),
+          authorityClose: audit.certified
+            ? "This asset is operating in a controlled-launch range, with the core persuasive elements holding together."
+            : "This asset has usable raw material, but the weaker dimension is still strong enough to suppress conversion performance."
+        },
+        deepAnalysis: {
+          bigIdea: audit.big_idea || null,
+          bigIdeaDiagnosis: audit.big_idea_diagnosis || null,
+          authorityVsProof: {
+            rows: [
+              audit.mechanism_summary ? { label: "Mechanism", value: audit.mechanism_summary } : null,
+              audit.proof_summary ? { label: "Proof", value: audit.proof_summary } : null,
+              audit.offer_summary ? { label: "Offer", value: audit.offer_summary } : null,
+              audit.cta_summary ? { label: "CTA", value: audit.cta_summary } : null
+            ].filter(Boolean)
+          },
+          persuasionProfile: {
+            rows: dimensionLists.dimensions.map((item) => ({
+              label: item.label,
+              value: `${item.score}/10`,
+              note: item.detail || describeTenPointScore(item.score)
+            }))
+          }
+        },
+        copyChief: {
+          score,
+          verdict: audit.certified ? "Certified" : `${describeHundredPointScore(score)} Asset`,
+          summary: audit.reason || "Audit completed.",
+          chiefNote: audit.fix_instruction || "Strengthen the weakest dimension first, then re-run the audit.",
+          craftStrengths: dimensionLists.strengths,
+          craftWeaknesses: dimensionLists.weaknesses.map((item) => `${item.title} — ${item.problem}`)
+        },
+        diagnostics: dimensionLists.weaknesses.map((item) => ({
+          area: item.title,
+          feedback: item.problem,
+          impact: item.action
+        })),
+        meta: {
+          raw: api,
+          submitted
+        }
+      };
+    }
+
+    function buildCampaignDashboard(api, submitted = {}) {
+      const campaignFit = api?.campaign_fit || {};
+      const score = Number(campaignFit.campaign_fit_score) || 0;
+      const decision = getDecisionVerdict(score);
+      const coherenceEntries = buildCoherenceEntries(campaignFit);
+      const assetSummaries = Object.entries(api?.asset_audits || {})
+        .map(([key, value]) => summarizeAssetAudit(key, value))
+        .filter(Boolean);
+      const strongestAssets = assetSummaries
+        .slice()
+        .sort((a, b) => b.score100 - a.score100)
+        .slice(0, 3)
+        .map((asset) => `${asset.label}: ${asset.score100}/100 • Role ${toTitleCase(asset.role)}${asset.reason ? ` — ${asset.reason}` : ""}`);
+      const weakestAssets = assetSummaries
+        .slice()
+        .sort((a, b) => a.score100 - b.score100)
+        .slice(0, 3)
+        .map((asset) => `${asset.label}: ${asset.score100}/100 • Weakest dimension ${asset.weakestDimension}${asset.reason ? ` — ${asset.reason}` : ""}`);
+
+      return {
+        mode: "campaign",
+        hero: {
+          score,
+          summary: campaignFit.reason || "Campaign fit audit completed.",
+          decision: {
+            label: campaignFit.campaign_certified ? "GO" : decision.label,
+            sub: campaignFit.reason || decision.sub,
+            risk: campaignFit.campaign_certified ? "Managed" : decision.risk,
+            confidence: campaignFit.campaign_certified ? "High" : decision.confidence,
+            nextStep: campaignFit.fix_instruction || decision.nextStep
+          }
+        },
+        primaryBottleneck: {
+          title: campaignFit.primary_campaign_break || "Primary campaign break identified",
+          body: campaignFit.reason || "Campaign continuity is breaking between assets.",
+          impact: campaignFit.fix_instruction || "Repair the broken campaign link before scaling traffic."
+        },
+        assetRole: "Campaign Sequence",
+        goalAlignment: {
+          status: campaignFit.campaign_certified ? "aligned" : "misaligned",
+          label: "Campaign fit",
+          statusText: campaignFit?.big_idea_continuity?.status || (campaignFit.campaign_certified ? "Certified" : "Needs work"),
+          explanation: campaignFit.reason || "Campaign fit reasoning returned."
+        },
+        goalMismatch: "",
+        toAchieveCertification: normalizeArray(campaignFit.campaign_improvement_direction),
+        topFixes: coherenceEntries.slice(0, 3).map((item, index) => ({
+          title: `${item.label} needs continuity repair`,
+          impact: `${describeTenPointScore(item.score)} • ${item.score}/10`,
+          problem: index === 0
+            ? (campaignFit.reason || `${item.label} is the weakest continuity dimension.`)
+            : `${item.label} is underpowered across the campaign sequence.`,
+          action: index === 0
+            ? (campaignFit.fix_instruction || `Rebuild ${item.label} so the assets carry the same commercial argument forward.`)
+            : `Tighten ${item.label} so it stays consistent from one asset to the next.`,
+          pass: `${item.label} reads as consistent across the campaign path.`,
+          impactPreview: `${item.label} is currently ${item.score}/10, so strengthening it should reduce funnel leakage.`,
+          evidence: campaignFit?.big_idea_continuity?.diagnosis || "",
+          whyFlagged: `${item.label} is one of the lowest coherence scores.`,
+          category: item.label
+        })),
+        support: {
+          messageDistinctness: `${describeTenPointScore(campaignFit?.coherence_scores?.message_match || 0)} message match (${Number(campaignFit?.coherence_scores?.message_match) || 0}/10)`,
+          proofSufficiency: `${describeTenPointScore(campaignFit?.coherence_scores?.proof_progression || 0)} proof progression (${Number(campaignFit?.coherence_scores?.proof_progression) || 0}/10)`,
+          actionPressure: `${describeTenPointScore(campaignFit?.coherence_scores?.cta_progression || 0)} CTA progression (${Number(campaignFit?.coherence_scores?.cta_progression) || 0}/10)`
+        },
+        evidence: {
+          whatsWorking: [
+            ...strongestAssets,
+            campaignFit?.big_idea_continuity?.core_idea_consistent ? "Core idea remains consistent across the campaign." : ""
+          ].filter(Boolean),
+          improvementDirection: normalizeArray(campaignFit.campaign_improvement_direction),
+          risks: normalizeArray(campaignFit.campaign_risks).map((item) => ({
+            title: "Campaign risk",
+            description: item,
+            impact: item
+          })),
+          authorityClose: campaignFit.campaign_certified
+            ? "The campaign is coherent enough for controlled testing, with continuity holding across the main decision path."
+            : "The campaign is not yet coherent enough to trust with meaningful traffic until the main continuity break is repaired."
+        },
+        deepAnalysis: {
+          bigIdea: {
+            statement: assetSummaries.find((asset) => asset.audit?.big_idea?.statement)?.audit?.big_idea?.statement || "Campaign big idea continuity",
+            strength: campaignFit?.big_idea_continuity?.status || "Pending",
+            distinctness: `Continuity ${Number(campaignFit?.big_idea_continuity?.score) || 0}/10`,
+            ownability: campaignFit?.big_idea_continuity?.core_idea_consistent ? "Consistent across assets" : "Drifting across assets",
+            notes: campaignFit?.big_idea_continuity?.diagnosis || campaignFit.reason || "",
+            type: "Campaign Continuity",
+            emotional_charge: campaignFit?.big_idea_continuity?.ad_to_landing || "",
+            headline_anchor_strength: campaignFit?.big_idea_continuity?.landing_to_email || "",
+            mechanism_alignment: campaignFit?.big_idea_continuity?.email_to_sales_page || "",
+            cta_alignment: campaignFit?.fix_instruction || ""
+          },
+          bigIdeaDiagnosis: {
+            hidden_idea_present: Boolean(campaignFit?.big_idea_continuity?.core_idea_consistent),
+            why_it_works: campaignFit?.big_idea_continuity?.diagnosis || "",
+            why_it_is_not_yet_dominant: campaignFit.primary_campaign_break || "",
+            what_is_missing: campaignFit.fix_instruction || "",
+            commercial_risk_if_unchanged: normalizeArray(campaignFit.campaign_risks).join(" ")
+          },
+          authorityVsProof: {
+            rows: coherenceEntries.map((item) => ({
+              label: item.label,
+              value: `${item.score}/10`
+            }))
+          },
+          persuasionProfile: {
+            rows: assetSummaries.map((asset) => ({
+              label: asset.label,
+              value: `${asset.score100}/100`,
+              note: `Role ${toTitleCase(asset.role)} • Weakest ${asset.weakestDimension}${asset.audienceState ? ` • Audience ${asset.audienceState}` : ""}`
+            }))
+          }
+        },
+        copyChief: {
+          score,
+          verdict: campaignFit.campaign_certified ? "Campaign Certified" : `${describeHundredPointScore(score)} Campaign`,
+          summary: campaignFit.reason || "Campaign fit audit completed.",
+          chiefNote: campaignFit.fix_instruction || "Repair the main campaign break before adding more spend.",
+          craftStrengths: strongestAssets,
+          craftWeaknesses: weakestAssets
+        },
+        diagnostics: assetSummaries.map((asset) => ({
+          area: asset.label,
+          feedback: asset.reason || "Asset audit returned.",
+          impact: `Score ${asset.score100}/100 • Role ${toTitleCase(asset.role)} • Weakest ${asset.weakestDimension}`
+        })),
+        meta: {
+          raw: api,
+          submitted
+        }
+      };
+    }
+
+    function normalizeAuditToDashboard(api, submitted = {}) {
+      if (api?.mode === "campaign") return buildCampaignDashboard(api, submitted);
+      return buildSingleDashboard(api, submitted);
+    }
+
+    function getSubmittedCorpus(submitted = {}) {
+      if (submitted.mode === "campaign") {
+        return [submitted.assets?.ad, submitted.assets?.landing, submitted.assets?.email, submitted.assets?.sales_page]
+          .filter(Boolean)
+          .join("\n\n");
+      }
+      return String(submitted.copy || "");
+    }
+
+    function countSentences(text) {
+      return (String(text || "").match(/[.!?]+/g) || []).length || 1;
+    }
+
+    function countSyllables(word) {
+      const cleaned = String(word || "").toLowerCase().replace(/[^a-z]/g, "");
+      if (!cleaned) return 0;
+      if (cleaned.length <= 3) return 1;
+      const stripped = cleaned.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, "").replace(/^y/, "");
+      const matches = stripped.match(/[aeiouy]{1,2}/g);
+      return matches ? matches.length : 1;
+    }
+
+    function estimateReadingLevel(text) {
+      const words = String(text || "").match(/\b[\w'-]+\b/g) || [];
+      if (!words.length) return "—";
+      const wordCount = words.length;
+      const sentenceCount = countSentences(text);
+      const syllables = words.reduce((total, word) => total + countSyllables(word), 0);
+      const grade = 0.39 * (wordCount / sentenceCount) + 11.8 * (syllables / wordCount) - 15.59;
+      if (!Number.isFinite(grade)) return "—";
+      if (grade < 7) return "Simple";
+      if (grade < 10) return "Moderate";
+      if (grade < 13) return "Advanced";
+      return "Dense";
+    }
+
+    function analyzeTextMetrics(text) {
+      const normalized = String(text || "").trim();
+      const words = normalized.match(/\b[\w'-]+\b/g) || [];
+      const ctaMatches = normalized.match(/\b(click|buy|book|reply|apply|schedule|register|get started|join|download|claim|watch)\b/gi) || [];
+      return {
+        wordCount: words.length,
+        readingLevel: estimateReadingLevel(normalized),
+        ctaCount: ctaMatches.length,
+        mechanism: /\bhow\b|\bmethod\b|\bmechanism\b|\bframework\b|\bsystem\b/i.test(normalized),
+        priceAnchor: /\$\d|price|investment|value|worth|fee|cost/i.test(normalized),
+        guarantee: /\bguarantee\b|\brisk[-\s]?free\b|\brefund\b|\bmoney back\b/i.test(normalized),
+        proofMatches: (normalized.match(/\bcase study\b|\btestimonial\b|\bresults?\b|\bproof\b|\breview\b|\bclient\b/gi) || []).length
+      };
+    }
+
+    function analyzeComplianceSignals(text) {
+      const normalized = String(text || "");
+      const rows = [];
+      const summary = [];
+
+      const incomeClaims = /\$\d|\b\d+ ?x\b|\bearn\b|\brevenue\b|\bincome\b|\bmade \$|\bgenerated \$|\bresults? in \d+/i.test(normalized);
+      const testimonials = /\btestimonial\b|\bclient said\b|\breview\b|\bcase study\b|\bwhat our clients say\b/i.test(normalized);
+      const disclosure = /\bresults may vary\b|\bnot typical\b|\bdisclaimer\b|\bfor educational purposes\b/i.test(normalized);
+      const guarantee = /\bguarantee\b|\bmoney back\b|\brisk[-\s]?free\b/i.test(normalized);
+
+      if (incomeClaims) {
+        rows.push({
+          signal: "Income / performance claims",
+          severity: disclosure ? "Watch" : "High",
+          finding: disclosure
+            ? "Claim-style language appears alongside some disclosure language."
+            : "Claim-style language appears without obvious disclosure language in the submitted text.",
+          action: disclosure
+            ? "Confirm the claim can be substantiated and that disclosure remains visible near the claim."
+            : "Add visible substantiation and disclosure review before traffic is sent."
+        });
+      }
+
+      if (testimonials) {
+        rows.push({
+          signal: "Testimonials / result evidence",
+          severity: disclosure ? "Watch" : "Moderate",
+          finding: "The asset appears to reference testimonial or case-study style proof.",
+          action: "Verify claims, attribution, and whether any disclosure is needed near proof statements."
+        });
+      }
+
+      if (guarantee) {
+        rows.push({
+          signal: "Guarantee language",
+          severity: "Watch",
+          finding: "Guarantee or refund language appears in the copy.",
+          action: "Ensure guarantee terms are explicit, accurate, and operationally supportable."
+        });
+      }
+
+      if (!rows.length) {
+        rows.push({
+          signal: "No explicit compliance flags detected",
+          severity: "Low",
+          finding: "No obvious claim-style or guarantee-style language was detected in the submitted text.",
+          action: "Treat this as a basic surface scan only; confirm legal/compliance review separately if needed."
+        });
+      }
+
+      const highCount = rows.filter((row) => /high/i.test(row.severity)).length;
+      const watchCount = rows.filter((row) => /watch|moderate/i.test(row.severity)).length;
+      const overall = highCount ? "Elevated" : watchCount ? "Moderate" : "Low";
+
+      summary.push({ label: "Overall risk", value: overall });
+      summary.push({ label: "Claim exposure", value: incomeClaims ? "Present" : "Low" });
+      summary.push({ label: "Disclosure visibility", value: disclosure ? "Detected" : "Not clear" });
+
+      return {
+        overall,
+        rows,
+        summary,
+        exposures: {
+          incomeClaims: incomeClaims ? "Present" : "Not obvious",
+          testimonials: testimonials ? "Present" : "Not obvious",
+          disclosure: disclosure ? "Detected" : "Not obvious",
+          guarantee: guarantee ? "Present" : "Not obvious"
+        }
+      };
+    }
+
+    function renderSimpleList(container, items) {
+      container.innerHTML = "";
+      normalizeArray(items).forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        container.appendChild(li);
+      });
+    }
+
+    function renderImprovements(items) {
+      improvementList.innerHTML = "";
+      normalizeArray(items).forEach((item) => {
+        const block = document.createElement("div");
+        block.className = "clc-item";
+        if (typeof item === "string") {
+          block.innerHTML = `<h4>Improvement area</h4><p>${escapeHtml(item)}</p>`;
+          improvementList.appendChild(block);
+          return;
+        }
+        block.innerHTML = `
+          <h4>${escapeHtml(item?.area || item?.label || "Improvement area")}</h4>
+          <p>${escapeHtml(item?.feedback || item?.problem || "")}</p>
+          <p class="impact"><strong>Why it matters:</strong> ${escapeHtml(item?.impact || item?.why_it_matters || "")}</p>
+        `;
+        improvementList.appendChild(block);
+      });
+    }
+
+    function renderRisks(items) {
+      conversionRisksList.innerHTML = "";
+      normalizeArray(items).forEach((item) => {
+        const block = document.createElement("div");
+        block.className = "clc-item";
+        if (typeof item === "string") {
+          block.innerHTML = `<h4>Risk</h4><p>${escapeHtml(item)}</p><p class="impact"><strong>Impact:</strong> ${escapeHtml(item)}</p>`;
+          conversionRisksList.appendChild(block);
+          return;
+        }
+        block.innerHTML = `
+          <h4>${escapeHtml(item?.title || "Risk")}</h4>
+          <p>${escapeHtml(item?.description || "")}</p>
+          <p class="impact"><strong>Impact:</strong> ${escapeHtml(item?.impact || "")}</p>
+        `;
+        conversionRisksList.appendChild(block);
+      });
+    }
+
+    function renderSignalList(container, items, emptyTitle, emptyBody) {
+      container.innerHTML = "";
+      const rows = normalizeArray(items);
+      if (!rows.length) {
+        const block = document.createElement("div");
+        block.className = "dec-signal-item signal-success";
+        block.innerHTML = `<h4>${escapeHtml(emptyTitle)}</h4><p>${escapeHtml(emptyBody)}</p>`;
+        container.appendChild(block);
+        return;
+      }
+
+      rows.forEach((item) => {
+        const block = document.createElement("div");
+        const severity = String(item?.severity || "warning").toLowerCase();
+        const tone = severity.includes("danger") || severity.includes("high")
+          ? "signal-danger"
+          : severity.includes("success") || severity.includes("low")
+            ? "signal-success"
+            : "signal-warning";
+        block.className = `dec-signal-item ${tone}`;
+        block.innerHTML = `
+          <h4>${escapeHtml(item.title || item.area || "Signal")}</h4>
+          <p>${escapeHtml(item.problem || item.feedback || item.body || item.description || "")}</p>
+          ${item.action ? `<p><strong>Required action:</strong> ${escapeHtml(item.action)}</p>` : ""}
+          ${item.meta ? `<div class="dec-signal-meta">${escapeHtml(item.meta)}</div>` : ""}
+        `;
+        container.appendChild(block);
+      });
+    }
+
+    function renderPriorityActionTable(items) {
+      priorityActionTableBody.innerHTML = "";
+      const rows = normalizeArray(items);
+      if (!rows.length) {
+        priorityActionTableBody.innerHTML = `<tr><td colspan="5">Priority actions will appear here after the audit completes.</td></tr>`;
+        return;
+      }
+
+      rows.forEach((item, index) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${escapeHtml(item.action || item.title || "—")}</td>
+          <td>${escapeHtml(item.category || item.title || "—")}</td>
+          <td>${escapeHtml(item.problem || "—")}</td>
+          <td>${escapeHtml(item.impactPreview || item.impact || "—")}</td>
+        `;
+        priorityActionTableBody.appendChild(tr);
+      });
+    }
+
+    function renderPriorityFixes(items) {
+      priorityFixList.innerHTML = "";
+      normalizeArray(items).forEach((item, index) => {
+        const block = document.createElement("div");
+        block.className = "clc-fix-card";
+        block.innerHTML = `
+          <h4 class="clc-fix-title">${index + 1}. ${escapeHtml(item.title)}</h4>
+          <div class="clc-fix-note"><span class="clc-fix-note-label">Problem</span> ${escapeHtml(item.problem || "")}</div>
+          <div class="clc-fix-note"><span class="clc-fix-note-label">Required action</span> ${escapeHtml(item.action || "")}</div>
+        `;
+        priorityFixList.appendChild(block);
+      });
+      renderPriorityActionTable(items);
+    }
+
+    function renderGoalMismatch(textValue) {
+      if (textValue) {
+        goalMismatchCard.style.display = "";
+        goalMismatchText.innerHTML = `<p>${escapeHtml(textValue)}</p>`;
+      } else {
+        goalMismatchCard.style.display = "none";
+        goalMismatchText.innerHTML = "";
+      }
+    }
+
+    function renderCertification(items) {
+      const rows = normalizeArray(items);
+      if (rows.length) {
+        certificationCard.style.display = "";
+        renderSimpleList(certificationList, rows);
+      } else {
+        certificationCard.style.display = "none";
+        certificationList.innerHTML = "";
+      }
+    }
+
+    function renderSupportStrip(support) {
+      supportDistinctness.textContent = support?.messageDistinctness || "—";
+      supportProof.textContent = support?.proofSufficiency || "—";
+      supportAction.textContent = support?.actionPressure || "—";
+    }
+
+    function renderBigIdea(data) {
+      bigIdeaBlock.innerHTML = "";
+      if (!data?.deepAnalysis?.bigIdea) return;
+      const item = data.deepAnalysis.bigIdea;
+      const diagnosis = data?.deepAnalysis?.bigIdeaDiagnosis || {};
+      const isCampaign = data?.mode === "campaign";
+      const block = document.createElement("div");
+      block.className = "clc-item";
+      block.innerHTML = `
+        <h4>${escapeHtml(item?.statement || "Big idea")}</h4>
+        <p><strong>Strength:</strong> ${escapeHtml(item?.strength || "—")}</p>
+        <p><strong>Distinctness:</strong> ${escapeHtml(item?.distinctness || "—")}</p>
+        ${item?.ownability ? `<p><strong>Ownability:</strong> ${escapeHtml(item.ownability)}</p>` : ""}
+        ${item?.type ? `<p><strong>Type:</strong> ${escapeHtml(item.type)}</p>` : ""}
+        ${item?.emotional_charge ? `<p><strong>${isCampaign ? "Ad to landing" : "Emotional charge"}:</strong> ${escapeHtml(item.emotional_charge)}</p>` : ""}
+        ${item?.headline_anchor_strength ? `<p><strong>${isCampaign ? "Landing to email" : "Headline anchor"}:</strong> ${escapeHtml(item.headline_anchor_strength)}</p>` : ""}
+        ${item?.mechanism_alignment ? `<p><strong>${isCampaign ? "Email to sales page" : "Mechanism alignment"}:</strong> ${escapeHtml(item.mechanism_alignment)}</p>` : ""}
+        ${item?.cta_alignment ? `<p><strong>Fix instruction:</strong> ${escapeHtml(item.cta_alignment)}</p>` : ""}
+        <p class="impact">${escapeHtml(item?.notes || "")}</p>
+        ${diagnosis?.why_it_works ? `<p><strong>Why it works:</strong> ${escapeHtml(diagnosis.why_it_works)}</p>` : ""}
+        ${diagnosis?.why_it_is_not_yet_dominant ? `<p><strong>Why it is not yet dominant:</strong> ${escapeHtml(diagnosis.why_it_is_not_yet_dominant)}</p>` : ""}
+        ${diagnosis?.what_is_missing ? `<p><strong>What is missing:</strong> ${escapeHtml(diagnosis.what_is_missing)}</p>` : ""}
+        ${diagnosis?.commercial_risk_if_unchanged ? `<p class="impact"><strong>Commercial risk:</strong> ${escapeHtml(diagnosis.commercial_risk_if_unchanged)}</p>` : ""}
+      `;
+      bigIdeaBlock.appendChild(block);
+    }
+
+    function renderAuthorityProof(data) {
+      authorityProofBlock.innerHTML = "";
+      if (!data?.deepAnalysis?.authorityVsProof) return;
+      const item = data.deepAnalysis.authorityVsProof;
+      const block = document.createElement("div");
+      block.className = "clc-item";
+      block.innerHTML = Array.isArray(item?.rows) && item.rows.length
+        ? item.rows.map((row) => `<p><strong>${escapeHtml(row.label || "Item")}:</strong> ${escapeHtml(row.value || "—")}</p>${row.note ? `<p class="impact">${escapeHtml(row.note)}</p>` : ""}`).join("")
+        : `<p><strong>Authority:</strong> ${escapeHtml(item?.authority_strength || "—")}</p><p><strong>Proof:</strong> ${escapeHtml(item?.proof_strength || "—")}</p>`;
+      authorityProofBlock.appendChild(block);
+    }
+
+    function renderPersuasionProfile(data) {
+      persuasionProfileBlock.innerHTML = "";
+      if (!data?.deepAnalysis?.persuasionProfile) return;
+      const item = data.deepAnalysis.persuasionProfile;
+      const block = document.createElement("div");
+      block.className = "clc-item";
+      block.innerHTML = Array.isArray(item?.rows) && item.rows.length
+        ? item.rows.map((row) => `<p><strong>${escapeHtml(row.label || "Item")}:</strong> ${escapeHtml(row.value || "—")}</p>${row.note ? `<p class="impact">${escapeHtml(row.note)}</p>` : ""}`).join("")
+        : `<p><strong>Belief strength:</strong> ${escapeHtml(item?.belief_strength || "—")}</p>`;
+      persuasionProfileBlock.appendChild(block);
+    }
+
+    function renderRoleContext(data) {
+      const roleLabel = toTitleCase(data?.assetRole || "Unknown") || "Unknown";
+      assetRoleBadge.textContent = `Asset role: ${roleLabel}`;
+      roleFamilyBadge.textContent = "Dashboard family: Launch Decision + Copy Chief";
+      assetRoleHint.textContent = data?.mode === "campaign"
+        ? "This audit is judging whether the campaign sequence holds together from one asset to the next without message drift."
+        : getAssetRoleHint(data?.assetRole);
+
+      const status = String(data?.goalAlignment?.status || "unknown").toLowerCase();
+      goalAlignmentBadge.classList.remove("status-aligned", "status-misaligned", "status-unknown");
+      goalAlignmentBadge.classList.add(status === "aligned" ? "status-aligned" : status === "misaligned" ? "status-misaligned" : "status-unknown");
+
+      const badgeLabel = data?.goalAlignment?.label || "Goal alignment";
+      const statusLabel = data?.goalAlignment?.statusText || (status === "aligned" ? "Aligned" : status === "misaligned" ? "Needs attention" : "Pending");
+      goalAlignmentBadge.textContent = `${badgeLabel}: ${statusLabel}`;
+      goalAlignmentText.textContent = data?.goalAlignment?.explanation || "Goal alignment commentary will appear here when available.";
+    }
+
+    function renderCopyChief(data) {
+      const chief = data?.copyChief || {};
+      copyChiefScoreValue.textContent = Number.isFinite(chief.score) ? String(chief.score) : "0";
+      chiefVerdictText.textContent = chief.verdict || "Awaiting audit";
+      chiefSummaryText.textContent = chief.summary || "The expert craft read will appear here after the audit completes.";
+      chiefNoteText.textContent = chief.chiefNote || "Judge the asset against its actual role and persuasion job, not against a different format.";
+      renderSimpleList(craftStrengthsList, chief.craftStrengths || []);
+      renderSimpleList(craftWeaknessesList, chief.craftWeaknesses || []);
+    }
+
+    function getCtaMode(data) {
+      const score = Number(data?.hero?.score || 0);
+      if (score <= 74) return "rewrite";
+      if (score >= 83) return "advisory";
+      return "optimize";
+    }
+
+    function renderNextAction(data) {
+      const message =
+        data?.hero?.decision?.nextStep ||
+        (getCtaMode(data) === "rewrite"
+          ? "Do not launch this version as-is. Apply the required fixes above, then run the next draft through the audit again."
+          : getCtaMode(data) === "optimize"
+            ? "Launch only in a controlled setting after the highest-leverage fixes are handled."
+            : "Proceed to controlled launch and optimize from live response data rather than rewriting the whole asset.");
+      nextActionBlock.innerHTML = `<p>${escapeHtml(message)}</p>`;
+    }
+
+    function renderCTA(data) {
+      const mode = getCtaMode(data);
+      let html = "";
+
+      if (mode === "rewrite") {
+        html = `
+          <div class="clc-cta-card">
+            <h3>Need this rebuilt before traffic?</h3>
+            <p>This version is still carrying material commercial risk. Use the decision record above as the rewrite brief.</p>
+            <div class="clc-cta-options">
+              <div class="clc-cta-option">
+                <h4>Request a Rewrite</h4>
+                <p>Done-for-you revision based on the blockers identified in this report.</p>
+                <a href="#" class="clc-button clc-button-primary">Request a Rewrite</a>
+              </div>
+              <div class="clc-cta-option">
+                <h4>Book a Fix Session</h4>
+                <p>Work live through the highest-risk decision blockers before launch.</p>
+                <a href="#" class="clc-button clc-button-secondary">Book a Session</a>
+              </div>
+            </div>
+            <p class="clc-cta-note">Use the decision record as the working brief for the next draft.</p>
+          </div>
+        `;
+      } else if (mode === "optimize") {
+        html = `
+          <div class="clc-cta-card">
+            <h3>Need final tightening before scale?</h3>
+            <p>The asset is workable, but it still has room to improve conversion efficiency and proof density before heavier traffic.</p>
+            <div class="clc-cta-options">
+              <div class="clc-cta-option">
+                <h4>Book a Fix Session</h4>
+                <p>Pressure-test the proof, mechanism, and CTA path before scaling spend.</p>
+                <a href="#" class="clc-button clc-button-primary">Book a Session</a>
+              </div>
+              <div class="clc-cta-option">
+                <h4>Request a Rewrite</h4>
+                <p>Revise the current draft around the highest-leverage actions in this report.</p>
+                <a href="#" class="clc-button clc-button-secondary">Request a Rewrite</a>
+              </div>
+            </div>
+            <p class="clc-cta-note">Use this after the top-priority actions are addressed.</p>
+          </div>
+        `;
+      } else {
+        html = `
+          <div class="clc-cta-card">
+            <h3>Need a final optimization pass?</h3>
+            <p>This asset is in controlled-launch range. Use a final review to sharpen efficiency before committing harder spend.</p>
+            <div class="clc-cta-options">
+              <div class="clc-cta-option">
+                <h4>Book an Optimization Review</h4>
+                <p>Target the remaining pressure, proof, and sequencing opportunities.</p>
+                <a href="#" class="clc-button clc-button-primary">Book a Review</a>
+              </div>
+              <div class="clc-cta-option">
+                <h4>Export Decision</h4>
+                <p>Use this report as the working launch gate for the asset under review.</p>
+                <a href="#" class="clc-button clc-button-secondary">Export Decision</a>
+              </div>
+            </div>
+            <p class="clc-cta-note">Use the report as the decision record for controlled launch.</p>
+          </div>
+        `;
+      }
+
+      ctaContent.innerHTML = html;
+      ctaSection.style.display = "block";
+    }
+
+    function renderDecision(hero, complianceRisk, blockingCount) {
+      const label = hero?.decision?.label || "Awaiting decision";
+      const sub = hero?.decision?.sub || "";
+      const score = Number.isFinite(hero?.score) ? hero.score : 0;
+      const scoreState = getScoreState(score);
+      verdictBanner.classList.remove("verdict-neutral", "verdict-danger", "verdict-warning", "verdict-success", "verdict-hold");
+      verdictBanner.classList.add(scoreState.tone);
+
+      verdictCommand.textContent = label;
+      verdictReasonLine.textContent = sub;
+      decisionLabel.textContent = label;
+      decisionSub.textContent = sub;
+      summaryText.textContent = summarizeForHero(hero?.summary || "");
+      decisionRiskFlag.textContent = `Risk: ${hero?.decision?.risk || "—"}`;
+      decisionConfidenceFlag.textContent = `Confidence: ${hero?.decision?.confidence || "Medium"}`;
+      launchReadinessText.textContent = label === "GO" ? "Controlled launch range" : label === "CONDITIONAL GO" ? "Conditional release" : "Hold before spend";
+      complianceRiskFlag.textContent = complianceRisk || "Pending";
+      blockingSignalsCount.textContent = String(blockingCount || 0);
+    }
+
+    function renderBottleneck(item) {
+      bottleneckBlock.innerHTML = "";
+      const block = document.createElement("div");
+      block.className = "clc-item";
+      block.innerHTML = `
+        <h4>${escapeHtml(item.title)}</h4>
+        <p>${escapeHtml(item.body)}</p>
+        <p class="impact"><strong>Commercial impact:</strong> ${escapeHtml(item.impact)}</p>
+      `;
+      bottleneckBlock.appendChild(block);
+    }
+
+    function renderCompliance(data, compliance) {
+      complianceSummaryGrid.innerHTML = "";
+      compliance.summary.forEach((item) => {
+        const block = document.createElement("div");
+        block.className = "dec-compliance-summary-card";
+        block.innerHTML = `<span>${escapeHtml(item.label)}</span><strong>${escapeHtml(item.value)}</strong>`;
+        complianceSummaryGrid.appendChild(block);
+      });
+
+      complianceFlagsTableBody.innerHTML = "";
+      compliance.rows.forEach((row) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${escapeHtml(row.signal)}</td>
+          <td>${escapeHtml(row.severity)}</td>
+          <td>${escapeHtml(row.finding)}</td>
+          <td>${escapeHtml(row.action)}</td>
+        `;
+        complianceFlagsTableBody.appendChild(tr);
+      });
+    }
+
+    function renderRail(data, submittedText, compliance) {
+      const score = Number(data?.hero?.score || 0);
+      const metrics = analyzeTextMetrics(submittedText);
+      const proofDensity = metrics.wordCount ? Math.round((metrics.proofMatches / metrics.wordCount) * 1000) / 10 : 0;
+
+      railScoreValue.textContent = String(score);
+      railScoreVerdict.textContent = getScoreState(score).verdict;
+
+      dimensionScoresRail.innerHTML = "";
+      const rows = normalizeArray(data?.deepAnalysis?.persuasionProfile?.rows).slice(0, 6);
+      if (!rows.length) {
+        dimensionScoresRail.innerHTML = `<div class="dec-rail-row"><span>Pending</span><strong>—</strong></div>`;
+      } else {
+        rows.forEach((row) => {
+          const div = document.createElement("div");
+          div.className = "dec-rail-row dec-dimension-row";
+          div.innerHTML = `<span>${escapeHtml(row.label || "Dimension")}</span><strong>${escapeHtml(row.value || "—")}</strong>`;
+          dimensionScoresRail.appendChild(div);
+        });
+      }
+
+      railWordCount.textContent = metrics.wordCount ? metrics.wordCount.toLocaleString() : "—";
+      railReadingLevel.textContent = metrics.readingLevel;
+      railCtaCount.textContent = metrics.ctaCount ? String(metrics.ctaCount) : "0";
+      railMechanismStatus.textContent = metrics.mechanism ? "Present" : "Not clear";
+      railPriceAnchoring.textContent = metrics.priceAnchor ? "Present" : "Not clear";
+      railGuarantee.textContent = metrics.guarantee ? "Present" : "Not obvious";
+      railProofDensity.textContent = metrics.wordCount ? `${proofDensity}% signal density` : "—";
+      railIncomeClaims.textContent = compliance.exposures.incomeClaims;
+      railTestimonials.textContent = compliance.exposures.testimonials;
+      railDisclosureVisibility.textContent = compliance.exposures.disclosure;
+    }
+
+    function renderMeta(payload) {
+      const now = new Date();
+      auditDateMeta.textContent = now.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+      auditModeMeta.textContent = payload.mode === "campaign" ? "Campaign Fit Audit" : "Single Asset Audit";
+      assetTypeMeta.textContent = payload.mode === "campaign" ? "Campaign Sequence" : (payload.copy_type || "Pending");
+      const seed = Math.abs((`${payload.mode}|${payload.goal || ""}|${payload.copy_type || ""}|${Date.now()}`).split("").reduce((acc, char) => acc + char.charCodeAt(0), 0));
+      reportIdMeta.textContent = `DEC-${String(seed).slice(-6).padStart(6, "0")}`;
+    }
+
+    function renderResults(data, submitted = {}) {
+      const dashboard = normalizeAuditToDashboard(data, submitted);
+      latestDashboard = dashboard;
+      latestSubmission = submitted;
+
+      const submittedText = getSubmittedCorpus(submitted);
+      const compliance = analyzeComplianceSignals(submittedText);
+      const blockingSignals = normalizeArray(dashboard.topFixes).slice(0, 3).map((item) => ({
+        title: item.title,
+        problem: item.problem,
+        action: item.action,
+        meta: item.impact || item.impactPreview || "",
+        severity: "high"
+      }));
+      const watchSignals = normalizeArray(dashboard.evidence?.improvementDirection).slice(0, 3).map((item) => ({
+        title: "Watch signal",
+        problem: item,
+        action: "Address this after the blocking signals are handled.",
+        severity: "warning"
+      }));
+      const financialRisk = normalizeArray(dashboard.evidence?.risks)[0]?.impact || dashboard.primaryBottleneck?.impact || "Commercial risk framing will appear here after the audit completes.";
+
+      scoreValue.textContent = String(Number.isFinite(dashboard.hero.score) ? dashboard.hero.score : 0);
+      scoreVerdict.textContent = getScoreState(dashboard.hero.score).verdict;
+      renderDecision(dashboard.hero, compliance.overall, blockingSignals.length);
+      renderBottleneck(dashboard.primaryBottleneck);
+      renderSignalList(blockingSignalsList, blockingSignals, "No material blocking signals returned", "The current audit did not surface a blocking issue strong enough to stop controlled launch on its own.");
+      renderSignalList(watchSignalsList, watchSignals, "No meaningful watch signals returned", "No notable watch signals were returned from the current audit.");
+      renderCompliance(dashboard, compliance);
+      renderGoalMismatch(dashboard.goalMismatch);
+      renderCertification(dashboard.toAchieveCertification);
+      renderPriorityFixes(dashboard.topFixes);
+      renderSupportStrip(dashboard.support);
+      renderRoleContext(dashboard);
+      renderNextAction(dashboard);
+      renderCopyChief(dashboard);
+      renderBigIdea(dashboard);
+      renderAuthorityProof(dashboard);
+      renderPersuasionProfile(dashboard);
+      renderImprovements(dashboard.diagnostics || []);
+      renderSimpleList(workingList, dashboard.evidence?.whatsWorking || []);
+      renderSimpleList(improvementDirectionList, dashboard.evidence?.improvementDirection || []);
+      renderRisks(dashboard.evidence?.risks || []);
+      authorityCloseText.textContent = dashboard.evidence?.authorityClose || "";
+      financialRiskText.textContent = financialRisk;
+      renderRail(dashboard, submittedText, compliance);
+      renderCTA(dashboard);
+      renderMeta(submitted);
+
+      reportMeta.textContent = "Use this as the production decision record for the current run.";
+      printReportButton.disabled = false;
+      resultsSection.classList.add("show");
+      scrollResultsIntoView();
+    }
+
+    function scrollResultsIntoView() {
+      requestAnimationFrame(() => {
+        const y = resultsSection.getBoundingClientRect().top + window.scrollY - 16;
+        window.scrollTo({ top: Math.max(y, 0), behavior: "smooth" });
+      });
+    }
+
+    function showError(message) {
+      formError.textContent = message;
+      formError.classList.add("show");
+    }
+
+    function clearError() {
+      formError.textContent = "";
+      formError.classList.remove("show");
+    }
+
+    function updateIntakePreview() {
+      const isCampaign = auditMode.value === "campaign";
+      const selectedGoal = isCampaign ? goalCampaign.value.trim() : goal.value.trim();
+      const selectedType = isCampaign ? "Campaign Sequence" : copyType.value.trim();
+
+      intakeModePreview.textContent = isCampaign ? "Campaign Fit Review" : "Single Asset Review";
+      intakeGoalPreview.textContent = selectedGoal || "Not selected";
+      intakeTypePreview.textContent = selectedType || "Not selected";
+
+      auditModeMeta.textContent = isCampaign ? "Campaign Fit Audit" : "Single Asset Audit";
+      assetTypeMeta.textContent = selectedType || "Pending";
+    }
+
+    function updateModeUI() {
+      const isCampaign = auditMode.value === "campaign";
+
+      singleAuditInputs.style.display = isCampaign ? "none" : "block";
+      campaignInputs.style.display = isCampaign ? "block" : "none";
+
+      copyText.disabled = isCampaign;
+      copyType.disabled = isCampaign;
+      goal.disabled = isCampaign;
+      campaignAd.disabled = !isCampaign;
+      campaignLanding.disabled = !isCampaign;
+      campaignEmail.disabled = !isCampaign;
+      campaignSalesPage.disabled = !isCampaign;
+      goalCampaign.disabled = !isCampaign;
+
+      helperText.textContent = isCampaign
+        ? "Best for checking message continuity and role consistency across the funnel."
+        : "Best for emails, ads, landing pages, sales assets, and campaign flow checks.";
+
+      loadingSub.textContent = isCampaign
+        ? "Evaluating message continuity, launch readiness, role fit, and funnel bottlenecks."
+        : "Evaluating launch readiness, structural blockers, and compliance signals.";
+
+      modePills.forEach((pill) => {
+        pill.classList.toggle("active", pill.dataset.mode === auditMode.value);
+      });
+
+      updateIntakePreview();
+    }
+
+    function setLoading(isLoading) {
+      submitButton.disabled = isLoading;
+      submitButton.setAttribute("aria-busy", String(isLoading));
+      submitButton.textContent = isLoading ? "Running Decision Review..." : "Run Decision Review";
+      loadingSection.classList.toggle("show", isLoading);
+      printReportButton.disabled = isLoading || !latestDashboard;
+      reportMeta.textContent = isLoading
+        ? "Preparing the decision surface..."
+        : latestDashboard
+          ? "Use this as the production decision record for the current run."
+          : "Generate a decision record after a completed run.";
+    }
+
+    function resetResults() {
+      resultsSection.classList.remove("show");
+      latestDashboard = null;
+      ctaSection.style.display = "none";
+      ctaContent.innerHTML = "";
+
+      verdictBanner.classList.remove("verdict-danger", "verdict-warning", "verdict-success", "verdict-hold");
+      verdictBanner.classList.add("verdict-neutral");
+      verdictCommand.textContent = "Awaiting audit";
+      verdictReasonLine.textContent = "Run the audit to see whether this asset is ready to launch, what blocks performance first, and what must be fixed before spend.";
+      decisionLabel.textContent = "Awaiting decision";
+      decisionSub.textContent = verdictReasonLine.textContent;
+      scoreValue.textContent = "0";
+      scoreVerdict.textContent = "Awaiting audit";
+      launchReadinessText.textContent = "Pending";
+      complianceRiskFlag.textContent = "Pending";
+      blockingSignalsCount.textContent = "0";
+      decisionRiskFlag.textContent = "Risk: —";
+      decisionConfidenceFlag.textContent = "Confidence: Medium";
+      summaryText.textContent = "";
+      financialRiskText.textContent = "Commercial risk framing will appear here after the audit completes.";
+      bottleneckBlock.innerHTML = "";
+      nextActionBlock.innerHTML = "";
+      blockingSignalsList.innerHTML = "";
+      watchSignalsList.innerHTML = "";
+      complianceSummaryGrid.innerHTML = "";
+      complianceFlagsTableBody.innerHTML = `<tr><td colspan="4">Compliance signal rows will appear here after the audit completes.</td></tr>`;
+      priorityActionTableBody.innerHTML = `<tr><td colspan="5">Priority actions will appear here after the audit completes.</td></tr>`;
+      priorityFixList.innerHTML = "";
+      supportDistinctness.textContent = "—";
+      supportProof.textContent = "—";
+      supportAction.textContent = "—";
+      bigIdeaBlock.innerHTML = "";
+      assetRoleBadge.textContent = "Asset role: Unknown";
+      roleFamilyBadge.textContent = "Dashboard family: Launch Decision + Copy Chief";
+      assetRoleHint.textContent = "Role awareness will appear here when the audit identifies the asset’s actual job in the funnel.";
+      goalAlignmentBadge.textContent = "Goal alignment: Pending";
+      goalAlignmentBadge.classList.remove("status-aligned", "status-misaligned");
+      goalAlignmentBadge.classList.add("status-unknown");
+      goalAlignmentText.textContent = "Goal alignment commentary will appear here when available.";
+      goalMismatchCard.style.display = "none";
+      goalMismatchText.innerHTML = "";
+      certificationCard.style.display = "none";
+      certificationList.innerHTML = "";
+      copyChiefScoreValue.textContent = "0";
+      chiefVerdictText.textContent = "Awaiting audit";
+      chiefSummaryText.textContent = "The expert craft read will appear here after the audit completes.";
+      chiefNoteText.textContent = "Judge the asset against its actual role and persuasion job, not against a different format.";
+      craftStrengthsList.innerHTML = "";
+      craftWeaknessesList.innerHTML = "";
+      authorityProofBlock.innerHTML = "";
+      persuasionProfileBlock.innerHTML = "";
+      workingList.innerHTML = "";
+      improvementList.innerHTML = "";
+      improvementDirectionList.innerHTML = "";
+      conversionRisksList.innerHTML = "";
+      authorityCloseText.textContent = "This copy is functional, but it is not yet operating at a Certified Legendary level.";
+      railScoreValue.textContent = "0";
+      railScoreVerdict.textContent = "Awaiting audit";
+      dimensionScoresRail.innerHTML = "";
+      railWordCount.textContent = "—";
+      railReadingLevel.textContent = "—";
+      railCtaCount.textContent = "—";
+      railMechanismStatus.textContent = "—";
+      railPriceAnchoring.textContent = "—";
+      railGuarantee.textContent = "—";
+      railProofDensity.textContent = "—";
+      railIncomeClaims.textContent = "—";
+      railTestimonials.textContent = "—";
+      railDisclosureVisibility.textContent = "—";
+      printReportButton.disabled = true;
+      reportMeta.textContent = "Generate a decision record after a completed run.";
+      assetTypeMeta.textContent = auditMode.value === "campaign" ? "Campaign Sequence" : (copyType.value || "Pending");
+      auditDateMeta.textContent = "Pending";
+      reportIdMeta.textContent = "DEC-PENDING";
+    }
+
+    let isSubmitting = false;
+    let latestDashboard = null;
+    let latestSubmission = null;
+
+    const singleAuditInputs = document.getElementById("singleAuditInputs");
+    const campaignInputs = document.getElementById("campaignInputs");
+    const copyText = document.getElementById("copyText");
+    const copyType = document.getElementById("copyType");
+    const goal = document.getElementById("goal");
+    const campaignAd = document.getElementById("campaignAd");
+    const campaignLanding = document.getElementById("campaignLanding");
+    const campaignEmail = document.getElementById("campaignEmail");
+    const campaignSalesPage = document.getElementById("campaignSalesPage");
+    const goalCampaign = document.getElementById("goalCampaign");
+    const submitButton = document.getElementById("submitButton");
+    const formError = document.getElementById("formError");
+    const loadingSection = document.getElementById("loadingSection");
+    const resultsSection = document.getElementById("resultsSection");
+
+    const verdictBanner = document.getElementById("verdictBanner");
+    const verdictCommand = document.getElementById("verdictCommand");
+    const verdictReasonLine = document.getElementById("verdictReasonLine");
+    const decisionLabel = document.getElementById("decisionLabel");
+    const decisionSub = document.getElementById("decisionSub");
+    const scoreValue = document.getElementById("scoreValue");
+    const scoreVerdict = document.getElementById("scoreVerdict");
+    const launchReadinessText = document.getElementById("launchReadinessText");
+    const complianceRiskFlag = document.getElementById("complianceRiskFlag");
+    const blockingSignalsCount = document.getElementById("blockingSignalsCount");
+    const summaryText = document.getElementById("summaryText");
+    const decisionRiskFlag = document.getElementById("decisionRiskFlag");
+    const decisionConfidenceFlag = document.getElementById("decisionConfidenceFlag");
+    const financialRiskText = document.getElementById("financialRiskText");
+    const bottleneckBlock = document.getElementById("bottleneckBlock");
+    const nextActionBlock = document.getElementById("nextActionBlock");
+    const printReportButton = document.getElementById("printReportButton");
+    const reportMeta = document.getElementById("reportMeta");
+    const blockingSignalsList = document.getElementById("blockingSignalsList");
+    const watchSignalsList = document.getElementById("watchSignalsList");
+    const complianceSummaryGrid = document.getElementById("complianceSummaryGrid");
+    const complianceFlagsTableBody = document.getElementById("complianceFlagsTableBody");
+    const bigIdeaBlock = document.getElementById("bigIdeaBlock");
+    const assetRoleBadge = document.getElementById("assetRoleBadge");
+    const roleFamilyBadge = document.getElementById("roleFamilyBadge");
+    const assetRoleHint = document.getElementById("assetRoleHint");
+    const goalAlignmentBadge = document.getElementById("goalAlignmentBadge");
+    const goalAlignmentText = document.getElementById("goalAlignmentText");
+    const priorityActionTableBody = document.getElementById("priorityActionTableBody");
+    const priorityFixList = document.getElementById("priorityFixList");
+    const supportDistinctness = document.getElementById("supportDistinctness");
+    const supportProof = document.getElementById("supportProof");
+    const supportAction = document.getElementById("supportAction");
+    const goalMismatchCard = document.getElementById("goalMismatchCard");
+    const goalMismatchText = document.getElementById("goalMismatchText");
+    const certificationCard = document.getElementById("certificationCard");
+    const certificationList = document.getElementById("certificationList");
+    const copyChiefScoreValue = document.getElementById("copyChiefScoreValue");
+    const chiefVerdictText = document.getElementById("chiefVerdictText");
+    const chiefSummaryText = document.getElementById("chiefSummaryText");
+    const chiefNoteText = document.getElementById("chiefNoteText");
+    const craftStrengthsList = document.getElementById("craftStrengthsList");
+    const craftWeaknessesList = document.getElementById("craftWeaknessesList");
+    const authorityProofBlock = document.getElementById("authorityProofBlock");
+    const persuasionProfileBlock = document.getElementById("persuasionProfileBlock");
+    const workingList = document.getElementById("workingList");
+    const improvementList = document.getElementById("improvementList");
+    const improvementDirectionList = document.getElementById("improvementDirectionList");
+    const conversionRisksList = document.getElementById("conversionRisksList");
+    const authorityCloseText = document.getElementById("authorityCloseText");
+    const ctaSection = document.getElementById("ctaSection");
+    const ctaContent = document.getElementById("ctaContent");
+    const railScoreValue = document.getElementById("railScoreValue");
+    const railScoreVerdict = document.getElementById("railScoreVerdict");
+    const dimensionScoresRail = document.getElementById("dimensionScoresRail");
+    const railWordCount = document.getElementById("railWordCount");
+    const railReadingLevel = document.getElementById("railReadingLevel");
+    const railCtaCount = document.getElementById("railCtaCount");
+    const railMechanismStatus = document.getElementById("railMechanismStatus");
+    const railPriceAnchoring = document.getElementById("railPriceAnchoring");
+    const railGuarantee = document.getElementById("railGuarantee");
+    const railProofDensity = document.getElementById("railProofDensity");
+    const railIncomeClaims = document.getElementById("railIncomeClaims");
+    const railTestimonials = document.getElementById("railTestimonials");
+    const railDisclosureVisibility = document.getElementById("railDisclosureVisibility");
+    const assetTypeMeta = document.getElementById("assetTypeMeta");
+    const auditModeMeta = document.getElementById("auditModeMeta");
+    const auditDateMeta = document.getElementById("auditDateMeta");
+    const reportIdMeta = document.getElementById("reportIdMeta");
+    const intakeModePreview = document.getElementById("intakeModePreview");
+    const intakeGoalPreview = document.getElementById("intakeGoalPreview");
+    const intakeTypePreview = document.getElementById("intakeTypePreview");
+    const modePills = Array.from(document.querySelectorAll(".clc-mode-pill"));
+
+    auditMode.addEventListener("change", updateModeUI);
+    modePills.forEach((pill) => {
+      pill.addEventListener("click", () => {
+        auditMode.value = pill.dataset.mode;
+        updateModeUI();
+      });
+    });
+
+    [copyType, goal, goalCampaign].forEach((field) => {
+      field.addEventListener("change", updateIntakePreview);
+    });
+
+    setupPdfExtractors();
+    printReportButton.addEventListener("click", printDashboardReport);
+    updateModeUI();
+    resetResults();
+
+    auditForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (isSubmitting) return;
+
+      clearError();
+      resetResults();
+
+      const isCampaign = auditMode.value === "campaign";
+      let payload;
+
+      if (isCampaign) {
+        payload = {
+          mode: "campaign",
+          assets: {
+            ad: campaignAd.value.trim(),
+            landing: campaignLanding.value.trim(),
+            email: campaignEmail.value.trim(),
+            sales_page: campaignSalesPage.value.trim()
+          },
+          goal: goalCampaign.value
+        };
+
+        if (!payload.assets.landing || payload.assets.landing.length < 80) {
+          showError("Please paste the main landing page copy for campaign audit.");
+          return;
+        }
+
+        if (!payload.goal) {
+          showError("Please choose the primary campaign goal.");
+          return;
+        }
+      } else {
+        payload = {
+          mode: "single",
+          copy: copyText.value.trim(),
+          copy_type: copyType.value,
+          goal: goal.value
+        };
+
+        if (!payload.copy || payload.copy.length < 80) {
+          showError("Please paste enough copy to run a useful audit.");
+          return;
+        }
+
+        if (!payload.copy_type || !payload.goal) {
+          showError("Please choose both the copy type and the primary goal.");
+          return;
+        }
+      }
+
+      isSubmitting = true;
+      setLoading(true);
+
+      try {
+        const endpoint = resolveAuditEndpoint();
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await parseJsonSafely(response);
+        if (!response.ok) {
+          throw new Error(data?.error || data?.message || `Audit failed (${response.status})`);
+        }
+
+        renderResults(data, payload);
+      } catch (error) {
+        console.error("Audit submission failed:", error);
+        showError(getReadableError(error, "Something went wrong while running the audit. Please try again."));
+      } finally {
+        isSubmitting = false;
+        setLoading(false);
+      }
+    });
+  </script>
+</body>
+</html>
