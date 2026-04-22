@@ -452,6 +452,169 @@ The audit must reflect commercial reality, not stylistic preference.
 The output must be strict, deterministic, and schema-compliant.
 `;
 
+const PERSUASION_AUDIT_SYSTEM_PROMPT = `
+You are Persuasion Audit Engine.
+
+Audit only persuasion mechanics.
+Return JSON only.
+Follow the provided schema exactly.
+No prose outside schema.
+No rewriting.
+No internal reasoning.
+
+Evaluate:
+- hook effectiveness
+- lead relevance
+- body tension and progression
+- mechanism clarity
+- offer strength
+- CTA decisiveness
+
+Return:
+- engine
+- pass
+- score
+- weakest_area
+- primary_break
+- fix_instruction
+- dimension_scores
+
+Use integer scores for dimension_scores.
+Keep outputs compact, deterministic, and commercially grounded.
+`;
+
+const PROOF_STRENGTH_SYSTEM_PROMPT = `
+You are Proof Strength Engine.
+
+Audit only proof quality and substantiation.
+Return JSON only.
+Follow the provided schema exactly.
+No prose outside schema.
+No rewriting.
+No internal reasoning.
+
+Evaluate:
+- overall proof strength
+- proof type balance
+- mechanism substantiation
+- product validation
+- operational verifiability
+- testimonial quality
+- authority quality
+- evidence uniqueness
+
+Return:
+- engine
+- pass
+- overall
+- proof_type_balance
+- mechanism_substantiation
+- product_validation
+- operational_verifiability
+- testimonial_quality
+- authority_quality
+- evidence_uniqueness
+- proof_gap
+- fix_instruction
+
+Use compact status labels and deterministic reasoning.
+`;
+
+const SKEPTICISM_ENGINE_SYSTEM_PROMPT = `
+You are Skepticism Engine.
+
+Audit only reader doubt, genericity, and trust friction.
+Return JSON only.
+Follow the provided schema exactly.
+No prose outside schema.
+No rewriting.
+No internal reasoning.
+
+Evaluate:
+- skepticism pressure
+- AI-pattern risk
+- commodity positioning risk
+- agreement-without-action risk
+- reader resistance points
+- genericity flags
+- false distinctness flags
+
+Return:
+- engine
+- pass
+- skepticism_pressure_score
+- ai_pattern_risk
+- commodity_positioning_risk
+- agreement_without_action_risk
+- reader_resistance_points
+- genericity_flags
+- false_distinctness_flags
+- trust_break
+- fix_instruction
+
+Outputs must be compact and deterministic.
+`;
+
+const CLAIM_EXPOSURE_SYSTEM_PROMPT = `
+You are Claim Exposure Engine.
+
+Audit only claim risk and substantiation exposure.
+Return JSON only.
+Follow the provided schema exactly.
+No prose outside schema.
+No rewriting.
+No internal reasoning.
+
+Evaluate:
+- overall claim risk
+- performance claims
+- implied superiority claims
+- safety claims
+- guarantee language
+- disclosure visibility
+- substantiation status
+
+Return:
+- engine
+- pass
+- overall_claim_risk
+- performance_claims_present
+- implied_superiority_claims_present
+- safety_claims_present
+- guarantee_language_present
+- disclosure_visibility
+- substantiation_status
+- primary_claim_risk
+- fix_instruction
+
+Be strict, compact, and commercially realistic.
+`;
+
+const DECISION_SYNTHESIS_SYSTEM_PROMPT = `
+You are Decision Synthesis Engine.
+
+Combine subsystem findings into one deterministic launch decision.
+Return JSON only.
+Follow the provided schema exactly.
+No prose outside schema.
+No rewriting.
+No internal reasoning.
+
+Decide:
+- certified
+- launch_verdict
+- verdict_confidence
+- safe_to_test
+- safe_to_scale
+- primary_blocker
+- highest_risk_failure_mode
+- decision_basis
+- reason
+- fix_instruction
+
+The output must be strict, compact, and deterministic.
+`;
+
 const CAMPAIGN_FIT_SYSTEM_PROMPT = `
 You are Certified Legendary Copy™ Campaign Fit Audit.
 
@@ -612,6 +775,174 @@ const SINGLE_AUDIT_SCHEMA = {
     "cta_summary",
     "big_idea",
     "big_idea_diagnosis"
+  ]
+};
+
+const PERSUASION_AUDIT_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    engine: { type: "string" },
+    pass: { type: "boolean" },
+    score: { type: "integer" },
+    weakest_area: { type: "string" },
+    primary_break: { type: "string" },
+    fix_instruction: { type: "string" },
+    dimension_scores: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        hook: { type: "integer" },
+        lead: { type: "integer" },
+        body: { type: "integer" },
+        mechanism: { type: "integer" },
+        offer: { type: "integer" },
+        cta: { type: "integer" }
+      },
+      required: ["hook", "lead", "body", "mechanism", "offer", "cta"]
+    }
+  },
+  required: [
+    "engine",
+    "pass",
+    "score",
+    "weakest_area",
+    "primary_break",
+    "fix_instruction",
+    "dimension_scores"
+  ]
+};
+
+const PROOF_STRENGTH_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    engine: { type: "string" },
+    pass: { type: "boolean" },
+    overall: { type: "string" },
+    proof_type_balance: { type: "string" },
+    mechanism_substantiation: { type: "string" },
+    product_validation: { type: "string" },
+    operational_verifiability: { type: "string" },
+    testimonial_quality: { type: "string" },
+    authority_quality: { type: "string" },
+    evidence_uniqueness: { type: "string" },
+    proof_gap: { type: "string" },
+    fix_instruction: { type: "string" }
+  },
+  required: [
+    "engine",
+    "pass",
+    "overall",
+    "proof_type_balance",
+    "mechanism_substantiation",
+    "product_validation",
+    "operational_verifiability",
+    "testimonial_quality",
+    "authority_quality",
+    "evidence_uniqueness",
+    "proof_gap",
+    "fix_instruction"
+  ]
+};
+
+const SKEPTICISM_ENGINE_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    engine: { type: "string" },
+    pass: { type: "boolean" },
+    skepticism_pressure_score: { type: "integer" },
+    ai_pattern_risk: { type: "string" },
+    commodity_positioning_risk: { type: "string" },
+    agreement_without_action_risk: { type: "string" },
+    reader_resistance_points: {
+      type: "array",
+      items: { type: "string" }
+    },
+    genericity_flags: {
+      type: "array",
+      items: { type: "string" }
+    },
+    false_distinctness_flags: {
+      type: "array",
+      items: { type: "string" }
+    },
+    trust_break: { type: "string" },
+    fix_instruction: { type: "string" }
+  },
+  required: [
+    "engine",
+    "pass",
+    "skepticism_pressure_score",
+    "ai_pattern_risk",
+    "commodity_positioning_risk",
+    "agreement_without_action_risk",
+    "reader_resistance_points",
+    "genericity_flags",
+    "false_distinctness_flags",
+    "trust_break",
+    "fix_instruction"
+  ]
+};
+
+const CLAIM_EXPOSURE_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    engine: { type: "string" },
+    pass: { type: "boolean" },
+    overall_claim_risk: { type: "string" },
+    performance_claims_present: { type: "boolean" },
+    implied_superiority_claims_present: { type: "boolean" },
+    safety_claims_present: { type: "boolean" },
+    guarantee_language_present: { type: "boolean" },
+    disclosure_visibility: { type: "string" },
+    substantiation_status: { type: "string" },
+    primary_claim_risk: { type: "string" },
+    fix_instruction: { type: "string" }
+  },
+  required: [
+    "engine",
+    "pass",
+    "overall_claim_risk",
+    "performance_claims_present",
+    "implied_superiority_claims_present",
+    "safety_claims_present",
+    "guarantee_language_present",
+    "disclosure_visibility",
+    "substantiation_status",
+    "primary_claim_risk",
+    "fix_instruction"
+  ]
+};
+
+const DECISION_SYNTHESIS_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    certified: { type: "boolean" },
+    launch_verdict: { type: "string" },
+    verdict_confidence: { type: "string" },
+    safe_to_test: { type: "boolean" },
+    safe_to_scale: { type: "boolean" },
+    primary_blocker: { type: "string" },
+    highest_risk_failure_mode: { type: "string" },
+    decision_basis: { type: "string" },
+    reason: { type: "string" },
+    fix_instruction: { type: "string" }
+  },
+  required: [
+    "certified",
+    "launch_verdict",
+    "verdict_confidence",
+    "safe_to_test",
+    "safe_to_scale",
+    "primary_blocker",
+    "highest_risk_failure_mode",
+    "decision_basis",
+    "reason",
+    "fix_instruction"
   ]
 };
 
