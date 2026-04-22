@@ -750,10 +750,29 @@ function splitSentences(text) {
     .filter(Boolean);
 }
 
+function normalizeSingleAuditContext(input) {
+  const context = input && typeof input === "object" && !Array.isArray(input) ? input : {};
+
+  return {
+    channel: normalizeText(context.channel),
+    traffic_source: normalizeText(context.traffic_source),
+    audience_temperature: normalizeText(context.audience_temperature),
+    awareness_level: normalizeText(context.awareness_level),
+    market_category: normalizeText(context.market_category),
+    offer_model: normalizeText(context.offer_model),
+    price_point: normalizeText(context.price_point),
+    sales_cycle: normalizeText(context.sales_cycle),
+    claim_sensitivity: normalizeText(context.claim_sensitivity),
+    competitive_maturity: normalizeText(context.competitive_maturity),
+    brand_proof_available: normalizeText(context.brand_proof_available)
+  };
+}
+
 function validateSingleInput(body) {
   const copy = normalizeText(body?.copy);
   const copy_type = normalizeText(body?.copy_type) || "Other";
   const goal = normalizeText(body?.goal) || "Drive sales";
+  const context = normalizeSingleAuditContext(body?.context);
 
   if (!copy || copy.length < 80) {
     throw new Error("Please paste enough copy to audit.");
@@ -763,7 +782,8 @@ function validateSingleInput(body) {
     mode: "single",
     copy: truncate(copy, MAX_SINGLE_CHARS),
     copy_type,
-    goal
+    goal,
+    context
   };
 }
 
