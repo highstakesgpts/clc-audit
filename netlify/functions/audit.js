@@ -1824,6 +1824,142 @@ async function runJsonModel({ systemPrompt, schemaName, schema, userPayload }) {
   return parsed;
 }
 
+function pickDefined(source, keys) {
+  const value = source && typeof source === "object" && !Array.isArray(source) ? source : {};
+  const picked = {};
+
+  for (const key of keys) {
+    if (Object.prototype.hasOwnProperty.call(value, key) && value[key] !== undefined) {
+      picked[key] = value[key];
+    }
+  }
+
+  return picked;
+}
+
+function buildSubsystemSignals(packet, keys) {
+  return pickDefined(packet?.signals, keys);
+}
+
+async function runPersuasionAudit(packet) {
+  const userPayload = {
+    copy_type: String(packet?.copy_type || ""),
+    goal: String(packet?.goal || ""),
+    copy: String(packet?.copy || ""),
+    context: packet?.context && typeof packet.context === "object" && !Array.isArray(packet.context) ? packet.context : {},
+    signals: buildSubsystemSignals(packet, ["meta", "cta", "offer", "positioning", "cadence"])
+  };
+
+  const parsed = await runJsonModel({
+    systemPrompt: PERSUASION_AUDIT_SYSTEM_PROMPT,
+    schemaName: "persuasion_audit",
+    schema: PERSUASION_AUDIT_SCHEMA,
+    userPayload
+  });
+
+  return sanitizePersuasionShape(parsed);
+}
+
+async function runProofStrengthAudit(packet) {
+  const userPayload = {
+    copy_type: String(packet?.copy_type || ""),
+    goal: String(packet?.goal || ""),
+    copy: String(packet?.copy || ""),
+    context: packet?.context && typeof packet.context === "object" && !Array.isArray(packet.context) ? packet.context : {},
+    signals: buildSubsystemSignals(packet, ["proof", "offer", "positioning"]),
+    evidence: packet?.evidence && typeof packet.evidence === "object" && !Array.isArray(packet.evidence) ? packet.evidence : {}
+  };
+
+  const parsed = await runJsonModel({
+    systemPrompt: PROOF_STRENGTH_SYSTEM_PROMPT,
+    schemaName: "proof_strength_audit",
+    schema: PROOF_STRENGTH_SCHEMA,
+    userPayload
+  });
+
+  return sanitizeProofStrengthShape(parsed);
+}
+
+async function runSkepticismAudit(packet) {
+  const userPayload = {
+    copy_type: String(packet?.copy_type || ""),
+    goal: String(packet?.goal || ""),
+    copy: String(packet?.copy || ""),
+    context: packet?.context && typeof packet.context === "object" && !Array.isArray(packet.context) ? packet.context : {},
+    signals: buildSubsystemSignals(packet, [
+      "claims",
+      "ai_pattern_markers",
+      "distinctness_markers",
+      "comparative_markers",
+      "risk_markers",
+      "positioning",
+      "cta"
+    ])
+  };
+
+  const parsed = await runJsonModel({
+    systemPrompt: SKEPTICISM_ENGINE_SYSTEM_PROMPT,
+    schemaName: "skepticism_audit",
+    schema: SKEPTICISM_ENGINE_SCHEMA,
+    userPayload
+  });
+
+  return sanitizeSkepticismShape(parsed);
+}
+
+async function runClaimExposureAudit(packet) {
+  const userPayload = {
+    copy_type: String(packet?.copy_type || ""),
+    goal: String(packet?.goal || ""),
+    copy: String(packet?.copy || ""),
+    context: packet?.context && typeof packet.context === "object" && !Array.isArray(packet.context) ? packet.context : {},
+    signals: buildSubsystemSignals(packet, [
+      "claims",
+      "guarantee_markers",
+      "comparative_markers",
+      "risk_markers",
+      "proof_markers"
+    ])
+  };
+
+  const parsed = await runJsonModel({
+    systemPrompt: CLAIM_EXPOSURE_SYSTEM_PROMPT,
+    schemaName: "claim_exposure_audit",
+    schema: CLAIM_EXPOSURE_SCHEMA,
+    userPayload
+  });
+
+  return sanitizeClaimExposureShape(parsed);
+}
+
+async function runDecisionSynthesis(packet, subsystemResults) {
+  const evidence = packet?.evidence && typeof packet.evidence === "object" && !Array.isArray(packet.evidence) ? packet.evidence : {};
+  const results = subsystemResults && typeof subsystemResults === "object" && !Array.isArray(subsystemResults) ? subsystemResults : {};
+  const userPayload = {
+    context: packet?.context && typeof packet.context === "object" && !Array.isArray(packet.context) ? packet.context : {},
+    evidence_summary: {
+      primary_type: String(evidence.primary_type || ""),
+      proof_strength: String(evidence.proof_strength || ""),
+      summary: evidence.summary && typeof evidence.summary === "object" && !Array.isArray(evidence.summary) ? evidence.summary : {}
+    },
+    subsystem_results: {
+      persuasion: results.persuasion && typeof results.persuasion === "object" && !Array.isArray(results.persuasion) ? results.persuasion : {},
+      proof_strength: results.proof_strength && typeof results.proof_strength === "object" && !Array.isArray(results.proof_strength) ? results.proof_strength : {},
+      skepticism: results.skepticism && typeof results.skepticism === "object" && !Array.isArray(results.skepticism) ? results.skepticism : {},
+      claim_exposure: results.claim_exposure && typeof results.claim_exposure === "object" && !Array.isArray(results.claim_exposure) ? results.claim_exposure : {}
+    }
+  };
+
+  const parsed = await runJsonModel({
+    systemPrompt: DECISION_SYNTHESIS_SYSTEM_PROMPT,
+    schemaName: "decision_synthesis",
+    schema: DECISION_SYNTHESIS_SCHEMA,
+    userPayload
+  });
+
+  return sanitizeDecisionSynthesisShape(parsed);
+}
+
 async function runSingleAssetAudit(assetKey, copy, meta = {}) {
   const payload = {
     mode: "single",
