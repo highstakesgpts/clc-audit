@@ -3629,7 +3629,7 @@ async function runCampaignFitAudit(goal, assetAudits) {
 }
 
 function buildSchemaV2(existingOutput, context = {}) {
-  return {
+  const schema = {
     meta: {
       mode: context.mode || null,
       asset_type: context.copy_type || null,
@@ -3646,6 +3646,21 @@ function buildSchemaV2(existingOutput, context = {}) {
     confidence: {},
     _legacy: existingOutput
   };
+
+  schema.risk_scores = {
+    hook: schema._legacy.audit?.dimension_scores?.hook ?? null,
+    body: schema._legacy.audit?.dimension_scores?.body ?? null,
+    proof: schema._legacy.audit?.dimension_scores?.proof ?? null,
+    cta: schema._legacy.audit?.dimension_scores?.cta ?? null
+  };
+
+  schema.asset_profile = {
+    asset_type: schema._legacy.audit?.asset_role ?? null,
+    audience_state: schema._legacy.audit?.audience_state ?? null,
+    total_score: schema._legacy.audit?.total_score ?? null
+  };
+
+  return schema;
 }
 
 export default async (req) => {
