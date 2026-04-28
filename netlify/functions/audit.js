@@ -1661,14 +1661,14 @@ function sanitizeProofStrengthShape(result) {
   return {
     engine: String(result.engine || ""),
     pass: Boolean(result.pass),
-    overall: sanitizeEnum(result.overall, STANDARD_SEVERITY_ENUM, "Moderate"),
-    proof_type_balance: sanitizeEnum(result.proof_type_balance, STANDARD_SEVERITY_ENUM, "Moderate"),
-    mechanism_substantiation: sanitizeEnum(result.mechanism_substantiation, STANDARD_SEVERITY_ENUM, "Moderate"),
-    product_validation: sanitizeEnum(result.product_validation, STANDARD_SEVERITY_ENUM, "Moderate"),
-    operational_verifiability: sanitizeEnum(result.operational_verifiability, STANDARD_SEVERITY_ENUM, "Moderate"),
-    testimonial_quality: sanitizeEnum(result.testimonial_quality, STANDARD_SEVERITY_ENUM, "Moderate"),
-    authority_quality: sanitizeEnum(result.authority_quality, STANDARD_SEVERITY_ENUM, "Moderate"),
-    evidence_uniqueness: sanitizeEnum(result.evidence_uniqueness, STANDARD_SEVERITY_ENUM, "Moderate"),
+    overall: sanitizeEnum(result.overall, STANDARD_SEVERITY_ENUM, "Low"),
+    proof_type_balance: sanitizeEnum(result.proof_type_balance, STANDARD_SEVERITY_ENUM, "Low"),
+    mechanism_substantiation: sanitizeEnum(result.mechanism_substantiation, STANDARD_SEVERITY_ENUM, "Low"),
+    product_validation: sanitizeEnum(result.product_validation, STANDARD_SEVERITY_ENUM, "Low"),
+    operational_verifiability: sanitizeEnum(result.operational_verifiability, STANDARD_SEVERITY_ENUM, "Low"),
+    testimonial_quality: sanitizeEnum(result.testimonial_quality, STANDARD_SEVERITY_ENUM, "Low"),
+    authority_quality: sanitizeEnum(result.authority_quality, STANDARD_SEVERITY_ENUM, "Low"),
+    evidence_uniqueness: sanitizeEnum(result.evidence_uniqueness, STANDARD_SEVERITY_ENUM, "Low"),
     proof_gap: String(result.proof_gap || ""),
     fix_instruction: String(result.fix_instruction || "")
   };
@@ -1753,6 +1753,1086 @@ function sanitizeDecisionSynthesisShape(result) {
 
 function severityRank(value) {
   return STANDARD_SEVERITY_ENUM.indexOf(sanitizeEnum(value, STANDARD_SEVERITY_ENUM, "Moderate"));
+}
+
+function severityToTen(value, fallback = "Low") {
+  const normalized = sanitizeEnum(value, STANDARD_SEVERITY_ENUM, fallback);
+  const mapping = {
+    None: 1,
+    Low: 3,
+    Moderate: 5,
+    High: 8,
+    Critical: 10
+  };
+
+  return mapping[normalized] ?? mapping[fallback] ?? 3;
+}
+
+function evidenceStrengthToTen(value) {
+  const normalized = normalizeText(value).toLowerCase();
+  const mapping = {
+    none: 1,
+    weak: 3,
+    moderate: 6,
+    strong: 9
+  };
+
+  return mapping[normalized] ?? 1;
+}
+
+function score100To70(value) {
+  return clampInt((Number(value) || 0) * 0.7, 0, 70);
+}
+
+function buildProofDimensionScore(proofStrength = {}, evidence = {}) {
+  const quantifiedProof = evidence?.categories?.quantified_proof || {};
+  const quantifiedBase = evidenceStrengthToTen(quantifiedProof.strength);
+  const quantifiedMarkerBonus = quantifiedProof.marker_count >= 4 ? 1 : 0;
+  const quantifiedScore = Math.min(10, quantifiedBase + quantifiedMarkerBonus);
+  const productValidationScore = severityToTen(proofStrength.product_validation, "Low");
+  const mechanismSubstantiationScore = severityToTen(proofStrength.mechanism_substantiation, "Low");
+  const evidenceUniquenessScore = severityToTen(proofStrength.evidence_uniqueness, "Low");
+
+  let score = Math.round(
+    (productValidationScore * 0.35) +
+    (mechanismSubstantiationScore * 0.3) +
+    (evidenceUniquenessScore * 0.2) +
+    (quantifiedScore * 0.15)
+  );
+
+  if (evidence?.has_meaningful_proof === false) score = Math.min(score, 3);
+  if (severityRank(proofStrength.overall) <= severityRank("Low")) score = Math.min(score, 4);
+
+  if (
+    severityRank(proofStrength.product_validation) <= severityRank("Low")
+    || severityRank(proofStrength.mechanism_substantiation) <= severityRank("Low")
+  ) {
+    score = Math.min(score, 6);
+  }
+
+  if ((quantifiedProof.marker_count || 0) === 0) {
+    score = Math.min(score, 7);
+  }
+
+  const eliteProof =
+    severityRank(proofStrength.product_validation) >= severityRank("High")
+    && severityRank(proofStrength.mechanism_substantiation) >= severityRank("High")
+    && severityRank(proofStrength.evidence_uniqueness) >= severityRank("High")
+    && quantifiedProof.strength === "strong";
+
+  if (!eliteProof) score = Math.min(score, 9);
+
+  return clampInt(score, 1, 10);
+}
+
+function applyLegacyDimensionCalibration({
+  dimension_scores,
+  weakest_dimension,
+  packet,
+  proofStrength,
+  skepticism,
+  evidence
+}) {
+  const dimensions = {
+    hook: clampInt(dimension_scores.hook, 1, 10),
+    lead: clampInt(dimension_scores.lead, 1, 10),
+    body: clampInt(dimension_scores.body, 1, 10),
+    mechanism: clampInt(dimension_scores.mechanism, 1, 10),
+    proof: clampInt(dimension_scores.proof, 1, 10),
+    offer: clampInt(dimension_scores.offer, 1, 10),
+    cta: clampInt(dimension_scores.cta, 1, 10)
+  };
+  const wordCount = Number(packet?.signals?.meta?.word_count) || 0;
+  const specificityCount = Number(packet?.signals?.proof_markers?.specificity_marker_count) || 0;
+  const numericCount = Number(packet?.signals?.proof?.numeric_count) || 0;
+  const mechanismPhraseCount = Number(packet?.signals?.positioning?.mechanism_phrase_count) || 0;
+  const distinctnessMarkerCount =
+    (Number(packet?.signals?.distinctness_markers?.distinctness_marker_count) || 0)
+    + (Number(packet?.signals?.distinctness_markers?.uniqueness_marker_count) || 0)
+    + (Number(packet?.signals?.distinctness_markers?.coined_mechanism_count) || 0);
+  const lowSpecificity = specificityCount < 2 && numericCount < 2;
+  const noMechanismClarity =
+    mechanismPhraseCount === 0 || severityRank(proofStrength.mechanism_substantiation) <= severityRank("Low");
+  const noDistinctness =
+    distinctnessMarkerCount === 0 || severityRank(skepticism.commodity_positioning_risk) >= severityRank("High");
+  const weakProof = dimensions.proof <= 5;
+  const skepticismPressure = Number(skepticism?.skepticism_pressure_score) || 0;
+  const eliteEligible =
+    wordCount >= 500
+    && !lowSpecificity
+    && !noMechanismClarity
+    && !noDistinctness
+    && dimensions.proof >= 8
+    && skepticismPressure < 50;
+
+  if (weakest_dimension && Object.prototype.hasOwnProperty.call(dimensions, weakest_dimension)) {
+    dimensions[weakest_dimension] = Math.min(dimensions[weakest_dimension], 7);
+  }
+
+  if (proofStrength.proof_gap || evidence?.has_meaningful_proof === false) {
+    dimensions.proof = Math.min(dimensions.proof, 7);
+  }
+
+  if (lowSpecificity) {
+    dimensions.hook = Math.min(dimensions.hook, 8);
+    dimensions.lead = Math.min(dimensions.lead, 8);
+    dimensions.body = Math.min(dimensions.body, 7);
+    dimensions.proof = Math.min(dimensions.proof, 7);
+  }
+
+  if (noMechanismClarity) {
+    dimensions.body = Math.min(dimensions.body, 7);
+    dimensions.mechanism = Math.min(dimensions.mechanism, 7);
+    dimensions.proof = Math.min(dimensions.proof, 7);
+  }
+
+  if (noDistinctness) {
+    dimensions.hook = Math.min(dimensions.hook, 8);
+    dimensions.lead = Math.min(dimensions.lead, 8);
+    dimensions.offer = Math.min(dimensions.offer, 8);
+    dimensions.cta = Math.min(dimensions.cta, 8);
+  }
+
+  if (!eliteEligible) {
+    for (const key of Object.keys(dimensions)) {
+      dimensions[key] = Math.min(dimensions[key], 9);
+    }
+  }
+
+  let penalty = 0;
+  if (lowSpecificity) penalty += 4;
+  if (noMechanismClarity) penalty += 5;
+  if (noDistinctness) penalty += 4;
+  if (weakProof) penalty += 3;
+  if (weakProof && (lowSpecificity || noDistinctness)) penalty += 2;
+
+  let totalScore = Object.values(dimensions).reduce((sum, value) => sum + value, 0) - penalty;
+
+  if (lowSpecificity) totalScore = Math.min(totalScore, score100To70(84));
+  if (noMechanismClarity) totalScore = Math.min(totalScore, score100To70(80));
+  if (noDistinctness) totalScore = Math.min(totalScore, score100To70(82));
+  if (wordCount < 500 && weakProof) totalScore = Math.min(totalScore, score100To70(82));
+  if (weakProof && noMechanismClarity && noDistinctness) totalScore = Math.min(totalScore, score100To70(70));
+
+  return {
+    dimension_scores: dimensions,
+    total_score: clampInt(totalScore, 0, 70),
+    flags: {
+      low_specificity: lowSpecificity,
+      no_mechanism_clarity: noMechanismClarity,
+      no_distinctness: noDistinctness,
+      weak_proof: weakProof,
+      short_form: wordCount < 500,
+      elite_eligible: eliteEligible
+    }
+  };
+}
+
+function createDimensionState(name, base = 3) {
+  return {
+    name,
+    score: base,
+    notes: [],
+    caps: []
+  };
+}
+
+function addSignalScore(state, condition, amount, note) {
+  if (!condition) return;
+  state.score += amount;
+  if (note) state.notes.push(note);
+}
+
+function addSignalPenalty(state, condition, amount, note) {
+  if (!condition) return;
+  state.score -= amount;
+  if (note) state.notes.push(note);
+}
+
+function addHardCap(state, condition, cap, reason) {
+  if (!condition) return;
+  state.caps.push({ cap, reason });
+}
+
+function finalizeDimensionState(state, { eliteEligible = false } = {}) {
+  let score = state.score;
+
+  for (const entry of state.caps) {
+    score = Math.min(score, entry.cap);
+  }
+
+  if (!eliteEligible) score = Math.min(score, 9);
+
+  return {
+    score: clampInt(score, 1, 10),
+    notes: state.notes,
+    caps: state.caps
+  };
+}
+
+function buildDeterministicPersuasionInputs(packet) {
+  const copy = normalizeText(packet?.copy || "");
+  const sentences = splitSentences(copy);
+  const paragraphs = splitParagraphs(copy);
+  const openingSentence = sentences[0] || "";
+  const hookWindow = sentences.slice(0, 2).join(" ");
+  const leadWindow = sentences.slice(0, 4).join(" ");
+  const bodyWindow = sentences.slice(2).join(" ") || copy;
+  const endingWindow = sentences.slice(-2).join(" ") || copy.slice(Math.max(0, copy.length - 240));
+  const hookSignals = detectSignals(hookWindow || openingSentence || copy);
+  const leadSignals = detectSignals(leadWindow || copy);
+  const bodySignals = detectSignals(bodyWindow || copy);
+  const ctaSignals = detectSignals(endingWindow || copy);
+  const hookEvidence = classifyEvidence(hookWindow || openingSentence || copy, hookSignals);
+  const bodyEvidence = classifyEvidence(bodyWindow || copy, bodySignals);
+  const signals = packet?.signals || {};
+  const evidence = packet?.evidence || {};
+  const claimPressure =
+    (Number(signals?.claims?.claim_count) || 0)
+    + (Number(signals?.claims?.outcome_claim_count) || 0)
+    + (Number(signals?.claims?.speed_claim_count) || 0)
+    + (Number(signals?.claims?.certainty_claim_count) || 0);
+  const supportCount =
+    (Number(signals?.proof_markers?.proof_marker_count) || 0)
+    + (Number(signals?.proof_markers?.specificity_marker_count) || 0)
+    + (Number(signals?.proof?.numeric_count) || 0)
+    + (Number(signals?.proof?.quote_count) || 0)
+    + (Number(signals?.authority_markers?.authority_marker_count) || 0)
+    + (Number(signals?.authority_markers?.credential_marker_count) || 0);
+  const aiPatternCount =
+    (Number(signals?.ai_pattern_markers?.ai_pattern_count) || 0)
+    + (Number(signals?.ai_pattern_markers?.hype_phrase_count) || 0)
+    + (Number(signals?.ai_pattern_markers?.filler_phrase_count) || 0);
+  const distinctnessCount =
+    (Number(signals?.distinctness_markers?.distinctness_marker_count) || 0)
+    + (Number(signals?.distinctness_markers?.uniqueness_marker_count) || 0)
+    + (Number(signals?.distinctness_markers?.coined_mechanism_count) || 0)
+    + (Number(signals?.positioning?.differentiation_count) || 0);
+  const mechanismSupportCount =
+    (Number(evidence?.categories?.mechanism_proof?.marker_count) || 0)
+    + (Number(evidence?.categories?.operational_proof?.marker_count) || 0);
+  const mechanismPhraseCount = Number(signals?.positioning?.mechanism_phrase_count) || 0;
+  const proofStrength = normalizeText(evidence?.proof_strength).toLowerCase();
+  const weakProof = !evidence?.has_meaningful_proof || ["none", "weak"].includes(proofStrength);
+  const lowSpecificity =
+    (Number(signals?.proof_markers?.specificity_marker_count) || 0) < 2
+    && (Number(signals?.proof?.numeric_count) || 0) < 2;
+  const unclearMechanism = mechanismPhraseCount === 0 || mechanismSupportCount === 0;
+  const highClaimPressureLowSupport = claimPressure >= 5 && supportCount <= 3;
+  const wordCount = Number(signals?.meta?.word_count) || tokenize(copy).length;
+  const aiPatternDensity = wordCount ? aiPatternCount / Math.max(wordCount / 100, 1) : aiPatternCount;
+  const highAiPatternDensity = aiPatternDensity >= 2.5 || aiPatternCount >= 5;
+  const noDistinctness = distinctnessCount === 0;
+  const stakeWordCount = countMatches(copy, /\b(risk|cost|waste|stuck|struggle|miss|losing|pain|problem|frustrat|deadline|opportunity)\w*\b/gi);
+  const outcomeWordCount = countMatches(copy, /\b(increase|grow|scale|reduce|improve|save|convert|win|book|revenue|sales|leads)\w*\b/gi);
+  const stepWordCount = countMatches(copy, /\b(step[- ]by[- ]step|steps?|process|system|framework|method|protocol|walkthrough|checklist)\b/gi);
+  const audienceTemperature = normalizeText(packet?.context?.audience_temperature).toLowerCase();
+
+  return {
+    copy,
+    copy_type: String(packet?.copy_type || ""),
+    goal: String(packet?.goal || ""),
+    context: packet?.context || {},
+    signals,
+    evidence,
+    sentences,
+    paragraphs,
+    openingSentence,
+    hookWindow,
+    leadWindow,
+    bodyWindow,
+    endingWindow,
+    hookSignals,
+    leadSignals,
+    bodySignals,
+    ctaSignals,
+    hookEvidence,
+    bodyEvidence,
+    claimPressure,
+    supportCount,
+    aiPatternCount,
+    aiPatternDensity,
+    distinctnessCount,
+    mechanismPhraseCount,
+    mechanismSupportCount,
+    weakProof,
+    lowSpecificity,
+    unclearMechanism,
+    highClaimPressureLowSupport,
+    highAiPatternDensity,
+    noDistinctness,
+    stakeWordCount,
+    outcomeWordCount,
+    stepWordCount,
+    wordCount,
+    audienceTemperature
+  };
+}
+
+function scoreHookDeterministically(stats) {
+  const state = createDimensionState("hook", 3);
+  const openingWordCount = Number(stats?.hookSignals?.meta?.word_count) || 0;
+  const openingSpecificity =
+    (Number(stats?.hookSignals?.proof_markers?.specificity_marker_count) || 0)
+    + Math.min(2, Number(stats?.hookSignals?.proof?.numeric_count) || 0);
+  const openingDistinctness =
+    (Number(stats?.hookSignals?.distinctness_markers?.distinctness_marker_count) || 0)
+    + (Number(stats?.hookSignals?.distinctness_markers?.coined_mechanism_count) || 0)
+    + (Number(stats?.hookSignals?.positioning?.differentiation_count) || 0);
+  const openingTension =
+    (Number(stats?.hookSignals?.comparative_markers?.comparison_marker_count) || 0)
+    + Math.min(2, countMatches(stats?.hookWindow || "", /\b(but|without|instead|stuck|risk|losing|before|after)\b/gi));
+  const openingOutcome = countMatches(stats?.hookWindow || "", /\b(you|your)\b/gi) > 0 && stats.outcomeWordCount > 0;
+  const openingAiCount =
+    (Number(stats?.hookSignals?.ai_pattern_markers?.ai_pattern_count) || 0)
+    + (Number(stats?.hookSignals?.ai_pattern_markers?.hype_phrase_count) || 0)
+    + (Number(stats?.hookSignals?.ai_pattern_markers?.filler_phrase_count) || 0);
+
+  addSignalScore(state, openingSpecificity >= 2, 2, "Hook uses concrete specificity.");
+  addSignalScore(state, openingDistinctness >= 1, 1.8, "Hook carries differentiated framing.");
+  addSignalScore(state, openingTension >= 1, 1.5, "Hook creates tension or contrast.");
+  addSignalScore(state, openingOutcome, 1.2, "Hook points at reader-relevant outcome.");
+  addSignalScore(state, openingWordCount >= 6 && openingWordCount <= 24, 0.8, "Hook is compact enough to land quickly.");
+
+  addSignalPenalty(state, openingAiCount >= 2, 2, "Hook leans on predictable AI-style phrasing.");
+  addSignalPenalty(state, openingSpecificity === 0 && openingDistinctness === 0, 1.8, "Hook stays generic and abstract.");
+  addSignalPenalty(state, openingWordCount > 30, 1, "Hook takes too long to arrive.");
+
+  addHardCap(state, openingSpecificity === 0, 7, "Low-specificity hook cap applied.");
+  addHardCap(state, openingSpecificity === 0 && openingDistinctness === 0, 6, "Generic hook cap applied.");
+  addHardCap(state, openingAiCount >= 3, 6, "AI-pattern-heavy hook cap applied.");
+
+  return finalizeDimensionState(state, {
+    eliteEligible: openingSpecificity >= 2 && openingDistinctness >= 1 && openingTension >= 1 && openingAiCount === 0
+  });
+}
+
+function scoreLeadDeterministically(stats) {
+  const state = createDimensionState("lead", 3);
+  const leadSpecificity =
+    (Number(stats?.leadSignals?.proof_markers?.specificity_marker_count) || 0)
+    + Math.min(2, Number(stats?.leadSignals?.proof?.numeric_count) || 0);
+  const leadProblemCount = countMatches(stats?.leadWindow || "", /\b(problem|pain|stuck|frustrat|miss|waste|slow|hard|expensive|risk)\w*\b/gi);
+  const leadMovement =
+    (Number(stats?.leadSignals?.positioning?.mechanism_phrase_count) || 0)
+    + (Number(stats?.leadSignals?.comparative_markers?.comparison_marker_count) || 0)
+    + Math.min(2, stats.stepWordCount);
+  const hookCarryover =
+    (Number(stats?.hookSignals?.positioning?.mechanism_phrase_count) || 0) > 0
+    || (Number(stats?.leadSignals?.positioning?.mechanism_phrase_count) || 0) > 0
+    || leadProblemCount > 0;
+  const leadAiCount =
+    (Number(stats?.leadSignals?.ai_pattern_markers?.ai_pattern_count) || 0)
+    + (Number(stats?.leadSignals?.ai_pattern_markers?.hype_phrase_count) || 0)
+    + (Number(stats?.leadSignals?.ai_pattern_markers?.filler_phrase_count) || 0);
+  const leadWordCount = Number(stats?.leadSignals?.meta?.word_count) || 0;
+  const coldNeedsOrientation = stats.audienceTemperature === "cold";
+
+  addSignalScore(state, hookCarryover, 1.5, "Lead continues the opening idea.");
+  addSignalScore(state, leadProblemCount >= 1, 1.8, "Lead makes the problem clearer.");
+  addSignalScore(state, stats.stakeWordCount >= 2, 1.2, "Lead raises real stakes.");
+  addSignalScore(state, leadMovement >= 1, 1.5, "Lead moves into the argument.");
+  addSignalScore(state, leadSpecificity >= 2, 1.3, "Lead adds concrete detail.");
+
+  addSignalPenalty(state, leadAiCount >= 2, 1.6, "Lead slips into generic framing.");
+  addSignalPenalty(state, leadMovement === 0, 1.5, "Lead does not progress the argument.");
+  addSignalPenalty(state, coldNeedsOrientation && leadWordCount < 30, 1.2, "Lead is too thin for a cold audience.");
+  addSignalPenalty(state, leadProblemCount === 0 && stats.stakeWordCount === 0, 1.2, "Lead lacks tension and stakes.");
+
+  addHardCap(state, leadMovement === 0, 7, "Lead progression cap applied.");
+  addHardCap(state, leadProblemCount === 0 && stats.stakeWordCount === 0, 6, "Low-tension lead cap applied.");
+  addHardCap(state, coldNeedsOrientation && leadSpecificity === 0, 6, "Cold-audience lead cap applied.");
+
+  return finalizeDimensionState(state, {
+    eliteEligible: hookCarryover && leadProblemCount >= 1 && leadMovement >= 1 && leadSpecificity >= 2 && leadAiCount === 0
+  });
+}
+
+function scoreBodyDeterministically(stats) {
+  const state = createDimensionState("body", 3);
+  const bodyWordCount = Number(stats?.bodySignals?.meta?.word_count) || 0;
+  const bodySpecificity =
+    (Number(stats?.bodySignals?.proof_markers?.specificity_marker_count) || 0)
+    + Math.min(3, Number(stats?.bodySignals?.proof?.numeric_count) || 0);
+  const supportDensity = stats.bodyWindow
+    ? (
+      (Number(stats?.bodySignals?.proof_markers?.proof_marker_count) || 0)
+      + (Number(stats?.bodySignals?.proof_markers?.specificity_marker_count) || 0)
+      + (Number(stats?.bodySignals?.proof?.quote_count) || 0)
+      + (Number(stats?.bodySignals?.authority_markers?.authority_marker_count) || 0)
+    ) / Math.max(1, Number(stats?.bodySignals?.meta?.paragraph_count) || 1)
+    : 0;
+  const bodyProgression =
+    (Number(stats?.bodySignals?.positioning?.mechanism_phrase_count) || 0)
+    + (Number(stats?.bodySignals?.comparative_markers?.comparison_marker_count) || 0)
+    + Math.min(2, countMatches(stats?.bodyWindow || "", /\b(because|which means|so that|therefore|instead|first|then|finally)\b/gi));
+  const repetitionRisk = bodyWordCount >= 80 && tokenize(stats.bodyWindow || "").length
+    ? 1 - (new Set(tokenize(stats.bodyWindow || "")).size / Math.max(1, tokenize(stats.bodyWindow || "").length))
+    : 0;
+  const abstractionRisk = bodySpecificity === 0 && supportDensity < 1;
+
+  addSignalScore(state, bodyWordCount >= 120, 1.4, "Body has enough room to develop the case.");
+  addSignalScore(state, bodyProgression >= 2, 1.7, "Body shows argument progression.");
+  addSignalScore(state, bodySpecificity >= 3, 1.6, "Body uses concrete detail.");
+  addSignalScore(state, supportDensity >= 1.5, 1.8, "Body stays close to support and evidence.");
+  addSignalScore(state, stats.stakeWordCount >= 3, 1, "Body keeps commercial stakes visible.");
+
+  addSignalPenalty(state, (Number(stats?.bodySignals?.ai_pattern_markers?.filler_phrase_count) || 0) >= 2, 1.5, "Body uses filler language.");
+  addSignalPenalty(state, repetitionRisk >= 0.62, 1.4, "Body becomes repetitive.");
+  addSignalPenalty(state, stats.highClaimPressureLowSupport, 2, "Body makes too many claims without enough support.");
+  addSignalPenalty(state, abstractionRisk, 1.7, "Body remains abstract.");
+
+  addHardCap(state, supportDensity < 1, 6, "Body support-density cap applied.");
+  addHardCap(state, bodySpecificity === 0, 7, "Body specificity cap applied.");
+  addHardCap(state, bodyWordCount < 80, 5, "Body depth cap applied.");
+
+  return finalizeDimensionState(state, {
+    eliteEligible: bodyWordCount >= 180 && bodyProgression >= 2 && bodySpecificity >= 3 && supportDensity >= 1.5 && !stats.highClaimPressureLowSupport
+  });
+}
+
+function scoreMechanismDeterministically(stats) {
+  const state = createDimensionState("mechanism", 3);
+  const namedMechanism =
+    (Number(stats?.signals?.positioning?.mechanism_phrase_count) || 0)
+    + (Number(stats?.signals?.distinctness_markers?.coined_mechanism_count) || 0);
+  const causalClarity = Math.min(2, countMatches(stats.copy, /\b(because|works by|so that|this is why|which means|instead of)\b/gi));
+  const processVisibility = Math.min(2, countMatches(stats.copy, /\b(step[- ]by[- ]step|steps?|process|walkthrough|checklist|protocol)\b/gi));
+  const mechanismProof = Number(stats?.evidence?.categories?.mechanism_proof?.marker_count) || 0;
+  const vagueMechanismLanguage = countMatches(stats.copy, /\b(secret|system|method|framework|formula)\b/gi) > 0 && causalClarity === 0 && processVisibility === 0 && mechanismProof === 0;
+
+  addSignalScore(state, namedMechanism >= 1, 1.8, "Copy names a mechanism or method.");
+  addSignalScore(state, causalClarity >= 1, 1.8, "Copy explains why the mechanism works.");
+  addSignalScore(state, processVisibility >= 1, 1.5, "Copy exposes steps or process visibility.");
+  addSignalScore(state, mechanismProof >= 1, 1.7, "Mechanism is backed by evidence.");
+  addSignalScore(state, (Number(stats?.evidence?.categories?.operational_proof?.marker_count) || 0) >= 1, 1.2, "Mechanism feels operational, not mystical.");
+
+  addSignalPenalty(state, namedMechanism === 0, 2.2, "Mechanism is missing.");
+  addSignalPenalty(state, vagueMechanismLanguage, 2, "Mechanism language is vague or unexplained.");
+  addSignalPenalty(state, namedMechanism > 0 && mechanismProof === 0, 1.8, "Mechanism is named but unsupported.");
+
+  addHardCap(state, namedMechanism === 0, 4, "Missing-mechanism cap applied.");
+  addHardCap(state, stats.unclearMechanism, 6, "Unclear-mechanism cap applied.");
+  addHardCap(state, vagueMechanismLanguage, 5, "Vague-mechanism cap applied.");
+
+  return finalizeDimensionState(state, {
+    eliteEligible: namedMechanism >= 1 && causalClarity >= 1 && processVisibility >= 1 && mechanismProof >= 1 && !vagueMechanismLanguage
+  });
+}
+
+function scoreOfferDeterministically(stats) {
+  const state = createDimensionState("offer", 3);
+  const deliverables = Number(stats?.signals?.offer?.deliverable_count) || 0;
+  const priceMentions = Number(stats?.signals?.offer?.price_mention_count) || 0;
+  const riskReduction = (Number(stats?.signals?.offer?.guarantee_count) || 0) + (Number(stats?.signals?.guarantee_markers?.reversal_marker_count) || 0);
+  const stackClarity = (Number(stats?.signals?.offer_stack_markers?.stack_marker_count) || 0) + (Number(stats?.signals?.offer_stack_markers?.bundle_marker_count) || 0);
+  const fitClarity = countMatches(stats.copy, /\b(for (?:teams|founders|coaches|brands|agencies|operators|creators|businesses)|best for|ideal for|not for)\b/gi);
+  const vagueOffer = deliverables === 0 && priceMentions === 0 && stackClarity === 0;
+
+  addSignalScore(state, deliverables >= 2, 2, "Offer has concrete deliverables.");
+  addSignalScore(state, priceMentions >= 1, 1.5, "Offer includes price or investment clarity.");
+  addSignalScore(state, stackClarity >= 1, 1.3, "Offer stack is identifiable.");
+  addSignalScore(state, fitClarity >= 1, 1.2, "Offer clarifies who it is for.");
+  addSignalScore(state, riskReduction >= 1, 1.2, "Offer includes risk reduction.");
+
+  addSignalPenalty(state, vagueOffer, 2.3, "Offer is not concretely identifiable.");
+  addSignalPenalty(state, deliverables === 0 && priceMentions === 0, 1.5, "Offer lacks clear boundaries.");
+  addSignalPenalty(state, stats.noDistinctness, 1.2, "Offer feels commodity-like.");
+
+  addHardCap(state, vagueOffer, 6, "Vague-offer cap applied.");
+  addHardCap(state, deliverables === 0 && priceMentions === 0 && riskReduction === 0, 5, "Unclear-offer cap applied.");
+
+  return finalizeDimensionState(state, {
+    eliteEligible: deliverables >= 2 && (priceMentions >= 1 || stackClarity >= 2) && fitClarity >= 1 && !vagueOffer
+  });
+}
+
+function scoreCtaDeterministically(stats) {
+  const state = createDimensionState("cta", 3);
+  const actionCount = Number(stats?.ctaSignals?.cta?.action_phrase_count) || 0;
+  const urgencyCount = Number(stats?.ctaSignals?.cta?.urgency_phrase_count) || 0;
+  const explicitCta = Boolean(stats?.ctaSignals?.cta?.has_cta_signal);
+  const nextStepSpecificity =
+    actionCount
+    + (Number(stats?.ctaSignals?.offer?.price_mention_count) || 0)
+    + Math.min(1, countMatches(stats.endingWindow || "", /\b(book|download|apply|register|schedule|watch|claim|get access|start now)\b/gi));
+  const passiveEnding = !explicitCta && countMatches(stats.endingWindow || "", /\b(learn more|find out|discover|explore)\b/gi) > 0;
+  const pressureRisk = Number(stats?.signals?.risk_markers?.pressure_risk_count) || 0;
+  const genericWeakCta = actionCount <= 1 && nextStepSpecificity <= 1 && urgencyCount === 0;
+
+  addSignalScore(state, explicitCta, 2, "CTA asks for an explicit action.");
+  addSignalScore(state, nextStepSpecificity >= 2, 1.8, "CTA makes the next step concrete.");
+  addSignalScore(state, urgencyCount >= 1 && pressureRisk <= 2, 1.1, "CTA uses urgency appropriately.");
+  addSignalScore(state, (Number(stats?.signals?.offer?.deliverable_count) || 0) >= 1, 0.9, "CTA is attached to a tangible offer.");
+  addSignalScore(state, pressureRisk === 0, 0.8, "CTA keeps friction manageable.");
+
+  addSignalPenalty(state, !explicitCta, 2.3, "CTA is missing.");
+  addSignalPenalty(state, passiveEnding, 1.5, "CTA ends passively.");
+  addSignalPenalty(state, pressureRisk >= 3, 1.5, "CTA overuses pressure language.");
+  addSignalPenalty(state, genericWeakCta, 1.5, "CTA remains vague or weak.");
+
+  addHardCap(state, !explicitCta, 3, "Missing-CTA cap applied.");
+  addHardCap(state, genericWeakCta, 6, "Generic CTA cap applied.");
+  addHardCap(state, !stats.unclearMechanism && (Number(stats?.signals?.offer?.deliverable_count) || 0) >= 1 ? false : genericWeakCta, 6, "Weak CTA alignment cap applied.");
+
+  return finalizeDimensionState(state, {
+    eliteEligible: explicitCta && nextStepSpecificity >= 2 && pressureRisk <= 1 && !genericWeakCta
+  });
+}
+
+function summarizeDeterministicPersuasion(dimensions, stats) {
+  const weaknesses = [];
+  const strengths = [];
+  const notes = [];
+
+  for (const [key, value] of Object.entries(dimensions)) {
+    if (value.score <= 7) {
+      weaknesses.push(`${formatLabel(key)} needs reinforcement: ${value.notes.slice(-2).join(" ") || "Signals are not yet persuasive enough."}`);
+    } else if (value.score >= 8) {
+      strengths.push(`${formatLabel(key)} is strong: ${value.notes.slice(0, 2).join(" ") || "Signals are supporting conversion."}`);
+    }
+    if (value.caps.length) {
+      notes.push(...value.caps.map((cap) => `${formatLabel(key)} cap: ${cap.reason}`));
+    }
+  }
+
+  if (stats.noDistinctness) {
+    weaknesses.push("Distinctness needs reinforcement: framing still reads as commodity-level.");
+  } else {
+    strengths.push("Distinctness is helping persuasion resist generic category language.");
+  }
+
+  return {
+    weaknesses: weaknesses.slice(0, 8),
+    strengths: strengths.slice(0, 8),
+    notes: notes.slice(0, 12)
+  };
+}
+
+function scorePersuasionDeterministically(packet) {
+  const stats = buildDeterministicPersuasionInputs(packet);
+  const dimensions = {
+    hook: scoreHookDeterministically(stats),
+    lead: scoreLeadDeterministically(stats),
+    body: scoreBodyDeterministically(stats),
+    mechanism: scoreMechanismDeterministically(stats),
+    offer: scoreOfferDeterministically(stats),
+    cta: scoreCtaDeterministically(stats)
+  };
+  const dimension_scores = Object.fromEntries(
+    Object.entries(dimensions).map(([key, value]) => [key, value.score])
+  );
+  const caps_applied = Object.entries(dimensions)
+    .flatMap(([key, value]) => value.caps.map((cap) => ({ target: key, cap: cap.cap, reason: cap.reason })));
+  let total_score = clampInt((Object.values(dimension_scores).reduce((sum, value) => sum + value, 0) / 60) * 100, 0, 100);
+  const scoring_notes = [];
+
+  if (stats.weakProof) {
+    total_score -= 12;
+    scoring_notes.push("Global penalty: weak proof materially lowered persuasion score.");
+  }
+
+  if (stats.highClaimPressureLowSupport) {
+    total_score -= 10;
+    scoring_notes.push("Global penalty: high claim pressure without enough support reduced persuasion score.");
+  }
+
+  if (stats.highAiPatternDensity) {
+    total_score -= 10;
+    scoring_notes.push("Global penalty: high AI-pattern density reduced persuasion score.");
+  }
+
+  if (stats.unclearMechanism) {
+    total_score -= 14;
+    scoring_notes.push("Global penalty: unclear or missing mechanism reduced persuasion score.");
+  }
+
+  if (stats.noDistinctness) {
+    total_score -= 8;
+    scoring_notes.push("Global penalty: generic commodity framing reduced persuasion score.");
+  }
+
+  if (stats.unclearMechanism) {
+    total_score = Math.min(total_score, 75);
+    caps_applied.push({ target: "total_score", cap: 75, reason: "Mechanism clarity is weak or unclear." });
+  }
+
+  if (normalizeText(stats?.evidence?.proof_strength).toLowerCase() !== "strong") {
+    total_score = Math.min(total_score, 85);
+    caps_applied.push({ target: "total_score", cap: 85, reason: "Proof strength is below strong." });
+  }
+
+  if (stats.wordCount < 300 && stats.weakProof) {
+    total_score = Math.min(total_score, 70);
+    caps_applied.push({ target: "total_score", cap: 70, reason: "Short-form copy with weak proof cannot score elite." });
+  }
+
+  if (stats.weakProof || stats.unclearMechanism) {
+    total_score = Math.min(total_score, 88);
+    caps_applied.push({ target: "total_score", cap: 88, reason: "Elite persuasion requires proof and mechanism clarity." });
+  }
+
+  const summary = summarizeDeterministicPersuasion(dimensions, stats);
+  scoring_notes.push(...summary.notes);
+
+  return {
+    total_score: clampInt(total_score, 0, 100),
+    dimension_scores,
+    weaknesses: summary.weaknesses,
+    strengths: summary.strengths,
+    caps_applied,
+    scoring_notes: scoring_notes.slice(0, 16)
+  };
+}
+
+function uniqueLimitedStrings(values, limit = 6) {
+  return [...new Set((Array.isArray(values) ? values : []).map((value) => normalizeText(value)).filter(Boolean))].slice(0, limit);
+}
+
+function computeClaimSupportGap(claimIntensity, supportStrength) {
+  const claimRank = { Low: 1, Moderate: 2, High: 3, Extreme: 4 }[claimIntensity] || 1;
+  const supportRank = { Weak: 1, Moderate: 2, Strong: 3 }[supportStrength] || 1;
+  return claimRank - supportRank;
+}
+
+function buildSkepticismPressureInputs(packet) {
+  const copy = normalizeText(packet?.copy || "");
+  const signals = packet?.signals || {};
+  const evidence = packet?.evidence || {};
+  const claimCounts = signals.claims || {};
+  const proofSignals = signals.proof || {};
+  const proofMarkers = signals.proof_markers || {};
+  const positioning = signals.positioning || {};
+  const authorityMarkers = signals.authority_markers || {};
+  const aiPatternMarkers = signals.ai_pattern_markers || {};
+  const context = packet?.context || {};
+
+  const incomeClaimCount = countMatches(
+    copy,
+    /\b(\$\s?\d[\d,]*(?:\.\d{2})?|six[- ]figure|seven[- ]figure|monthly recurring revenue|mrr|arr|revenue|sales|income|profit|roi|return on investment)\b/gi
+  );
+  const transformationClaimCount = countMatches(
+    copy,
+    /\b(transform|breakthrough|change your life|life[- ]changing|completely different|unlock|scale|grow fast|double|triple|explode)\b/gi
+  );
+  const emotionalPayoffClaimCount = countMatches(
+    copy,
+    /\b(freedom|confidence|status|peace of mind|effortless|stress[- ]free|finally|dream|control|certainty)\b/gi
+  );
+  const certaintyLanguageCount = Number(claimCounts.certainty_claim_count) || 0;
+  const speedClaimCount = Number(claimCounts.speed_claim_count) || 0;
+  const outcomeClaimCount = Number(claimCounts.outcome_claim_count) || 0;
+  const totalClaimCount = Number(claimCounts.claim_count) || 0;
+  const quantifiedProofCount = Number(evidence?.categories?.quantified_proof?.marker_count) || 0;
+  const productValidationCount = Number(evidence?.categories?.product_validation?.marker_count) || 0;
+  const mechanismProofCount = Number(evidence?.categories?.mechanism_proof?.marker_count) || 0;
+  const authorityProofCount =
+    (Number(evidence?.categories?.authority_proof?.marker_count) || 0)
+    + (Number(evidence?.categories?.expert_proof?.marker_count) || 0);
+  const testimonialProofCount = Number(evidence?.categories?.testimonial_proof?.marker_count) || 0;
+  const operationalProofCount = Number(evidence?.categories?.operational_proof?.marker_count) || 0;
+  const proofSpecificityCount =
+    (Number(proofMarkers.specificity_marker_count) || 0)
+    + Math.min(3, Number(proofSignals.numeric_count) || 0)
+    + Math.min(2, Number(proofSignals.quote_count) || 0);
+  const aiPatternCount =
+    (Number(aiPatternMarkers.ai_pattern_count) || 0)
+    + (Number(aiPatternMarkers.hype_phrase_count) || 0)
+    + (Number(aiPatternMarkers.filler_phrase_count) || 0);
+  const wordCount = Number(signals?.meta?.word_count) || tokenize(copy).length;
+  const aiPatternDensity = wordCount ? aiPatternCount / Math.max(wordCount / 100, 1) : aiPatternCount;
+  const mechanismPhraseCount = Number(positioning.mechanism_phrase_count) || 0;
+  const mechanismClarityPresent = mechanismPhraseCount > 0 && (mechanismProofCount > 0 || operationalProofCount > 0);
+  const mechanismUnclear = mechanismPhraseCount === 0 || !mechanismClarityPresent;
+  const highAiPatternDensity = aiPatternDensity >= 2.5 || aiPatternCount >= 5;
+  const audienceTemperature = normalizeText(context.audience_temperature);
+  const claimSensitivity = normalizeText(context.claim_sensitivity);
+  const brandProofAvailable = normalizeText(context.brand_proof_available);
+  const highClaimPressureLowSupport =
+    (outcomeClaimCount + speedClaimCount + certaintyLanguageCount + incomeClaimCount) >= 5
+    && (quantifiedProofCount + productValidationCount + mechanismProofCount + proofSpecificityCount) <= 3;
+
+  return {
+    copy,
+    signals,
+    evidence,
+    context,
+    audience_temperature: audienceTemperature,
+    claim_sensitivity: claimSensitivity,
+    brand_proof_available: brandProofAvailable,
+    total_claim_count: totalClaimCount,
+    outcome_claim_count: outcomeClaimCount,
+    speed_claim_count: speedClaimCount,
+    certainty_language_count: certaintyLanguageCount,
+    income_claim_count: incomeClaimCount,
+    transformation_claim_count: transformationClaimCount,
+    emotional_payoff_claim_count: emotionalPayoffClaimCount,
+    quantified_proof_count: quantifiedProofCount,
+    product_validation_count: productValidationCount,
+    mechanism_proof_count: mechanismProofCount,
+    authority_proof_count: authorityProofCount,
+    testimonial_proof_count: testimonialProofCount,
+    operational_proof_count: operationalProofCount,
+    proof_specificity_count: proofSpecificityCount,
+    proof_marker_count: Number(proofMarkers.proof_marker_count) || 0,
+    authority_marker_count:
+      (Number(authorityMarkers.authority_marker_count) || 0)
+      + (Number(authorityMarkers.credential_marker_count) || 0),
+    mechanism_phrase_count: mechanismPhraseCount,
+    mechanism_clarity_present: mechanismClarityPresent,
+    mechanism_unclear: mechanismUnclear,
+    ai_pattern_count: aiPatternCount,
+    ai_pattern_density: aiPatternDensity,
+    high_ai_pattern_density: highAiPatternDensity,
+    evidence_proof_strength: normalizeText(evidence?.proof_strength),
+    has_meaningful_proof: Boolean(evidence?.has_meaningful_proof),
+    proof_gaps: Array.isArray(evidence?.summary?.proof_gaps) ? evidence.summary.proof_gaps : [],
+    high_claim_pressure_low_support: highClaimPressureLowSupport
+  };
+}
+
+function classifyClaimIntensity(inputs) {
+  let index =
+    (inputs.outcome_claim_count * 1)
+    + (inputs.speed_claim_count * 1.5)
+    + (inputs.certainty_language_count * 1.75)
+    + (Math.min(inputs.income_claim_count, 3) * 2)
+    + (Math.min(inputs.transformation_claim_count, 3) * 1)
+    + (Math.min(inputs.emotional_payoff_claim_count, 3) * 0.75)
+    + (Math.min(Number(inputs?.signals?.risk_markers?.claim_risk_count) || 0, 3) * 1.25)
+    + (Math.min(Number(inputs?.signals?.risk_markers?.compliance_risk_count) || 0, 2) * 1.5);
+
+  if (inputs.claim_sensitivity.toLowerCase() === "high" && index >= 4) index += 1;
+  if (inputs.audience_temperature.toLowerCase() === "cold" && index >= 5) index += 0.5;
+
+  let claim_intensity = "Low";
+  if (index >= 9) claim_intensity = "Extreme";
+  else if (index >= 6) claim_intensity = "High";
+  else if (index >= 3) claim_intensity = "Moderate";
+
+  if (
+    inputs.income_claim_count >= 1
+    && inputs.speed_claim_count >= 1
+    && inputs.certainty_language_count >= 1
+    && claim_intensity !== "Extreme"
+  ) {
+    claim_intensity = "High";
+  }
+
+  return {
+    claim_intensity,
+    claim_pressure_index: Number(index.toFixed(2))
+  };
+}
+
+function classifySupportStrength(inputs) {
+  let index = 0;
+
+  index += Math.min(inputs.quantified_proof_count, 3) * 1.5;
+  index += Math.min(inputs.product_validation_count, 3) * 1.5;
+  index += Math.min(inputs.mechanism_proof_count, 3) * 1.5;
+  index += Math.min(inputs.operational_proof_count, 2) * 1.0;
+  index += Math.min(inputs.authority_proof_count, 2) * 0.5;
+  index += Math.min(inputs.testimonial_proof_count, 2) * 0.5;
+  index += Math.min(inputs.proof_specificity_count, 4) * 0.5;
+  if (inputs.mechanism_clarity_present) index += 1;
+  if (inputs.has_meaningful_proof) index += 0.5;
+
+  if (inputs.mechanism_phrase_count > 0 && inputs.mechanism_proof_count === 0) index -= 2;
+  if (inputs.proof_marker_count > 0 && inputs.proof_specificity_count === 0) index -= 1.5;
+  if (inputs.testimonial_proof_count > 0 && inputs.proof_specificity_count === 0) index -= 1;
+  if (inputs.authority_proof_count > 0 && inputs.quantified_proof_count === 0 && inputs.product_validation_count === 0) index -= 0.75;
+  if (!inputs.has_meaningful_proof) index -= 2;
+  if (inputs.proof_gaps.length >= 3) index -= 2;
+
+  let support_strength = "Weak";
+  if (index >= 8) support_strength = "Strong";
+  else if (index >= 4) support_strength = "Moderate";
+
+  if (inputs.mechanism_phrase_count > 0 && !inputs.mechanism_clarity_present && support_strength === "Strong") {
+    support_strength = "Moderate";
+  }
+
+  if (
+    inputs.quantified_proof_count === 0
+    && inputs.product_validation_count === 0
+    && inputs.mechanism_proof_count === 0
+    && support_strength !== "Weak"
+  ) {
+    support_strength = "Weak";
+  }
+
+  if (
+    inputs.proof_gaps.length >= 3
+    || (inputs.testimonial_proof_count > 0 && inputs.proof_specificity_count === 0 && inputs.quantified_proof_count === 0)
+  ) {
+    support_strength = "Weak";
+  }
+
+  return {
+    support_strength,
+    support_coverage_index: Number(index.toFixed(2))
+  };
+}
+
+function classifyTrustAlignment(claimIntensity, supportStrength, inputs) {
+  const matrix = {
+    Low: { Weak: "Slightly Misaligned", Moderate: "Aligned", Strong: "Aligned" },
+    Moderate: { Weak: "Misaligned", Moderate: "Aligned", Strong: "Aligned" },
+    High: { Weak: "Severely Misaligned", Moderate: "Misaligned", Strong: "Slightly Misaligned" },
+    Extreme: { Weak: "Severely Misaligned", Moderate: "Misaligned", Strong: "Slightly Misaligned" }
+  };
+  const alignmentOrder = ["Aligned", "Slightly Misaligned", "Misaligned", "Severely Misaligned"];
+  let trust_alignment = matrix[claimIntensity]?.[supportStrength] || "Misaligned";
+
+  const worsen = () => {
+    const index = alignmentOrder.indexOf(trust_alignment);
+    trust_alignment = alignmentOrder[Math.min(alignmentOrder.length - 1, index + 1)];
+  };
+
+  if (claimIntensity === "Extreme" && !(supportStrength === "Strong" && inputs.mechanism_clarity_present)) {
+    trust_alignment = "Misaligned";
+  }
+
+  if (claimIntensity === "High" && supportStrength === "Strong" && inputs.mechanism_clarity_present && inputs.quantified_proof_count > 0 && inputs.product_validation_count > 0) {
+    trust_alignment = "Aligned";
+  }
+
+  if (inputs.high_ai_pattern_density && supportStrength !== "Strong") worsen();
+  if (inputs.mechanism_unclear && ["Moderate", "High", "Extreme"].includes(claimIntensity)) worsen();
+  if (inputs.audience_temperature.toLowerCase() === "cold" && trust_alignment === "Slightly Misaligned") {
+    trust_alignment = "Misaligned";
+  }
+  if (
+    inputs.audience_temperature.toLowerCase() === "cold"
+    && ["High", "Extreme"].includes(claimIntensity)
+    && inputs.testimonial_proof_count > 0
+    && inputs.quantified_proof_count === 0
+    && inputs.product_validation_count === 0
+  ) {
+    worsen();
+  }
+
+  if (claimIntensity === "Extreme" && trust_alignment === "Aligned" && !(supportStrength === "Strong" && inputs.mechanism_clarity_present)) {
+    trust_alignment = "Slightly Misaligned";
+  }
+
+  return trust_alignment;
+}
+
+function detectTrustBreaks(inputs, claimIntensity, supportStrength, trustAlignment) {
+  const trustBreaks = [];
+
+  if (inputs.income_claim_count > 0 && supportStrength === "Weak") {
+    trustBreaks.push("high income claim without substantiation");
+  }
+  if (inputs.speed_claim_count > 0 && inputs.quantified_proof_count === 0) {
+    trustBreaks.push("time-compressed outcome claim without proof");
+  }
+  if (inputs.mechanism_unclear) {
+    trustBreaks.push("mechanism not explained");
+  }
+  if (inputs.mechanism_phrase_count > 0 && inputs.mechanism_proof_count === 0) {
+    trustBreaks.push("mechanism language appears without supporting evidence");
+  }
+  if (inputs.testimonial_proof_count > 0 && inputs.proof_specificity_count === 0) {
+    trustBreaks.push("testimonial-style proof without verifiable detail");
+  }
+  if (inputs.certainty_language_count >= 2 && supportStrength === "Weak") {
+    trustBreaks.push("overconfident certainty language without credible support");
+  }
+  if (inputs.transformation_claim_count > 0 && inputs.proof_specificity_count === 0) {
+    trustBreaks.push("vague transformation promise");
+  }
+  if (inputs.authority_proof_count > 0 && inputs.quantified_proof_count === 0 && inputs.product_validation_count === 0) {
+    trustBreaks.push("authority cues are present but weakly tied to the main claim");
+  }
+  if (inputs.proof_marker_count > 0 && inputs.proof_specificity_count === 0) {
+    trustBreaks.push("proof markers appear, but support remains non-specific");
+  }
+  if (inputs.high_ai_pattern_density) {
+    trustBreaks.push("copy relies on hype language more than evidence");
+  }
+  if (Number(inputs?.signals?.distinctness_markers?.distinctness_marker_count) === 0 && Number(inputs?.signals?.positioning?.differentiation_count) === 0) {
+    trustBreaks.push("generic fluent framing increases distrust");
+  }
+  if (trustAlignment === "Severely Misaligned") {
+    trustBreaks.push("claims materially outpace believable support");
+  }
+  if (inputs.high_claim_pressure_low_support) {
+    trustBreaks.push("claim volume is too high for the available support");
+  }
+
+  return uniqueLimitedStrings(trustBreaks, 6).slice(0, Math.max(3, Math.min(6, trustBreaks.length || 3)));
+}
+
+function generateObjectionPressure(inputs, claimIntensity, supportStrength, trustAlignment, trustBreaks) {
+  const objectionPressure = [];
+  const breakSet = new Set(trustBreaks);
+
+  if (breakSet.has("high income claim without substantiation") || breakSet.has("time-compressed outcome claim without proof")) {
+    objectionPressure.push("this sounds too good to be true");
+  }
+  if (breakSet.has("mechanism not explained") || breakSet.has("mechanism language appears without supporting evidence")) {
+    objectionPressure.push("I don't see how this works");
+  }
+  if (
+    breakSet.has("proof markers appear, but support remains non-specific")
+    || breakSet.has("testimonial-style proof without verifiable detail")
+  ) {
+    objectionPressure.push("where is the proof?");
+  }
+  if (breakSet.has("generic fluent framing increases distrust") || inputs.high_ai_pattern_density) {
+    objectionPressure.push("this feels generic");
+    objectionPressure.push("this sounds like every other AI-written pitch");
+  }
+  if (supportStrength === "Weak" || trustAlignment === "Severely Misaligned") {
+    objectionPressure.push("this requires blind trust");
+  }
+  if (["High", "Extreme"].includes(claimIntensity) && supportStrength !== "Strong") {
+    objectionPressure.push("why should I believe these outcomes?");
+  }
+  if (inputs.authority_proof_count > 0 && inputs.quantified_proof_count === 0 && inputs.product_validation_count === 0) {
+    objectionPressure.push("what makes this credible for me?");
+  }
+  if (trustAlignment === "Misaligned" || trustAlignment === "Severely Misaligned") {
+    objectionPressure.push("the claim is clear, but the evidence is not");
+  }
+
+  return uniqueLimitedStrings(objectionPressure, 6).slice(0, Math.max(3, Math.min(6, objectionPressure.length || 3)));
+}
+
+function computeSkepticismPressureScore({ claimIntensity, supportStrength, trustAlignment, trustBreaks, objectionPressure, inputs }) {
+  const alignmentBase = {
+    Aligned: 2,
+    "Slightly Misaligned": 4,
+    Misaligned: 7,
+    "Severely Misaligned": 9
+  };
+  let score = alignmentBase[trustAlignment] ?? 5;
+
+  if (claimIntensity === "Extreme") score += 1;
+  if (inputs.mechanism_unclear) score += 1;
+  if (inputs.high_ai_pattern_density) score += 1;
+  if (trustBreaks.length >= 4) score += 1;
+  if (supportStrength === "Strong" && inputs.quantified_proof_count > 0 && inputs.product_validation_count > 0) score -= 1;
+  if (objectionPressure.includes("this requires blind trust")) score += 1;
+
+  return clampInt(score, 0, 10);
+}
+
+function classifySkepticismLevel(score) {
+  if (score >= 9) return "Critical";
+  if (score >= 6) return "High";
+  if (score >= 3) return "Moderate";
+  return "Low";
+}
+
+function classifyPrelaunchRejectionRisk({ skepticismPressureScore, claimIntensity, supportStrength, trustAlignment, trustBreaks, inputs }) {
+  const baseMap = {
+    Aligned: "Low",
+    "Slightly Misaligned": "Moderate",
+    Misaligned: "High",
+    "Severely Misaligned": "Critical"
+  };
+  const order = ["Low", "Moderate", "High", "Critical"];
+  let risk = baseMap[trustAlignment] || "Moderate";
+
+  const raise = () => {
+    risk = order[Math.min(order.length - 1, order.indexOf(risk) + 1)];
+  };
+  const lower = () => {
+    risk = order[Math.max(0, order.indexOf(risk) - 1)];
+  };
+
+  if (["High", "Extreme"].includes(claimIntensity) && supportStrength === "Weak" && inputs.mechanism_unclear) {
+    return "Critical";
+  }
+  if (claimIntensity === "Extreme" && supportStrength === "Weak") {
+    return "Critical";
+  }
+  if (inputs.high_ai_pattern_density && supportStrength === "Weak" && risk !== "Critical") {
+    risk = "High";
+  }
+  if (trustBreaks.length >= 4) raise();
+  if (
+    inputs.audience_temperature.toLowerCase() === "cold"
+    && ["Moderate", "High", "Extreme"].includes(claimIntensity)
+    && inputs.product_validation_count === 0
+  ) {
+    raise();
+  }
+  if (
+    supportStrength === "Strong"
+    && !inputs.high_ai_pattern_density
+    && inputs.mechanism_clarity_present
+    && claimIntensity !== "Extreme"
+  ) {
+    lower();
+  }
+  if (skepticismPressureScore >= 9) risk = "Critical";
+
+  return risk;
+}
+
+function buildSkepticismReasoningSummary(result, inputs) {
+  const mechanismClause = inputs.mechanism_unclear ? "the mechanism is unclear" : "the mechanism is credibly explained";
+  const evidenceClause =
+    result.support_strength === "Strong"
+      ? "support is strong enough to justify the main promises"
+      : result.support_strength === "Moderate"
+        ? "support is present but does not fully justify the promises"
+        : "support is too weak for the promises being made";
+
+  return `${result.claim_intensity} claims with ${result.support_strength.toLowerCase()} support create a ${result.trust_alignment.toLowerCase()} trust profile. Readers are likely to hesitate because ${mechanismClause} and ${evidenceClause}.`;
+}
+
+function runSkepticismPressureAnalysis(packet) {
+  const inputs = buildSkepticismPressureInputs(packet);
+  const claimResult = classifyClaimIntensity(inputs);
+  const supportResult = classifySupportStrength(inputs);
+  const trust_alignment = classifyTrustAlignment(claimResult.claim_intensity, supportResult.support_strength, inputs);
+  const trust_breaks = detectTrustBreaks(inputs, claimResult.claim_intensity, supportResult.support_strength, trust_alignment);
+  const objection_pressure = generateObjectionPressure(
+    inputs,
+    claimResult.claim_intensity,
+    supportResult.support_strength,
+    trust_alignment,
+    trust_breaks
+  );
+  const skepticism_pressure_score = computeSkepticismPressureScore({
+    claimIntensity: claimResult.claim_intensity,
+    supportStrength: supportResult.support_strength,
+    trustAlignment: trust_alignment,
+    trustBreaks: trust_breaks,
+    objectionPressure: objection_pressure,
+    inputs
+  });
+  const skepticism_level = classifySkepticismLevel(skepticism_pressure_score);
+  const prelaunch_rejection_risk = classifyPrelaunchRejectionRisk({
+    skepticismPressureScore: skepticism_pressure_score,
+    claimIntensity: claimResult.claim_intensity,
+    supportStrength: supportResult.support_strength,
+    trustAlignment: trust_alignment,
+    trustBreaks: trust_breaks,
+    inputs
+  });
+  const result = {
+    skepticism_level,
+    skepticism_pressure_score,
+    claim_intensity: claimResult.claim_intensity,
+    support_strength: supportResult.support_strength,
+    trust_alignment,
+    prelaunch_rejection_risk,
+    trust_breaks,
+    objection_pressure,
+    claim_support_gap: computeClaimSupportGap(claimResult.claim_intensity, supportResult.support_strength)
+  };
+
+  return {
+    ...result,
+    reasoning_summary: buildSkepticismReasoningSummary(result, inputs)
+  };
 }
 
 function substantiationRank(value) {
@@ -2051,9 +3131,7 @@ function sanitizeSingleAuditShape(audit) {
     }
   };
 
-  const recomputedTotal = Object.values(sanitized.dimension_scores).reduce((sum, n) => sum + n, 0);
-  sanitized.total_score = recomputedTotal;
-  sanitized.certified = recomputedTotal === 70 && Object.values(sanitized.dimension_scores).every((v) => v === 10);
+  sanitized.certified = sanitized.total_score === 70 && Object.values(sanitized.dimension_scores).every((v) => v === 10);
 
   return sanitized;
 }
@@ -2229,23 +3307,6 @@ async function runDecisionSynthesis(packet, subsystemResults) {
   return sanitizeDecisionSynthesisShape(parsed);
 }
 
-function mapPersuasionScoreToLegacyTotal(score) {
-  return clampInt((Number(score) || 0) * 0.7, 0, 70);
-}
-
-function mapProofStrengthToLegacyDimension(overall) {
-  const normalized = sanitizeEnum(overall, STANDARD_SEVERITY_ENUM, "Moderate");
-  const mapping = {
-    None: 1,
-    Low: 3,
-    Moderate: 5,
-    High: 8,
-    Critical: 10
-  };
-
-  return mapping[normalized] || 5;
-}
-
 function formatLabel(value, fallback = "Unknown") {
   const normalized = normalizeText(value);
   if (!normalized) return fallback;
@@ -2257,22 +3318,41 @@ function formatLabel(value, fallback = "Unknown") {
 }
 
 function buildLegacySingleAuditShape({ packet, evidence, persuasion, proofStrength, skepticism, claimExposure, synthesis }) {
+  const persuasionCoded = scorePersuasionDeterministically(packet);
+  const skepticismPressure = runSkepticismPressureAnalysis(packet);
   const resolvedVerdict = resolveLaunchVerdict(packet.context, {
     persuasion,
     proof_strength: proofStrength,
     skepticism,
     claim_exposure: claimExposure
   });
-  const proofDimension = mapProofStrengthToLegacyDimension(proofStrength.overall);
-  const dimension_scores = {
+  const rawPersuasionDimensions = {
     hook: clampInt(persuasion.dimension_scores?.hook, 1, 10),
     lead: clampInt(persuasion.dimension_scores?.lead, 1, 10),
     body: clampInt(persuasion.dimension_scores?.body, 1, 10),
     mechanism: clampInt(persuasion.dimension_scores?.mechanism, 1, 10),
-    proof: clampInt(proofDimension, 1, 10),
     offer: clampInt(persuasion.dimension_scores?.offer, 1, 10),
     cta: clampInt(persuasion.dimension_scores?.cta, 1, 10)
   };
+  const proofDimension = buildProofDimensionScore(proofStrength, evidence);
+  const weakestSourceScore = Math.min(...Object.values(rawPersuasionDimensions));
+  const weakestDimension = sanitizeEnum(
+    proofDimension <= weakestSourceScore ? "proof" : persuasion.weakest_area,
+    ["hook", "lead", "body", "mechanism", "proof", "offer", "cta"],
+    "mechanism"
+  );
+  const calibratedScores = applyLegacyDimensionCalibration({
+    dimension_scores: {
+      ...rawPersuasionDimensions,
+      proof: clampInt(proofDimension, 1, 10)
+    },
+    weakest_dimension: weakestDimension,
+    packet,
+    proofStrength,
+    skepticism,
+    evidence
+  });
+  const dimension_scores = calibratedScores.dimension_scores;
   const ctaActions = packet.signals?.cta?.action_phrases || [];
   const ctaUrgency = packet.signals?.cta?.urgency_phrases || [];
   const priceMentions = packet.signals?.offer?.price_mentions || [];
@@ -2281,21 +3361,24 @@ function buildLegacySingleAuditShape({ packet, evidence, persuasion, proofStreng
   const firstSentence = splitSentences(packet.copy)[0] || "";
   const corePromise = truncate(firstSentence || supportingPhrases[0] || packet.copy_type || "", 180);
   const mechanismSummary = mechanismPhrases[0]
-    ? truncate(`Mechanism signal: ${mechanismPhrases[0]}.`, 180)
+    ? truncate(`${dimension_scores.mechanism <= 7 ? "Needs reinforcement: " : ""}Mechanism signal: ${mechanismPhrases[0]}.`, 180)
     : truncate(
-        evidence?.categories?.mechanism_proof?.phrases?.[0]
-          || `${formatLabel(proofStrength.mechanism_substantiation, "Moderate")} mechanism substantiation.`,
+        `${dimension_scores.mechanism <= 7 ? "Needs reinforcement: " : ""}${
+          evidence?.categories?.mechanism_proof?.phrases?.[0]
+          || `${formatLabel(proofStrength.mechanism_substantiation, "Low")} mechanism substantiation.`
+        }`,
         180
       );
   const proofSummary = truncate(
     [
-      `${formatLabel(evidence.primary_type, "Missing Proof")} proof with ${String(proofStrength.overall || "Moderate").toLowerCase()} strength.`,
+      `${dimension_scores.proof <= 7 ? "Needs reinforcement: " : ""}${formatLabel(evidence.primary_type, "Missing Proof")} proof with ${String(proofStrength.overall || "Low").toLowerCase()} strength.`,
       proofStrength.proof_gap
     ].filter(Boolean).join(" "),
     220
   );
   const offerSummary = truncate(
     [
+      dimension_scores.offer <= 7 ? "Needs reinforcement:" : "",
       priceMentions.length ? `Price mentions: ${priceMentions.join(", ")}.` : "",
       packet.signals?.offer?.deliverable_count ? `${packet.signals.offer.deliverable_count} deliverable signals detected.` : "",
       packet.signals?.offer?.bonus_count ? `${packet.signals.offer.bonus_count} bonus signals detected.` : "",
@@ -2305,6 +3388,7 @@ function buildLegacySingleAuditShape({ packet, evidence, persuasion, proofStreng
   );
   const ctaSummary = truncate(
     [
+      dimension_scores.cta <= 7 ? "Needs reinforcement:" : "",
       ctaActions.length ? `CTA actions: ${ctaActions.join(", ")}.` : "No clear CTA actions detected.",
       ctaUrgency.length ? `Urgency: ${ctaUrgency.join(", ")}.` : ""
     ].filter(Boolean).join(" "),
@@ -2320,9 +3404,9 @@ function buildLegacySingleAuditShape({ packet, evidence, persuasion, proofStreng
   const riskNarrative = resolvedVerdict.highest_risk_failure_mode || synthesis.highest_risk_failure_mode || claimExposure.primary_claim_risk || skepticism.trust_break || "";
   const rawLegacy = {
     certified: Boolean(resolvedVerdict.certified),
-    total_score: mapPersuasionScoreToLegacyTotal(persuasion.score),
+    total_score: calibratedScores.total_score,
     dimension_scores,
-    weakest_dimension: sanitizeEnum(persuasion.weakest_area, ["hook", "lead", "body", "mechanism", "proof", "offer", "cta"], "mechanism"),
+    weakest_dimension: weakestDimension,
     reason: String(synthesis.reason || ""),
     fix_instruction: String(synthesis.fix_instruction || ""),
     asset_role: String(packet.copy_type || "Unknown"),
@@ -2374,10 +3458,24 @@ function buildLegacySingleAuditShape({ packet, evidence, persuasion, proofStreng
     evidence,
     engines: {
       persuasion,
+      persuasion_coded: persuasionCoded,
+      persuasion_comparison: {
+        total_score_delta: persuasionCoded.total_score - clampInt(persuasion.score, 0, 100),
+        dimension_deltas: {
+          hook: persuasionCoded.dimension_scores.hook - clampInt(persuasion.dimension_scores?.hook, 0, 10),
+          lead: persuasionCoded.dimension_scores.lead - clampInt(persuasion.dimension_scores?.lead, 0, 10),
+          body: persuasionCoded.dimension_scores.body - clampInt(persuasion.dimension_scores?.body, 0, 10),
+          mechanism: persuasionCoded.dimension_scores.mechanism - clampInt(persuasion.dimension_scores?.mechanism, 0, 10),
+          offer: persuasionCoded.dimension_scores.offer - clampInt(persuasion.dimension_scores?.offer, 0, 10),
+          cta: persuasionCoded.dimension_scores.cta - clampInt(persuasion.dimension_scores?.cta, 0, 10)
+        }
+      },
       proof_strength: proofStrength,
       skepticism,
+      skepticism_pressure: skepticismPressure,
       claim_exposure: claimExposure,
-      decision_synthesis: synthesis
+      decision_synthesis: synthesis,
+      score_calibration: calibratedScores.flags
     }
   };
 }
@@ -2391,10 +3489,12 @@ async function runSingleAssetAudit(assetKey, copy, meta = {}) {
     context: meta.context && typeof meta.context === "object" && !Array.isArray(meta.context) ? meta.context : {}
   };
   const packet = buildInternalSingleAuditPacket(payload);
-  const persuasion = await runPersuasionAudit(packet);
-  const proofStrength = await runProofStrengthAudit(packet);
-  const skepticism = await runSkepticismAudit(packet);
-  const claimExposure = await runClaimExposureAudit(packet);
+  const [persuasion, proofStrength, skepticism, claimExposure] = await Promise.all([
+    runPersuasionAudit(packet),
+    runProofStrengthAudit(packet),
+    runSkepticismAudit(packet),
+    runClaimExposureAudit(packet)
+  ]);
   const synthesis = await runDecisionSynthesis(packet, {
     persuasion,
     proof_strength: proofStrength,
@@ -2528,6 +3628,26 @@ async function runCampaignFitAudit(goal, assetAudits) {
   return sanitizeCampaignFitShape(parsed);
 }
 
+function buildSchemaV2(existingOutput, context = {}) {
+  return {
+    meta: {
+      mode: context.mode || null,
+      asset_type: context.copy_type || null,
+      goal: context.goal || null
+    },
+    verdict: {},
+    primary_reason: {},
+    blockers: [],
+    repair_plan: [],
+    compliance: {},
+    skepticism: {},
+    risk_scores: {},
+    asset_profile: {},
+    confidence: {},
+    _legacy: existingOutput
+  };
+}
+
 export default async (req) => {
   if (req.method !== "POST") {
     return jsonResponse({ error: "Method not allowed" }, 405);
@@ -2543,10 +3663,15 @@ export default async (req) => {
         goal: payload.goal
       });
 
-      return jsonResponse({
+      const existingOutput = {
         mode: "single",
         audit
-      });
+      };
+      const schema = buildSchemaV2(existingOutput, payload);
+
+      console.log("SCHEMA V2:", schema);
+
+      return jsonResponse(existingOutput);
     }
 
     const assetAudits = {};
@@ -2574,11 +3699,16 @@ export default async (req) => {
 
     const campaign_fit = await runCampaignFitAudit(payload.goal, assetAudits);
 
-    return jsonResponse({
+    const existingOutput = {
       mode: "campaign",
       asset_audits: assetAudits,
       campaign_fit
-    });
+    };
+    const schema = buildSchemaV2(existingOutput, payload);
+
+    console.log("SCHEMA V2:", schema);
+
+    return jsonResponse(existingOutput);
   } catch (error) {
     console.error("AUDIT ERROR", {
       message: error?.message,

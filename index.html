@@ -384,19 +384,19 @@
 
     .dec-preview-grid{
       display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
+      grid-template-columns:repeat(5,minmax(0,1fr));
       gap:.75rem;
       margin-top:.55rem;
     }
 
-    .dec-preview-grid div{
+    .dec-preview-grid > div{
       display:grid;
       gap:.2rem;
       border-left:2px solid var(--dec-line);
       padding-left:.7rem;
     }
 
-    .dec-preview-grid span{
+    .dec-preview-grid > div > span{
       font-size:.74rem;
       text-transform:uppercase;
       letter-spacing:.11em;
@@ -404,10 +404,42 @@
       font-weight:700;
     }
 
-    .dec-preview-grid strong{
+    .dec-preview-grid > div > strong{
       font-size:.95rem;
       font-weight:700;
       color:var(--dec-ink);
+    }
+
+    .clc-preview-box{
+      position:relative;
+    }
+
+    .clc-preview-box.clc-preview-completeness{
+      background:#fffaf0;
+      border-left-color:var(--clc-gold);
+    }
+
+    .clc-completeness-meter{
+      margin-top:.45rem;
+      height:5px;
+      border-radius:999px;
+      background:#ded4c4;
+      overflow:hidden;
+    }
+
+    .clc-completeness-meter span{
+      display:block;
+      height:100%;
+      width:var(--clc-completeness, 18%);
+      background:linear-gradient(90deg, var(--clc-gold) 0%, #8c7c4f 100%);
+      transition:width .18s ease;
+    }
+
+    .clc-preview-note{
+      margin-top:.75rem;
+      color:var(--dec-ink-soft);
+      font-size:.86rem;
+      line-height:1.58;
     }
 
     .dec-intake-actions{
@@ -420,6 +452,170 @@
       width:100%;
       padding-left:1.1rem;
       border-left:1px solid var(--dec-line);
+    }
+
+    .clc-console-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1.14fr) minmax(300px,.52fr);
+      gap:1.2rem;
+      align-items:start;
+    }
+
+    .clc-console-main{
+      min-width:0;
+    }
+
+    .clc-console-sidebar{
+      display:grid;
+      gap:1rem;
+      align-content:start;
+    }
+
+    .clc-console-card{
+      border:1px solid var(--dec-line);
+      background:#fffdf8;
+      box-shadow:0 8px 18px rgba(26,16,10,.05);
+      padding:1rem;
+    }
+
+    .clc-console-card-dark{
+      background:linear-gradient(180deg, var(--clc-brown) 0%, var(--clc-brown-deep) 100%);
+      border-color:rgba(176,160,104,.28);
+      color:#f4efe6;
+    }
+
+    .clc-console-kicker,
+    .clc-console-mini-kicker,
+    .clc-intel-kicker{
+      font-size:.72rem;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.16em;
+    }
+
+    .clc-console-kicker,
+    .clc-console-card-dark .clc-console-mini-kicker{
+      color:var(--clc-gold);
+    }
+
+    .clc-console-card h3,
+    .clc-intel-card h3{
+      font-family:var(--dec-serif);
+      font-size:1.28rem;
+      line-height:1.08;
+      letter-spacing:-.02em;
+      margin:.45rem 0 .8rem;
+    }
+
+    .clc-console-card p,
+    .clc-console-card li,
+    .clc-intel-card p{
+      line-height:1.62;
+    }
+
+    .clc-console-card-dark p,
+    .clc-console-card-dark li{
+      color:#d8cdb9;
+    }
+
+    .clc-console-list{
+      list-style:none;
+      display:grid;
+      gap:.8rem;
+      margin-top:.9rem;
+    }
+
+    .clc-console-list li{
+      display:grid;
+      grid-template-columns:18px minmax(0,1fr);
+      gap:.7rem;
+      padding-bottom:.8rem;
+      border-bottom:1px solid rgba(176,160,104,.14);
+    }
+
+    .clc-console-list li:last-child{
+      border-bottom:none;
+      padding-bottom:0;
+    }
+
+    .clc-console-bullet{
+      width:18px;
+      height:18px;
+      display:grid;
+      place-items:center;
+      border:1px solid rgba(176,160,104,.34);
+      background:rgba(176,160,104,.12);
+      color:var(--clc-gold);
+      font-size:.78rem;
+      line-height:1;
+      margin-top:.1rem;
+    }
+
+    .clc-console-list strong{
+      display:block;
+      font-size:.96rem;
+      color:#fffdfa;
+      margin-bottom:.12rem;
+    }
+
+    .clc-console-state-list,
+    .clc-console-guidance{
+      display:grid;
+      gap:.7rem;
+      margin-top:.9rem;
+    }
+
+    .clc-console-state{
+      display:grid;
+      gap:.24rem;
+      padding:.8rem .85rem;
+      border:1px solid var(--dec-line);
+      background:var(--dec-panel);
+    }
+
+    .clc-console-state strong{
+      font-size:.92rem;
+      letter-spacing:.04em;
+    }
+
+    .clc-console-state span,
+    .clc-console-guidance p{
+      color:var(--dec-ink-soft);
+      font-size:.9rem;
+    }
+
+    .clc-console-state-go strong{ color:var(--dec-success); }
+    .clc-console-state-hold strong{ color:var(--dec-warning); }
+    .clc-console-state-stop strong{ color:var(--dec-danger); }
+
+    .clc-console-guidance{
+      border-top:1px solid var(--dec-line);
+      padding-top:.85rem;
+    }
+
+    .clc-context-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:.9rem;
+      margin-top:.9rem;
+    }
+
+    .clc-context-grid .dec-field:last-child{
+      grid-column:1 / -1;
+    }
+
+    .clc-context-note{
+      margin-top:.8rem;
+      border-left:3px solid var(--clc-gold);
+      background:#fff7df;
+      padding:.75rem .85rem;
+      color:#65533b;
+      font-size:.85rem;
+      line-height:1.58;
+    }
+
+    .clc-context-note strong{
+      color:var(--dec-ink);
     }
 
     .clc-error{
@@ -541,7 +737,7 @@
 
     .dec-verdict-banner{
       display:grid;
-      grid-template-columns:minmax(0,1.08fr) minmax(320px,.92fr);
+      grid-template-columns:minmax(220px,.78fr) minmax(0,1.1fr) minmax(280px,.88fr);
       gap:.85rem;
       border:1px solid #1f2730;
       border-bottom:2px solid #151b22;
@@ -638,7 +834,7 @@
 
     .dec-stat-grid{
       display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
+      grid-template-columns:repeat(3,minmax(0,1fr));
       gap:.6rem;
     }
 
@@ -752,13 +948,14 @@
     }
 
     .dec-report-grid{
-      grid-template-columns:minmax(0,1.18fr) minmax(300px,.62fr);
+      grid-template-columns:minmax(230px,.52fr) minmax(0,1.15fr) minmax(290px,.72fr);
       align-items:start;
     }
 
     .dec-main-column{
       display:grid;
       gap:1rem;
+      order:2;
     }
 
     .dec-panel{
@@ -868,6 +1065,76 @@
 
     .clc-item .impact{
       color:var(--dec-ink-faint);
+    }
+
+    .dec-repair-command{
+      display:none;
+      margin-bottom:.85rem;
+      border-left:4px solid var(--dec-dark);
+      background:#efe8dc;
+    }
+
+    .dec-repair-command p{
+      color:var(--dec-ink);
+      font-weight:700;
+      line-height:1.55;
+    }
+
+    .dec-repair-card-head{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      gap:.7rem;
+      align-items:flex-start;
+      margin-bottom:.65rem;
+    }
+
+    .dec-repair-card-chips,
+    .dec-repair-card-footer{
+      display:flex;
+      flex-wrap:wrap;
+      gap:.5rem;
+    }
+
+    .dec-repair-card-body{
+      display:grid;
+      gap:.55rem;
+    }
+
+    .dec-repair-card-footer{
+      margin-top:.8rem;
+      padding-top:.8rem;
+      border-top:1px solid var(--dec-line);
+    }
+
+    .dec-context-chip.repair-severity-critical{
+      border-color:rgba(145,47,47,.35);
+      background:#fff1f1;
+      color:var(--dec-danger);
+    }
+
+    .dec-context-chip.repair-severity-high{
+      border-color:rgba(154,106,18,.35);
+      background:#fff5de;
+      color:var(--dec-warning);
+    }
+
+    .dec-context-chip.repair-severity-medium{
+      border-color:rgba(74,47,23,.2);
+      background:#f1ece4;
+      color:var(--dec-ink-soft);
+    }
+
+    .dec-context-chip.repair-severity-low{
+      border-color:rgba(36,96,70,.3);
+      background:#eef8f1;
+      color:var(--dec-success);
+    }
+
+    .dec-repair-confidence{
+      margin-top:.85rem;
+      color:var(--dec-ink-faint);
+      line-height:1.6;
     }
 
     .dec-report-actions{
@@ -984,6 +1251,15 @@
       gap:.3rem;
     }
 
+    .dec-trust-resistance-lists{
+      margin-top:1rem;
+    }
+
+    .dec-trust-resistance-lists .dec-subpanel{
+      display:grid;
+      gap:.7rem;
+    }
+
     .dec-support-label{
       color:var(--dec-ink-faint);
       font-size:.75rem;
@@ -1069,6 +1345,7 @@
 
     .dec-rail{
       position:relative;
+      order:1;
     }
 
     .dec-rail-card{
@@ -1077,11 +1354,13 @@
       display:grid;
       gap:.9rem;
       padding:1rem;
+      background:linear-gradient(180deg, #1f140e 0%, #2d1d14 100%);
+      border-color:rgba(176,160,104,.18);
     }
 
     .dec-rail-section{
-      border:1px solid var(--dec-line);
-      background:var(--dec-panel);
+      border:1px solid rgba(176,160,104,.16);
+      background:rgba(255,248,236,.06);
       padding:.85rem .9rem;
     }
 
@@ -1090,7 +1369,7 @@
       font-weight:700;
       text-transform:uppercase;
       letter-spacing:.14em;
-      color:var(--dec-ink-faint);
+      color:#ad9e85;
       margin-bottom:.45rem;
     }
 
@@ -1109,7 +1388,7 @@
 
     .dec-rail-score-label{
       font-size:1rem;
-      color:var(--dec-ink-faint);
+      color:#a4957d;
       margin-bottom:.2rem;
     }
 
@@ -1117,7 +1396,7 @@
       margin-top:.35rem;
       font-size:.92rem;
       font-weight:700;
-      color:var(--dec-ink-soft);
+      color:#ece1d0;
     }
 
     .dec-rail-list{
@@ -1140,12 +1419,12 @@
     }
 
     .dec-rail-row span{
-      color:var(--dec-ink-soft);
+      color:#d0c3ae;
       font-size:.9rem;
     }
 
     .dec-rail-row strong{
-      color:var(--dec-ink);
+      color:#fff8ed;
       font-size:.9rem;
       font-weight:700;
       text-align:right;
@@ -1153,6 +1432,116 @@
 
     .dec-dimension-row strong{
       min-width:3.25rem;
+    }
+
+    .clc-intelligence-rail{
+      order:3;
+      position:relative;
+    }
+
+    .clc-intelligence-stack{
+      position:sticky;
+      top:1rem;
+      display:grid;
+      gap:1rem;
+    }
+
+    .clc-intel-card{
+      border:1px solid var(--dec-line);
+      background:#fffdf8;
+      box-shadow:0 8px 18px rgba(26,16,10,.05);
+      padding:.95rem;
+    }
+
+    .clc-intel-kicker{
+      color:var(--dec-ink-faint);
+      margin-bottom:.45rem;
+    }
+
+    .clc-intel-list{
+      display:grid;
+      gap:.75rem;
+    }
+
+    .clc-intel-blocker{
+      border:1px solid var(--dec-line);
+      border-top:3px solid var(--dec-danger);
+      background:var(--dec-panel);
+      padding:.8rem .85rem;
+      display:grid;
+      gap:.28rem;
+    }
+
+    .clc-intel-blocker-label{
+      font-size:.72rem;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      color:var(--dec-danger);
+    }
+
+    .clc-intel-blocker h4{
+      font-size:1rem;
+      line-height:1.28;
+      margin:0;
+    }
+
+    .clc-intel-blocker p,
+    .clc-intel-note{
+      color:var(--dec-ink-soft);
+      font-size:.9rem;
+      line-height:1.58;
+    }
+
+    .clc-intel-risk{
+      display:grid;
+      gap:.75rem;
+    }
+
+    .clc-intel-risk .dec-flag{
+      justify-self:start;
+    }
+
+    .clc-intel-risk-stack{
+      display:grid;
+      gap:.55rem;
+    }
+
+    .clc-intel-metric{
+      border:1px solid var(--dec-line);
+      background:var(--dec-panel);
+      padding:.8rem .85rem;
+      display:grid;
+      gap:.24rem;
+    }
+
+    .clc-intel-metric span{
+      font-size:.72rem;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      color:var(--dec-ink-faint);
+    }
+
+    .clc-intel-metric strong{
+      font-size:1rem;
+      color:var(--dec-ink);
+    }
+
+    .clc-confidence-flag{
+      display:block;
+      font-family:var(--dec-serif);
+      font-size:1.45rem;
+      line-height:1.05;
+      color:var(--dec-ink);
+    }
+
+    .clc-command-panel{
+      border-top:3px solid var(--dec-dark);
+    }
+
+    .clc-legacy-panel{
+      display:none !important;
     }
 
     .status-aligned{
@@ -1236,6 +1625,22 @@
       .dec-rail-card{
         position:static;
       }
+
+      .clc-intelligence-stack{
+        position:static;
+      }
+
+      .dec-main-column{
+        order:1;
+      }
+
+      .clc-intelligence-rail{
+        order:2;
+      }
+
+      .dec-rail{
+        order:3;
+      }
     }
 
     @media (max-width: 980px){
@@ -1273,6 +1678,7 @@
       }
 
       .dec-form-grid,
+      .clc-context-grid,
       .clc-mode-switch,
       .dec-preview-grid,
       .clc-cta-options,
@@ -1302,6 +1708,10 @@
         grid-template-columns:1fr;
       }
 
+      .clc-console-layout{
+        grid-template-columns:1fr;
+      }
+
       .dec-intake-actions{
         width:100%;
         min-width:0;
@@ -1322,6 +1732,10 @@
     }
 
     @media (max-width: 1120px){
+      .clc-console-layout{
+        grid-template-columns:1fr;
+      }
+
       .dec-intake-footer{
         grid-template-columns:1fr;
       }
@@ -1381,124 +1795,231 @@
             </div>
           </div>
 
-          <form id="auditForm" class="dec-form">
-            <div class="sr-only" aria-hidden="true">
-              <label for="auditMode">Review Type</label>
-              <select id="auditMode" class="clc-select">
-                <option value="single">Single Asset Audit</option>
-                <option value="campaign">Campaign Fit Audit</option>
-              </select>
-            </div>
-
-            <div class="dec-field">
-              <label>Review Type</label>
-              <div class="clc-mode-switch" role="tablist" aria-label="Audit mode selector">
-                <button type="button" class="clc-mode-pill active" data-mode="single">Single Asset Audit</button>
-                <button type="button" class="clc-mode-pill" data-mode="campaign">Campaign Fit Audit</button>
-              </div>
-              <span id="helperText" class="dec-helper">Best for emails, ads, landing pages, sales assets, and campaign flow checks.</span>
-            </div>
-
-            <div id="singleAuditInputs">
-              <div class="dec-form-grid">
-                <div class="dec-field">
-                  <label for="copyType">Copy type</label>
-                  <select id="copyType" class="clc-select">
-                    <option value="">Select one</option>
-                    <option value="Email">Email</option>
-                    <option value="Landing Page">Landing Page</option>
-                    <option value="Sales Page">Sales Page</option>
-                    <option value="Ad">Ad</option>
-                    <option value="Other">Other</option>
+          <div class="clc-console-layout">
+            <div class="clc-console-main">
+              <form id="auditForm" class="dec-form">
+                <div class="sr-only" aria-hidden="true">
+                  <label for="auditMode">Review Type</label>
+                  <select id="auditMode" class="clc-select">
+                    <option value="single">Single Asset Audit</option>
+                    <option value="campaign">Campaign Fit Audit</option>
                   </select>
                 </div>
 
                 <div class="dec-field">
-                  <label for="goal">Primary goal</label>
-                  <select id="goal" class="clc-select">
-                    <option value="">Select one</option>
-                    <option value="Get clicks">Get clicks</option>
-                    <option value="Drive sales">Drive sales</option>
-                    <option value="Book calls">Book calls</option>
-                    <option value="Get replies">Get replies</option>
-                    <option value="Generate leads">Generate leads</option>
-                  </select>
+                  <label>Review Type</label>
+                  <div class="clc-mode-switch" role="tablist" aria-label="Audit mode selector">
+                    <button type="button" class="clc-mode-pill active" data-mode="single">Single Asset Audit</button>
+                    <button type="button" class="clc-mode-pill" data-mode="campaign">Campaign Fit Audit</button>
+                  </div>
+                  <span id="helperText" class="dec-helper">Best for emails, ads, landing pages, sales assets, and campaign flow checks.</span>
                 </div>
-              </div>
 
-              <div class="dec-field">
-                <label for="copyText">Primary submission surface</label>
-                <div class="clc-submission-well">
-                  <textarea
-                    id="copyText"
-                    class="clc-textarea clc-textarea-lg"
-                    placeholder="Paste your email, ad, landing page, sales page, or campaign copy here for structured readiness review..."
-                  ></textarea>
+                <div id="singleAuditInputs">
+                  <div class="dec-form-grid">
+                    <div class="dec-field">
+                      <label for="copyType">Copy type</label>
+                      <select id="copyType" class="clc-select">
+                        <option value="">Select one</option>
+                        <option value="Email">Email</option>
+                        <option value="Landing Page">Landing Page</option>
+                        <option value="Sales Page">Sales Page</option>
+                        <option value="Ad">Ad</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+
+                    <div class="dec-field">
+                      <label for="goal">Primary goal</label>
+                      <select id="goal" class="clc-select">
+                        <option value="">Select one</option>
+                        <option value="Get clicks">Get clicks</option>
+                        <option value="Drive sales">Drive sales</option>
+                        <option value="Book calls">Book calls</option>
+                        <option value="Get replies">Get replies</option>
+                        <option value="Generate leads">Generate leads</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="clc-context-grid">
+                    <div class="dec-field">
+                      <label for="assetIntent">Asset intent</label>
+                      <select id="assetIntent" class="clc-select">
+                        <option value="">Select one</option>
+                        <option value="Direct Response">Direct Response</option>
+                        <option value="Lead Generation">Lead Generation</option>
+                        <option value="Authority Build">Authority Build</option>
+                        <option value="Nurture / Bridge">Nurture / Bridge</option>
+                        <option value="Retention / Upsell">Retention / Upsell</option>
+                      </select>
+                    </div>
+
+                    <div class="dec-field">
+                      <label for="marketNiche">Niche / Market</label>
+                      <input id="marketNiche" class="clc-select" type="text" placeholder="e.g. fitness, SaaS, financial education" />
+                    </div>
+
+                    <div class="dec-field">
+                      <label for="targetAudience">Target audience</label>
+                      <input id="targetAudience" class="clc-select" type="text" placeholder="Who this asset is trying to move" />
+                    </div>
+
+                    <div class="dec-field">
+                      <label for="offerContext">Offer / Product context</label>
+                      <textarea id="offerContext" class="clc-textarea" placeholder="What is being sold, promised, or positioned here?"></textarea>
+                    </div>
+                  </div>
+
+                  <div class="clc-context-note">
+                    <strong>Context improves the decision surface.</strong> These fields are UI-only for now, so they do not alter the current audit payload.
+                  </div>
+
+                  <div class="dec-field">
+                    <label for="copyText">Primary submission surface</label>
+                    <div class="clc-submission-well">
+                      <textarea
+                        id="copyText"
+                        class="clc-textarea clc-textarea-lg"
+                        placeholder="Paste your email, ad, landing page, sales page, or campaign copy here for structured readiness review..."
+                      ></textarea>
+                    </div>
+                    <span class="dec-helper">
+                      The system evaluates launch readiness, persuasion risk, structural gaps, and decision blockers before issuing a verdict.
+                    </span>
+                  </div>
                 </div>
-                <span class="dec-helper">
-                  The system evaluates launch readiness, persuasion risk, structural gaps, and decision blockers before issuing a verdict.
-                </span>
-              </div>
+
+                <div id="campaignInputs" style="display:none;">
+                  <div class="dec-field">
+                    <label for="goalCampaign">Campaign Context</label>
+                    <select id="goalCampaign" class="clc-select">
+                      <option value="">Select one</option>
+                      <option value="Get clicks">Get clicks</option>
+                      <option value="Drive sales">Drive sales</option>
+                      <option value="Book calls">Book calls</option>
+                      <option value="Get replies">Get replies</option>
+                      <option value="Generate leads">Generate leads</option>
+                    </select>
+                  </div>
+
+                  <div class="dec-field">
+                    <label for="campaignAd">Ad / Top of Funnel (optional)</label>
+                    <div class="clc-submission-well">
+                      <textarea id="campaignAd" class="clc-textarea" placeholder="Paste ad or traffic source copy..."></textarea>
+                    </div>
+                  </div>
+
+                  <div class="dec-field">
+                    <label for="campaignLanding">Landing Page / Main Page (required)</label>
+                    <div class="clc-submission-well">
+                      <textarea id="campaignLanding" class="clc-textarea" placeholder="Paste landing page or main page copy..."></textarea>
+                    </div>
+                  </div>
+
+                  <div class="dec-field">
+                    <label for="campaignEmail">Email / Follow-up (optional)</label>
+                    <div class="clc-submission-well">
+                      <textarea id="campaignEmail" class="clc-textarea" placeholder="Paste follow-up email copy..."></textarea>
+                    </div>
+                  </div>
+
+                  <div class="dec-field">
+                    <label for="campaignSalesPage">Sales Page / Offer Page (optional)</label>
+                    <div class="clc-submission-well">
+                      <textarea id="campaignSalesPage" class="clc-textarea" placeholder="Paste sales page or offer page copy..."></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="dec-intake-footer">
+                  <div class="dec-intake-preview">
+                    <div class="dec-mini-kicker">Submission preview</div>
+                    <div class="dec-preview-grid">
+                      <div class="clc-preview-box"><span>Mode</span><strong id="intakeModePreview">Single Asset Review</strong></div>
+                      <div class="clc-preview-box"><span>Goal</span><strong id="intakeGoalPreview">Not selected</strong></div>
+                      <div class="clc-preview-box"><span>Type</span><strong id="intakeTypePreview">Not selected</strong></div>
+                      <div class="clc-preview-box"><span>Asset Intent</span><strong id="intakeIntentPreview">Not selected</strong></div>
+                      <div class="clc-preview-box clc-preview-completeness">
+                        <span>Context</span>
+                        <strong id="intakeCompletenessPreview">Minimal context</strong>
+                        <div class="clc-completeness-meter" aria-hidden="true">
+                          <span id="intakeCompletenessMeter"></span>
+                        </div>
+                      </div>
+                    </div>
+                    <p class="clc-preview-note">
+                      Role-aware context is shown for operator clarity only. Current audit submission behavior remains unchanged.
+                    </p>
+                  </div>
+
+                  <div class="dec-intake-actions">
+                    <div id="formError" class="clc-error" role="alert"></div>
+                    <button id="submitButton" type="submit" class="clc-button clc-button-primary">Run Decision Review</button>
+                  </div>
+                </div>
+              </form>
             </div>
 
-            <div id="campaignInputs" style="display:none;">
-              <div class="dec-field">
-                <label for="goalCampaign">Campaign Context</label>
-                <select id="goalCampaign" class="clc-select">
-                  <option value="">Select one</option>
-                  <option value="Get clicks">Get clicks</option>
-                  <option value="Drive sales">Drive sales</option>
-                  <option value="Book calls">Book calls</option>
-                  <option value="Get replies">Get replies</option>
-                  <option value="Generate leads">Generate leads</option>
-                </select>
-              </div>
+            <aside class="clc-console-sidebar" aria-label="Submission guidance">
+              <section class="clc-console-card clc-console-card-dark">
+                <div class="clc-console-kicker">What this system does</div>
+                <h3>Decision-first readiness review before traffic is committed.</h3>
+                <p>The Certified Legendary Copy decision engine checks whether the asset is safe to test, what breaks trust first, and what must be repaired before money or attention is put at risk.</p>
+                <ul class="clc-console-list">
+                  <li>
+                    <span class="clc-console-bullet">1</span>
+                    <div>
+                      <strong>Launch gate logic</strong>
+                      <p>Separates assets that are ready for controlled exposure from assets that still need structural fixes.</p>
+                    </div>
+                  </li>
+                  <li>
+                    <span class="clc-console-bullet">2</span>
+                    <div>
+                      <strong>Claim and proof pressure</strong>
+                      <p>Highlights where the copy asks for belief before it has earned it.</p>
+                    </div>
+                  </li>
+                  <li>
+                    <span class="clc-console-bullet">3</span>
+                    <div>
+                      <strong>Repair sequencing</strong>
+                      <p>Outputs the highest-leverage actions to address before more spend is allowed through.</p>
+                    </div>
+                  </li>
+                </ul>
+              </section>
 
-              <div class="dec-field">
-                <label for="campaignAd">Ad / Top of Funnel (optional)</label>
-                <div class="clc-submission-well">
-                  <textarea id="campaignAd" class="clc-textarea" placeholder="Paste ad or traffic source copy..."></textarea>
+              <section class="clc-console-card">
+                <div class="clc-console-mini-kicker">Decision states</div>
+                <div class="clc-console-state-list">
+                  <div class="clc-console-state clc-console-state-go">
+                    <strong>GO</strong>
+                    <span>Structurally sound enough for controlled launch and optimization.</span>
+                  </div>
+                  <div class="clc-console-state clc-console-state-hold">
+                    <strong>HOLD</strong>
+                    <span>Potentially workable, but proof or positioning gaps still need attention.</span>
+                  </div>
+                  <div class="clc-console-state clc-console-state-stop">
+                    <strong>DO NOT LAUNCH</strong>
+                    <span>Belief, compliance, or conversion logic is too exposed for paid traffic or list attention.</span>
+                  </div>
                 </div>
-              </div>
+              </section>
 
-              <div class="dec-field">
-                <label for="campaignLanding">Landing Page / Main Page (required)</label>
-                <div class="clc-submission-well">
-                  <textarea id="campaignLanding" class="clc-textarea" placeholder="Paste landing page or main page copy..."></textarea>
+              <section class="clc-console-card">
+                <div class="clc-console-mini-kicker">Context guidance</div>
+                <h3>Give the system the job, not just the copy.</h3>
+                <div class="clc-console-guidance">
+                  <p><strong>Asset intent:</strong> helps separate direct response from authority or nurture roles.</p>
+                  <p><strong>Market + audience:</strong> frames sophistication, skepticism, and promise sensitivity.</p>
+                  <p><strong>Offer context:</strong> clarifies what is actually being sold so the verdict is judged against the right standard.</p>
                 </div>
-              </div>
-
-              <div class="dec-field">
-                <label for="campaignEmail">Email / Follow-up (optional)</label>
-                <div class="clc-submission-well">
-                  <textarea id="campaignEmail" class="clc-textarea" placeholder="Paste follow-up email copy..."></textarea>
-                </div>
-              </div>
-
-              <div class="dec-field">
-                <label for="campaignSalesPage">Sales Page / Offer Page (optional)</label>
-                <div class="clc-submission-well">
-                  <textarea id="campaignSalesPage" class="clc-textarea" placeholder="Paste sales page or offer page copy..."></textarea>
-                </div>
-              </div>
-            </div>
-
-            <div class="dec-intake-footer">
-              <div class="dec-intake-preview">
-                <div class="dec-mini-kicker">Submission preview</div>
-                <div class="dec-preview-grid">
-                  <div><span>Mode</span><strong id="intakeModePreview">Single Asset Review</strong></div>
-                  <div><span>Goal</span><strong id="intakeGoalPreview">Not selected</strong></div>
-                  <div><span>Type</span><strong id="intakeTypePreview">Not selected</strong></div>
-                </div>
-              </div>
-
-              <div class="dec-intake-actions">
-                <div id="formError" class="clc-error" role="alert"></div>
-                <button id="submitButton" type="submit" class="clc-button clc-button-primary">Run Decision Review</button>
-              </div>
-            </div>
-          </form>
+              </section>
+            </aside>
+          </div>
         </div>
       </section>
 
@@ -1517,10 +2038,14 @@
             <div class="dec-verdict-main">
               <div class="dec-verdict-label">Launch Decision</div>
               <div id="verdictCommand" class="dec-verdict-command">Awaiting audit</div>
+              <div id="decisionLabel" class="sr-only">Awaiting decision</div>
+            </div>
+
+            <div class="dec-verdict-main">
+              <div class="dec-verdict-label">Primary Reason</div>
               <p id="verdictReasonLine" class="dec-verdict-reason">
                 Run the audit to see whether this asset is ready to launch, what blocks performance first, and what must be fixed before spend.
               </p>
-              <div id="decisionLabel" class="sr-only">Awaiting decision</div>
               <div id="decisionSub" class="sr-only">Run the audit to see whether this asset is ready to launch.</div>
             </div>
 
@@ -1537,76 +2062,64 @@
                   <strong id="launchReadinessText">Pending</strong>
                 </div>
                 <div class="dec-stat-chip">
-                  <span class="dec-chip-label">Compliance Risk</span>
-                  <strong id="complianceRiskFlag">Pending</strong>
-                </div>
-                <div class="dec-stat-chip">
                   <span class="dec-chip-label">Blocking Signals</span>
                   <strong id="blockingSignalsCount">0</strong>
                 </div>
                 <div class="dec-stat-chip">
-                  <span class="dec-chip-label">Confidence</span>
-                  <strong id="decisionConfidenceFlag">Confidence: Medium</strong>
+                  <span class="dec-chip-label">Claims</span>
+                  <strong id="claimExposureCount">Pending</strong>
                 </div>
-              </div>
-            </div>
-          </section>
-
-          <section class="dec-decision-row">
-            <div class="dec-decision-summary dec-panel">
-              <div class="dec-panel-head">
-                <div>
-                  <div class="dec-panel-kicker">Decision Summary</div>
-                  <h3>Why this verdict was issued</h3>
-                </div>
-              </div>
-              <p id="summaryText" class="dec-summary-copy"></p>
-
-              <div class="dec-summary-flags">
-                <span id="decisionRiskFlag" class="dec-flag">Risk: —</span>
-              </div>
-
-              <div class="dec-financial-risk">
-                <div class="dec-mini-kicker">Risk if ignored</div>
-                <p id="financialRiskText">Commercial risk framing will appear here after the audit completes.</p>
-              </div>
-            </div>
-
-            <div class="dec-primary-action dec-panel">
-              <div class="dec-panel-head">
-                <div>
-                  <div class="dec-panel-kicker">Primary Blocker</div>
-                  <h3>What must change before launch</h3>
-                </div>
-              </div>
-
-              <div id="bottleneckBlock" class="clc-stack"></div>
-
-              <div class="dec-next-action-box">
-                <div class="dec-mini-kicker">Required next action</div>
-                <div id="nextActionBlock" class="clc-item"></div>
-              </div>
-
-              <div class="dec-report-actions">
-                <button id="printReportButton" type="button" class="clc-report-button">Print / Save PDF Report</button>
-                <span id="reportMeta" class="clc-report-meta">Generate a decision record after a completed run.</span>
               </div>
             </div>
           </section>
 
           <div class="dec-report-grid">
             <div class="dec-main-column">
+              <section class="dec-panel clc-command-panel">
+                <div class="dec-panel-head">
+                  <div>
+                    <div class="dec-panel-kicker">Primary Repair Command</div>
+                    <h3>What must change before launch</h3>
+                  </div>
+                </div>
+
+                <div id="bottleneckBlock" class="clc-stack"></div>
+
+                <div class="dec-next-action-box">
+                  <div class="dec-mini-kicker">Required next action</div>
+                  <div id="nextActionBlock" class="clc-item"></div>
+                </div>
+
+                <div class="dec-report-actions">
+                  <button id="printReportButton" type="button" class="clc-report-button">Print / Save PDF Report</button>
+                  <span id="reportMeta" class="clc-report-meta">Generate a decision record after a completed run.</span>
+                </div>
+              </section>
+
+              <section id="priorityRepairSection" class="dec-panel clc-legacy-panel" style="display:none;">
+                <div class="dec-panel-head">
+                  <div>
+                    <div class="dec-panel-kicker">Priority Repair Plan</div>
+                    <h3>Fix these before more traffic, budget, or list attention is committed.</h3>
+                  </div>
+                </div>
+
+                <div id="priorityRepairInstruction" class="clc-item dec-repair-command"></div>
+                <div id="priorityRepairList" class="clc-stack"></div>
+                <p id="priorityRepairConfidence" class="dec-repair-confidence" style="display:none;"></p>
+              </section>
+
               <section class="dec-panel">
                 <div class="dec-panel-head">
                   <div>
-                    <div class="dec-panel-kicker">Blocking Signals</div>
+                    <div class="dec-panel-kicker">Launch Blockers</div>
                     <h3>What prevents confident launch right now</h3>
                   </div>
                 </div>
                 <div id="blockingSignalsList" class="dec-signal-list"></div>
               </section>
 
-              <section class="dec-panel">
+              <section class="dec-panel clc-legacy-panel">
                 <div class="dec-panel-head">
                   <div>
                     <div class="dec-panel-kicker">Watch Signals</div>
@@ -1646,7 +2159,7 @@
                 </div>
               </section>
 
-              <section class="dec-panel">
+              <section class="dec-panel clc-legacy-panel">
                 <div class="dec-panel-head">
                   <div>
                     <div class="dec-panel-kicker">Big Idea</div>
@@ -1656,7 +2169,7 @@
                 <div id="bigIdeaBlock" class="clc-stack"></div>
               </section>
 
-              <section class="dec-context-grid">
+              <section class="dec-context-grid clc-legacy-panel">
                 <div class="dec-panel">
                   <div class="dec-panel-kicker">Asset Role Awareness</div>
                   <div class="dec-context-stack">
@@ -1709,7 +2222,7 @@
                 <div id="priorityFixList" class="clc-stack" style="display:none;"></div>
               </section>
 
-              <section class="dec-panel">
+              <section class="dec-panel clc-legacy-panel">
                 <div class="dec-panel-head">
                   <div>
                     <div class="dec-panel-kicker">Decision Support</div>
@@ -1741,7 +2254,7 @@
                 </div>
               </section>
 
-              <section class="dec-panel">
+              <section class="dec-panel clc-legacy-panel">
                 <div class="dec-panel-head">
                   <div>
                     <div class="dec-panel-kicker">Copy Chief Dashboard</div>
@@ -1779,7 +2292,7 @@
                 </div>
               </section>
 
-              <details class="dec-deep-analysis">
+              <details class="dec-deep-analysis clc-legacy-panel">
                 <summary>Open deeper reasoning</summary>
 
                 <div class="dec-two-up">
@@ -1823,7 +2336,7 @@
                 </div>
               </details>
 
-              <section id="ctaSection" class="clc-cta-wrap" style="display:none;">
+              <section id="ctaSection" class="clc-cta-wrap clc-legacy-panel" style="display:none;">
                 <div id="ctaContent"></div>
               </section>
             </div>
@@ -1840,7 +2353,7 @@
                 </div>
 
                 <div class="dec-rail-section">
-                  <div class="dec-rail-kicker">Dimension Scores</div>
+                  <div class="dec-rail-kicker">Risk Scores</div>
                   <div id="dimensionScoresRail" class="dec-rail-list"></div>
                 </div>
 
@@ -1871,6 +2384,73 @@
                     <div class="dec-rail-row"><span>Disclosure</span><strong id="railDisclosureVisibility">—</strong></div>
                   </div>
                 </div>
+              </div>
+            </aside>
+
+            <aside class="clc-intelligence-rail">
+              <div class="clc-intelligence-stack">
+                <section class="clc-intel-card">
+                  <div class="clc-intel-kicker">Primary Blockers</div>
+                  <h3>Decision intelligence at a glance</h3>
+                  <div id="clcPrimaryBlockersList" class="clc-intel-list"></div>
+                </section>
+
+                <section class="clc-intel-card">
+                  <div class="clc-intel-kicker">Trust Risk</div>
+                  <div class="clc-intel-risk">
+                    <span id="decisionRiskFlag" class="dec-flag">Risk: —</span>
+                    <div class="clc-intel-risk-stack">
+                      <div class="clc-intel-metric">
+                        <span>Compliance risk</span>
+                        <strong id="complianceRiskFlag">Pending</strong>
+                      </div>
+                      <div class="clc-intel-metric">
+                        <span>Risk if ignored</span>
+                        <strong id="financialRiskText">Commercial risk framing will appear here after the audit completes.</strong>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="clc-intel-card">
+                  <div class="clc-intel-kicker">Persuasion Reality Check</div>
+                  <h3>How the asset reads under skeptical traffic</h3>
+                  <p id="summaryText" class="dec-summary-copy"></p>
+                </section>
+
+                <section id="skepticismSection" class="dec-panel clc-intel-card" style="display:none;">
+                  <div class="dec-panel-head">
+                    <div>
+                      <div class="dec-panel-kicker">Buyer Skepticism</div>
+                      <h3>Where trust breaks before conversion</h3>
+                    </div>
+                    <div id="skepticismLevelChip" class="dec-panel-chip" style="display:none;">Pending</div>
+                  </div>
+
+                  <p id="skepticismSummaryText" class="dec-context-copy">
+                    Trust resistance commentary will appear here when skepticism pressure is available.
+                  </p>
+
+                  <div id="skepticismSummaryGrid" class="dec-compliance-summary-grid"></div>
+
+                  <div class="dec-two-up dec-trust-resistance-lists">
+                    <div class="dec-subpanel">
+                      <div class="dec-mini-kicker">What makes readers pull back</div>
+                      <ul id="skepticismTrustBreaksList" class="clc-list"></ul>
+                    </div>
+                    <div class="dec-subpanel">
+                      <div class="dec-mini-kicker">Likely reader objections</div>
+                      <ul id="skepticismObjectionPressureList" class="clc-list"></ul>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="clc-intel-card">
+                  <div class="clc-intel-kicker">Decision Confidence</div>
+                  <h3>How firm the launch call is</h3>
+                  <strong id="decisionConfidenceFlag" class="clc-confidence-flag">Confidence: Medium</strong>
+                  <p class="clc-intel-note">Based on proof strength, claim pressure, and trust resistance alignment.</p>
+                </section>
               </div>
             </aside>
           </div>
@@ -1998,6 +2578,129 @@
       if (score < 65) return { verdict: "Performance risk is elevated", tone: "verdict-danger" };
       if (score < 75) return { verdict: "Launch requires conditions", tone: "verdict-warning" };
       return { verdict: "In controlled launch range", tone: "verdict-success" };
+    }
+
+    function normalizeVerdictValue(value) {
+      return String(value || "").trim().toUpperCase().replace(/[\s_-]+/g, " ");
+    }
+
+    function getVerdictPresentation(audit, fallbackScore) {
+      const fallbackDecision = getDecisionVerdict(fallbackScore);
+      const hasBackendDecision =
+        typeof audit?.safe_to_test === "boolean"
+        || typeof audit?.safe_to_scale === "boolean"
+        || Boolean(audit?.launch_verdict)
+        || Boolean(audit?.resolved_launch_verdict);
+
+      const legacyLabel = String(audit?.launch_verdict || "").trim();
+      const resolvedLabel = String(audit?.resolved_launch_verdict || "").trim();
+      const label = legacyLabel || resolvedLabel || fallbackDecision.label;
+      const normalizedLegacy = normalizeVerdictValue(legacyLabel);
+      const normalizedResolved = normalizeVerdictValue(resolvedLabel);
+      const safeToTest = typeof audit?.safe_to_test === "boolean"
+        ? audit.safe_to_test
+        : normalizedLegacy === "SAFE TO TEST" || ["CONDITIONAL GO", "TEST ONLY GO", "GO", "SCALE READY"].includes(normalizedResolved);
+      const safeToScale = typeof audit?.safe_to_scale === "boolean"
+        ? audit.safe_to_scale
+        : normalizedLegacy === "SAFE TO SCALE" || ["GO", "SCALE READY"].includes(normalizedResolved);
+
+      let tone = "verdict-warning";
+      if (normalizedLegacy === "DO NOT LAUNCH" || normalizedResolved === "NO GO" || normalizedResolved === "NO-GO") {
+        tone = "verdict-danger";
+      } else if (normalizedResolved === "HOLD") {
+        tone = "verdict-hold";
+      } else if (safeToScale || normalizedResolved === "GO" || normalizedResolved === "SCALE READY") {
+        tone = "verdict-success";
+      } else if (safeToTest || normalizedResolved === "CONDITIONAL GO" || normalizedResolved === "TEST ONLY GO") {
+        tone = "verdict-warning";
+      }
+
+      const readiness = safeToScale
+        ? `${label} • Ready to scale`
+        : safeToTest
+          ? `${label} • Safe to test`
+          : normalizedResolved === "HOLD"
+            ? `${label} • Hold before spend`
+            : `${label} • Not safe to launch`;
+
+      const confidence = String(audit?.verdict_confidence || "").trim() || fallbackDecision.confidence;
+      const reason = String(audit?.reason || "").trim() || fallbackDecision.sub;
+      const nextStep = String(audit?.fix_instruction || "").trim() || fallbackDecision.nextStep;
+      const primaryBlocker = String(audit?.primary_blocker || "").trim();
+      const decisionBasis = String(audit?.decision_basis || "").trim();
+
+      return {
+        hasBackendDecision,
+        label,
+        legacyLabel,
+        resolvedLabel,
+        tone,
+        readiness,
+        confidence,
+        reason,
+        nextStep,
+        primaryBlocker,
+        decisionBasis,
+        safeToTest,
+        safeToScale
+      };
+    }
+
+    function getBackendClaimExposure(audit) {
+      const claimExposure = audit?.engines?.claim_exposure;
+      return claimExposure && typeof claimExposure === "object" ? claimExposure : null;
+    }
+
+    function getCompliancePresentation(audit, fallbackCompliance) {
+      const claimExposure = getBackendClaimExposure(audit);
+      if (!claimExposure) return fallbackCompliance;
+
+      const overall = String(claimExposure.overall_claim_risk || fallbackCompliance?.overall || "Moderate");
+      const disclosureVisibility = String(claimExposure.disclosure_visibility || fallbackCompliance?.exposures?.disclosure || "Unclear");
+      const performanceClaimsPresent = Boolean(claimExposure.performance_claims_present);
+      const guaranteePresent = Boolean(claimExposure.guarantee_language_present);
+      const primaryClaimRisk = String(claimExposure.primary_claim_risk || "");
+      const substantiationStatus = String(claimExposure.substantiation_status || "Unclear");
+      const fixInstruction = String(claimExposure.fix_instruction || audit?.fix_instruction || "");
+      const finding = primaryClaimRisk || "Claim exposure review returned from the backend.";
+
+      return {
+        overall,
+        rows: [
+          {
+            signal: "Claim exposure",
+            severity: overall,
+            finding,
+            action: fixInstruction || "Review the claim exposure findings before launch."
+          },
+          {
+            signal: "Disclosure visibility",
+            severity: disclosureVisibility,
+            finding: `Disclosure visibility is rated ${disclosureVisibility.toLowerCase()}.`,
+            action: disclosureVisibility === "Strong"
+              ? "Keep disclosure language visible near the affected claims."
+              : "Strengthen disclosure visibility around the affected claims before launch."
+          },
+          {
+            signal: "Substantiation status",
+            severity: substantiationStatus,
+            finding: `Substantiation is ${substantiationStatus.toLowerCase()}.`,
+            action: fixInstruction || "Tighten substantiation before traffic is sent."
+          }
+        ],
+        summary: [
+          { label: "Overall risk", value: overall },
+          { label: "Claim exposure", value: performanceClaimsPresent ? "Present" : "Not present" },
+          { label: "Disclosure visibility", value: disclosureVisibility },
+          { label: "Guarantee language", value: guaranteePresent ? "Present" : "Not present" }
+        ],
+        exposures: {
+          incomeClaims: performanceClaimsPresent ? "Present" : "Not present",
+          testimonials: fallbackCompliance?.exposures?.testimonials || "Not obvious",
+          disclosure: disclosureVisibility,
+          guarantee: guaranteePresent ? "Present" : "Not present"
+        }
+      };
     }
 
     function formatDimensionLabel(key) {
@@ -2301,31 +3004,57 @@
     function buildSingleDashboard(api, submitted = {}) {
       const audit = api?.audit || {};
       const score = normalizeScore70To100(audit.total_score);
-      const decision = getDecisionVerdict(score);
+      const verdict = getVerdictPresentation(audit, score);
       const weakestLabel = formatDimensionLabel(audit.weakest_dimension || "");
       const dimensionLists = buildSingleDimensionLists(audit);
       const roleLabel = audit.asset_role || submitted.copy_type || "Unknown";
       const audienceState = audit.audience_state || "Unknown";
+      const proofStrength = audit?.engines?.proof_strength || {};
+      const skepticism = audit?.engines?.skepticism || {};
+      const skepticismPressure = audit?.engines?.skepticism_pressure;
+      const messageDistinctness = skepticism?.commodity_positioning_risk
+        ? `Commodity positioning risk: ${skepticism.commodity_positioning_risk}`
+        : (audit?.big_idea?.distinctness || `${describeTenPointScore(audit?.dimension_scores?.hook || 0)} message distinctness`);
+      const proofSufficiency = proofStrength?.overall
+        ? `${proofStrength.overall} proof strength${proofStrength?.mechanism_substantiation ? ` • Mechanism substantiation: ${proofStrength.mechanism_substantiation}` : ""}`
+        : (audit?.proof_summary || `${describeTenPointScore(audit?.dimension_scores?.proof || 0)} proof support`);
+      const actionPressure = skepticism?.agreement_without_action_risk
+        ? `Agreement without action risk: ${skepticism.agreement_without_action_risk}`
+        : `${describeTenPointScore(audit?.dimension_scores?.cta || 0)} CTA pressure${audit?.cta_summary ? ` — ${audit.cta_summary}` : ""}`;
+      const blockerTitle = verdict.primaryBlocker
+        ? "Primary blocker identified"
+        : weakestLabel
+          ? `${weakestLabel} is the primary blocker`
+          : "Primary blocker identified";
+      const blockerBody = [verdict.primaryBlocker, audit.reason].filter(Boolean).join(" ");
+      const blockerImpact = audit.fix_instruction
+        || (weakestLabel
+          ? `${weakestLabel} scored ${Number(audit?.dimension_scores?.[audit.weakest_dimension]) || 0}/10 and is dragging down launch readiness.`
+          : "A weak dimension is reducing launch readiness.");
 
       return {
         mode: "single",
         hero: {
           score,
-          summary: audit.reason || "Audit completed.",
+          scoreLabel: "Score shown for context only",
+          summary: verdict.reason || "Audit completed.",
           decision: {
-            label: audit.certified ? "GO" : decision.label,
-            sub: audit.reason || decision.sub,
-            risk: decision.risk,
-            confidence: audit.certified ? "High" : decision.confidence,
-            nextStep: audit.fix_instruction || decision.nextStep
-          }
+            label: verdict.label,
+            sub: verdict.reason,
+            risk: audit?.engines?.claim_exposure?.overall_claim_risk || verdict.decisionBasis || "—",
+            confidence: verdict.confidence,
+            nextStep: verdict.nextStep,
+            tone: verdict.tone,
+            readiness: verdict.readiness,
+            resolvedLabel: verdict.resolvedLabel,
+            decisionBasis: verdict.decisionBasis
+          },
+          verdict
         },
         primaryBottleneck: {
-          title: weakestLabel ? `${weakestLabel} is the primary blocker` : "Primary blocker identified",
-          body: [audit.reason, audit.fix_instruction].filter(Boolean).join(" "),
-          impact: weakestLabel
-            ? `${weakestLabel} scored ${Number(audit?.dimension_scores?.[audit.weakest_dimension]) || 0}/10 and is dragging down launch readiness.`
-            : "A weak dimension is reducing launch readiness."
+          title: blockerTitle,
+          body: blockerBody,
+          impact: blockerImpact
         },
         assetRole: roleLabel,
         goalAlignment: {
@@ -2338,10 +3067,22 @@
         toAchieveCertification: dimensionLists.weaknesses.map((item) => `${item.title}: ${item.action}`),
         topFixes: dimensionLists.weaknesses,
         support: {
-          messageDistinctness: audit?.big_idea?.distinctness || `${describeTenPointScore(audit?.dimension_scores?.hook || 0)} message distinctness`,
-          proofSufficiency: audit?.proof_summary || `${describeTenPointScore(audit?.dimension_scores?.proof || 0)} proof support`,
-          actionPressure: `${describeTenPointScore(audit?.dimension_scores?.cta || 0)} CTA pressure${audit?.cta_summary ? ` — ${audit.cta_summary}` : ""}`
+          messageDistinctness,
+          proofSufficiency,
+          actionPressure
         },
+        skepticismPressure: skepticismPressure && typeof skepticismPressure === "object"
+          ? {
+            level: String(skepticismPressure.skepticism_level || "").trim(),
+            dismissalRisk: String(skepticismPressure.prelaunch_rejection_risk || "").trim(),
+            trustAlignment: String(skepticismPressure.trust_alignment || "").trim(),
+            claimPressure: String(skepticismPressure.claim_intensity || "").trim(),
+            supportStrength: String(skepticismPressure.support_strength || "").trim(),
+            summary: String(skepticismPressure.reasoning_summary || "").trim(),
+            trustBreaks: normalizeArray(skepticismPressure.trust_breaks),
+            objections: normalizeArray(skepticismPressure.objection_pressure)
+          }
+          : null,
         evidence: {
           whatsWorking: [
             audit.core_promise ? `Core promise: ${audit.core_promise}` : "",
@@ -2386,9 +3127,9 @@
         },
         copyChief: {
           score,
-          verdict: audit.certified ? "Certified" : `${describeHundredPointScore(score)} Asset`,
-          summary: audit.reason || "Audit completed.",
-          chiefNote: audit.fix_instruction || "Strengthen the weakest dimension first, then re-run the audit.",
+          verdict: verdict.label || `${describeHundredPointScore(score)} Asset`,
+          summary: verdict.reason || "Audit completed.",
+          chiefNote: verdict.nextStep || "Strengthen the weakest dimension first, then re-run the audit.",
           craftStrengths: dimensionLists.strengths,
           craftWeaknesses: dimensionLists.weaknesses.map((item) => `${item.title} — ${item.problem}`)
         },
@@ -2779,6 +3520,87 @@
       renderPriorityActionTable(items);
     }
 
+    function getRepairSeverityClass(value) {
+      const normalized = String(value || "").trim().toLowerCase();
+      if (normalized === "critical") return "repair-severity-critical";
+      if (normalized === "high") return "repair-severity-high";
+      if (normalized === "medium") return "repair-severity-medium";
+      if (normalized === "low") return "repair-severity-low";
+      return "";
+    }
+
+    function renderPriorityRepairPlan(data) {
+      const repair = data?.mode === "single" ? data?.meta?.raw?.audit?.repair : null;
+      const actions = normalizeArray(repair?.priority_actions);
+      const operatorInstruction = String(repair?.operator_instruction || "").trim();
+      const confidenceExplanation = String(repair?.confidence_explanation || "").trim();
+      const shouldShow = data?.mode === "single" && repair && (actions.length > 0 || operatorInstruction);
+
+      if (!shouldShow) {
+        priorityRepairSection.style.display = "none";
+        priorityRepairInstruction.style.display = "none";
+        priorityRepairInstruction.innerHTML = "";
+        priorityRepairList.innerHTML = "";
+        priorityRepairConfidence.style.display = "none";
+        priorityRepairConfidence.textContent = "";
+        return;
+      }
+
+      priorityRepairSection.style.display = "";
+
+      if (operatorInstruction) {
+        priorityRepairInstruction.style.display = "";
+        priorityRepairInstruction.innerHTML = `<p>${escapeHtml(operatorInstruction)}</p>`;
+      } else {
+        priorityRepairInstruction.style.display = "none";
+        priorityRepairInstruction.innerHTML = "";
+      }
+
+      priorityRepairList.innerHTML = "";
+      actions.forEach((item, index) => {
+        const block = document.createElement("div");
+        const priorityNumber = Number.isFinite(Number(item?.priority)) ? Number(item.priority) : index + 1;
+        const title = item?.title || item?.action_required || `Priority ${priorityNumber}`;
+        const categoryChip = item?.category
+          ? `<span class="dec-context-chip">${escapeHtml(toTitleCase(item.category))}</span>`
+          : "";
+        const severityLabel = item?.severity ? toTitleCase(item.severity) : "";
+        const severityClass = getRepairSeverityClass(item?.severity);
+        const severityChip = severityLabel
+          ? `<span class="dec-context-chip ${severityClass}">${escapeHtml(severityLabel)}</span>`
+          : "";
+        const bodyLines = [
+          item?.action_required ? `<div class="clc-fix-note"><span class="clc-fix-note-label">Action Required</span> ${escapeHtml(item.action_required)}</div>` : "",
+          item?.why_it_matters ? `<div class="clc-fix-note"><span class="clc-fix-note-label">Why It Matters</span> ${escapeHtml(item.why_it_matters)}</div>` : "",
+          item?.expected_impact ? `<div class="clc-fix-note"><span class="clc-fix-note-label">Expected Impact</span> ${escapeHtml(item.expected_impact)}</div>` : ""
+        ].filter(Boolean).join("");
+        const footerChips = [
+          item?.location ? `<span class="dec-context-chip">Where: ${escapeHtml(item.location)}</span>` : "",
+          item?.effort ? `<span class="dec-context-chip">Effort: ${escapeHtml(item.effort)}</span>` : "",
+          item?.timeline ? `<span class="dec-context-chip">When: ${escapeHtml(item.timeline)}</span>` : ""
+        ].filter(Boolean).join("");
+
+        block.className = "clc-fix-card";
+        block.innerHTML = `
+          <div class="dec-repair-card-head">
+            <h4 class="clc-fix-title">${escapeHtml(`${priorityNumber}. ${title}`)}</h4>
+            <div class="dec-repair-card-chips">${categoryChip}${severityChip}</div>
+          </div>
+          <div class="dec-repair-card-body">${bodyLines}</div>
+          ${footerChips ? `<div class="dec-repair-card-footer">${footerChips}</div>` : ""}
+        `;
+        priorityRepairList.appendChild(block);
+      });
+
+      if (confidenceExplanation) {
+        priorityRepairConfidence.style.display = "";
+        priorityRepairConfidence.textContent = confidenceExplanation;
+      } else {
+        priorityRepairConfidence.style.display = "none";
+        priorityRepairConfidence.textContent = "";
+      }
+    }
+
     function renderGoalMismatch(textValue) {
       if (textValue) {
         goalMismatchCard.style.display = "";
@@ -2804,6 +3626,57 @@
       supportDistinctness.textContent = support?.messageDistinctness || "—";
       supportProof.textContent = support?.proofSufficiency || "—";
       supportAction.textContent = support?.actionPressure || "—";
+    }
+
+    function renderSkepticismPressure(data) {
+      const skepticismPressure = data?.skepticismPressure;
+      if (!skepticismPressure) {
+        skepticismSection.style.display = "none";
+        skepticismLevelChip.style.display = "none";
+        skepticismLevelChip.textContent = "";
+        skepticismSummaryText.textContent = "Trust resistance commentary will appear here when skepticism pressure is available.";
+        skepticismSummaryGrid.innerHTML = "";
+        skepticismTrustBreaksList.innerHTML = "";
+        skepticismObjectionPressureList.innerHTML = "";
+        return;
+      }
+
+      skepticismSection.style.display = "";
+      skepticismSummaryText.textContent = skepticismPressure.summary || "This section highlights where trust is most likely to break before serious consideration.";
+
+      if (skepticismPressure.level) {
+        skepticismLevelChip.style.display = "";
+        skepticismLevelChip.textContent = skepticismPressure.level;
+      } else {
+        skepticismLevelChip.style.display = "none";
+        skepticismLevelChip.textContent = "";
+      }
+
+      skepticismSummaryGrid.innerHTML = "";
+      [
+        { label: "Dismissal Risk", value: skepticismPressure.dismissalRisk || "—" },
+        { label: "Trust Alignment", value: skepticismPressure.trustAlignment || "—" },
+        { label: "Claim Pressure", value: skepticismPressure.claimPressure || "—" },
+        { label: "Support Strength", value: skepticismPressure.supportStrength || "—" }
+      ].forEach((item) => {
+        const block = document.createElement("div");
+        block.className = "dec-compliance-summary-card";
+        block.innerHTML = `<span>${escapeHtml(item.label)}</span><strong>${escapeHtml(item.value)}</strong>`;
+        skepticismSummaryGrid.appendChild(block);
+      });
+
+      renderSimpleList(
+        skepticismTrustBreaksList,
+        skepticismPressure.trustBreaks.length
+          ? skepticismPressure.trustBreaks
+          : ["No major trust breaks were returned from the current audit."]
+      );
+      renderSimpleList(
+        skepticismObjectionPressureList,
+        skepticismPressure.objections.length
+          ? skepticismPressure.objections
+          : ["No major reader objections were returned from the current audit."]
+      );
     }
 
     function renderBigIdea(data) {
@@ -2886,6 +3759,12 @@
     }
 
     function getCtaMode(data) {
+      const verdict = data?.hero?.verdict;
+      if (verdict?.hasBackendDecision) {
+        if (verdict.safeToScale) return "advisory";
+        if (verdict.safeToTest) return "optimize";
+        return "rewrite";
+      }
       const score = Number(data?.hero?.score || 0);
       if (score <= 74) return "rewrite";
       if (score >= 83) return "advisory";
@@ -2976,21 +3855,47 @@
     function renderDecision(hero, complianceRisk, blockingCount) {
       const label = hero?.decision?.label || "Awaiting decision";
       const sub = hero?.decision?.sub || "";
-      const score = Number.isFinite(hero?.score) ? hero.score : 0;
-      const scoreState = getScoreState(score);
       verdictBanner.classList.remove("verdict-neutral", "verdict-danger", "verdict-warning", "verdict-success", "verdict-hold");
-      verdictBanner.classList.add(scoreState.tone);
+      verdictBanner.classList.add(hero?.decision?.tone || "verdict-neutral");
 
       verdictCommand.textContent = label;
       verdictReasonLine.textContent = sub;
       decisionLabel.textContent = label;
       decisionSub.textContent = sub;
       summaryText.textContent = summarizeForHero(hero?.summary || "");
-      decisionRiskFlag.textContent = `Risk: ${hero?.decision?.risk || "—"}`;
+      decisionRiskFlag.textContent = hero?.decision?.decisionBasis
+        ? `Basis: ${hero.decision.decisionBasis}`
+        : `Risk: ${hero?.decision?.risk || "—"}`;
       decisionConfidenceFlag.textContent = `Confidence: ${hero?.decision?.confidence || "Medium"}`;
-      launchReadinessText.textContent = label === "GO" ? "Controlled launch range" : label === "CONDITIONAL GO" ? "Conditional release" : "Hold before spend";
+      launchReadinessText.textContent = hero?.decision?.readiness || "Pending";
       complianceRiskFlag.textContent = complianceRisk || "Pending";
       blockingSignalsCount.textContent = String(blockingCount || 0);
+    }
+
+    function renderPrimaryBlockersSidebar(items) {
+      primaryBlockersSidebar.innerHTML = "";
+
+      if (!items.length) {
+        primaryBlockersSidebar.innerHTML = `
+          <div class="clc-intel-blocker">
+            <div class="clc-intel-blocker-label">Stand by</div>
+            <h4>No blockers returned</h4>
+            <p>The current audit did not surface a launch-stopping issue strong enough to summarize here.</p>
+          </div>
+        `;
+        return;
+      }
+
+      items.forEach((item, index) => {
+        const block = document.createElement("div");
+        block.className = "clc-intel-blocker";
+        block.innerHTML = `
+          <div class="clc-intel-blocker-label">Blocker ${String(index + 1).padStart(2, "0")}</div>
+          <h4>${escapeHtml(item.title || "Primary blocker")}</h4>
+          <p>${escapeHtml(item.problem || item.action || "")}</p>
+        `;
+        primaryBlockersSidebar.appendChild(block);
+      });
     }
 
     function renderBottleneck(item) {
@@ -3006,8 +3911,10 @@
     }
 
     function renderCompliance(data, compliance) {
+      const audit = data?.mode === "single" ? data?.meta?.raw?.audit : null;
+      const complianceView = getCompliancePresentation(audit, compliance);
       complianceSummaryGrid.innerHTML = "";
-      compliance.summary.forEach((item) => {
+      complianceView.summary.forEach((item) => {
         const block = document.createElement("div");
         block.className = "dec-compliance-summary-card";
         block.innerHTML = `<span>${escapeHtml(item.label)}</span><strong>${escapeHtml(item.value)}</strong>`;
@@ -3015,7 +3922,7 @@
       });
 
       complianceFlagsTableBody.innerHTML = "";
-      compliance.rows.forEach((row) => {
+      complianceView.rows.forEach((row) => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${escapeHtml(row.signal)}</td>
@@ -3028,12 +3935,14 @@
     }
 
     function renderRail(data, submittedText, compliance) {
+      const audit = data?.mode === "single" ? data?.meta?.raw?.audit : null;
+      const complianceView = getCompliancePresentation(audit, compliance);
       const score = Number(data?.hero?.score || 0);
       const metrics = analyzeTextMetrics(submittedText);
       const proofDensity = metrics.wordCount ? Math.round((metrics.proofMatches / metrics.wordCount) * 1000) / 10 : 0;
 
       railScoreValue.textContent = String(score);
-      railScoreVerdict.textContent = getScoreState(score).verdict;
+      railScoreVerdict.textContent = data?.hero?.scoreLabel || getScoreState(score).verdict;
 
       dimensionScoresRail.innerHTML = "";
       const rows = normalizeArray(data?.deepAnalysis?.persuasionProfile?.rows).slice(0, 6);
@@ -3055,9 +3964,9 @@
       railPriceAnchoring.textContent = metrics.priceAnchor ? "Present" : "Not clear";
       railGuarantee.textContent = metrics.guarantee ? "Present" : "Not obvious";
       railProofDensity.textContent = metrics.wordCount ? `${proofDensity}% signal density` : "—";
-      railIncomeClaims.textContent = compliance.exposures.incomeClaims;
-      railTestimonials.textContent = compliance.exposures.testimonials;
-      railDisclosureVisibility.textContent = compliance.exposures.disclosure;
+      railIncomeClaims.textContent = complianceView.exposures.incomeClaims;
+      railTestimonials.textContent = complianceView.exposures.testimonials;
+      railDisclosureVisibility.textContent = complianceView.exposures.disclosure;
     }
 
     function renderMeta(payload) {
@@ -3076,6 +3985,7 @@
 
       const submittedText = getSubmittedCorpus(submitted);
       const compliance = analyzeComplianceSignals(submittedText);
+      const complianceView = getCompliancePresentation(dashboard?.meta?.raw?.audit, compliance);
       const blockingSignals = normalizeArray(dashboard.topFixes).slice(0, 3).map((item) => ({
         title: item.title,
         problem: item.problem,
@@ -3092,10 +4002,14 @@
       const financialRisk = normalizeArray(dashboard.evidence?.risks)[0]?.impact || dashboard.primaryBottleneck?.impact || "Commercial risk framing will appear here after the audit completes.";
 
       scoreValue.textContent = String(Number.isFinite(dashboard.hero.score) ? dashboard.hero.score : 0);
-      scoreVerdict.textContent = getScoreState(dashboard.hero.score).verdict;
-      renderDecision(dashboard.hero, compliance.overall, blockingSignals.length);
+      scoreVerdict.textContent = dashboard?.hero?.scoreLabel || getScoreState(dashboard.hero.score).verdict;
+      renderDecision(dashboard.hero, complianceView.overall, blockingSignals.length);
+      claimExposureCount.textContent = complianceView.exposures.incomeClaims || "Pending";
       renderBottleneck(dashboard.primaryBottleneck);
+      renderPriorityRepairPlan(dashboard);
       renderSignalList(blockingSignalsList, blockingSignals, "No material blocking signals returned", "The current audit did not surface a blocking issue strong enough to stop controlled launch on its own.");
+      renderPrimaryBlockersSidebar(blockingSignals);
+      renderSkepticismPressure(dashboard);
       renderSignalList(watchSignalsList, watchSignals, "No meaningful watch signals returned", "No notable watch signals were returned from the current audit.");
       renderCompliance(dashboard, compliance);
       renderGoalMismatch(dashboard.goalMismatch);
@@ -3141,14 +4055,40 @@
       formError.classList.remove("show");
     }
 
+    function getIntakeCompletenessState() {
+      const isCampaign = auditMode.value === "campaign";
+
+      if (isCampaign) {
+        const filled = [goalCampaign.value, campaignAd.value, campaignLanding.value, campaignEmail.value, campaignSalesPage.value]
+          .map((value) => String(value || "").trim())
+          .filter(Boolean).length;
+        if (filled >= 4) return { label: "Full sequence context", percent: "92%" };
+        if (filled >= 2) return { label: "Partial sequence context", percent: "58%" };
+        return { label: "Minimal sequence context", percent: "24%" };
+      }
+
+      const filled = [copyType.value, goal.value, assetIntent.value, marketNiche.value, targetAudience.value, offerContext.value, copyText.value]
+        .map((value) => String(value || "").trim())
+        .filter(Boolean).length;
+
+      if (filled >= 6) return { label: "High context coverage", percent: "96%" };
+      if (filled >= 4) return { label: "Moderate context coverage", percent: "64%" };
+      return { label: "Minimal context", percent: "22%" };
+    }
+
     function updateIntakePreview() {
       const isCampaign = auditMode.value === "campaign";
       const selectedGoal = isCampaign ? goalCampaign.value.trim() : goal.value.trim();
       const selectedType = isCampaign ? "Campaign Sequence" : copyType.value.trim();
+      const selectedIntent = isCampaign ? "Campaign sequence" : assetIntent.value.trim();
+      const completeness = getIntakeCompletenessState();
 
       intakeModePreview.textContent = isCampaign ? "Campaign Fit Review" : "Single Asset Review";
       intakeGoalPreview.textContent = selectedGoal || "Not selected";
       intakeTypePreview.textContent = selectedType || "Not selected";
+      intakeIntentPreview.textContent = selectedIntent || "Not selected";
+      intakeCompletenessPreview.textContent = completeness.label;
+      intakeCompletenessMeter.style.setProperty("--clc-completeness", completeness.percent);
 
       auditModeMeta.textContent = isCampaign ? "Campaign Fit Audit" : "Single Asset Audit";
       assetTypeMeta.textContent = selectedType || "Pending";
@@ -3163,6 +4103,10 @@
       copyText.disabled = isCampaign;
       copyType.disabled = isCampaign;
       goal.disabled = isCampaign;
+      assetIntent.disabled = isCampaign;
+      marketNiche.disabled = isCampaign;
+      targetAudience.disabled = isCampaign;
+      offerContext.disabled = isCampaign;
       campaignAd.disabled = !isCampaign;
       campaignLanding.disabled = !isCampaign;
       campaignEmail.disabled = !isCampaign;
@@ -3214,14 +4158,29 @@
       launchReadinessText.textContent = "Pending";
       complianceRiskFlag.textContent = "Pending";
       blockingSignalsCount.textContent = "0";
+      claimExposureCount.textContent = "Pending";
       decisionRiskFlag.textContent = "Risk: —";
       decisionConfidenceFlag.textContent = "Confidence: Medium";
       summaryText.textContent = "";
       financialRiskText.textContent = "Commercial risk framing will appear here after the audit completes.";
       bottleneckBlock.innerHTML = "";
       nextActionBlock.innerHTML = "";
+      priorityRepairSection.style.display = "none";
+      priorityRepairInstruction.style.display = "none";
+      priorityRepairInstruction.innerHTML = "";
+      priorityRepairList.innerHTML = "";
+      priorityRepairConfidence.style.display = "none";
+      priorityRepairConfidence.textContent = "";
       blockingSignalsList.innerHTML = "";
+      primaryBlockersSidebar.innerHTML = "";
       watchSignalsList.innerHTML = "";
+      skepticismSection.style.display = "none";
+      skepticismLevelChip.style.display = "none";
+      skepticismLevelChip.textContent = "";
+      skepticismSummaryText.textContent = "Trust resistance commentary will appear here when skepticism pressure is available.";
+      skepticismSummaryGrid.innerHTML = "";
+      skepticismTrustBreaksList.innerHTML = "";
+      skepticismObjectionPressureList.innerHTML = "";
       complianceSummaryGrid.innerHTML = "";
       complianceFlagsTableBody.innerHTML = `<tr><td colspan="4">Compliance signal rows will appear here after the audit completes.</td></tr>`;
       priorityActionTableBody.innerHTML = `<tr><td colspan="5">Priority actions will appear here after the audit completes.</td></tr>`;
@@ -3288,6 +4247,10 @@
     const campaignEmail = document.getElementById("campaignEmail");
     const campaignSalesPage = document.getElementById("campaignSalesPage");
     const goalCampaign = document.getElementById("goalCampaign");
+    const assetIntent = document.getElementById("assetIntent");
+    const marketNiche = document.getElementById("marketNiche");
+    const targetAudience = document.getElementById("targetAudience");
+    const offerContext = document.getElementById("offerContext");
     const submitButton = document.getElementById("submitButton");
     const formError = document.getElementById("formError");
     const loadingSection = document.getElementById("loadingSection");
@@ -3311,7 +4274,18 @@
     const nextActionBlock = document.getElementById("nextActionBlock");
     const printReportButton = document.getElementById("printReportButton");
     const reportMeta = document.getElementById("reportMeta");
+    const priorityRepairSection = document.getElementById("priorityRepairSection");
+    const priorityRepairInstruction = document.getElementById("priorityRepairInstruction");
+    const priorityRepairList = document.getElementById("priorityRepairList");
+    const priorityRepairConfidence = document.getElementById("priorityRepairConfidence");
     const blockingSignalsList = document.getElementById("blockingSignalsList");
+    const skepticismSection = document.getElementById("skepticismSection");
+    const skepticismLevelChip = document.getElementById("skepticismLevelChip");
+    const skepticismSummaryText = document.getElementById("skepticismSummaryText");
+    const skepticismSummaryGrid = document.getElementById("skepticismSummaryGrid");
+    const skepticismTrustBreaksList = document.getElementById("skepticismTrustBreaksList");
+    const skepticismObjectionPressureList = document.getElementById("skepticismObjectionPressureList");
+    const primaryBlockersSidebar = document.getElementById("clcPrimaryBlockersList");
     const watchSignalsList = document.getElementById("watchSignalsList");
     const complianceSummaryGrid = document.getElementById("complianceSummaryGrid");
     const complianceFlagsTableBody = document.getElementById("complianceFlagsTableBody");
@@ -3365,6 +4339,10 @@
     const intakeModePreview = document.getElementById("intakeModePreview");
     const intakeGoalPreview = document.getElementById("intakeGoalPreview");
     const intakeTypePreview = document.getElementById("intakeTypePreview");
+    const intakeIntentPreview = document.getElementById("intakeIntentPreview");
+    const intakeCompletenessPreview = document.getElementById("intakeCompletenessPreview");
+    const intakeCompletenessMeter = document.getElementById("intakeCompletenessMeter");
+    const claimExposureCount = document.getElementById("claimExposureCount");
     const modePills = Array.from(document.querySelectorAll(".clc-mode-pill"));
 
     auditMode.addEventListener("change", updateModeUI);
@@ -3375,8 +4353,9 @@
       });
     });
 
-    [copyType, goal, goalCampaign].forEach((field) => {
-      field.addEventListener("change", updateIntakePreview);
+    [copyType, goal, goalCampaign, assetIntent].forEach((field) => field.addEventListener("change", updateIntakePreview));
+    [copyText, marketNiche, targetAudience, offerContext, campaignAd, campaignLanding, campaignEmail, campaignSalesPage].forEach((field) => {
+      field.addEventListener("input", updateIntakePreview);
     });
 
     setupPdfExtractors();
