@@ -3663,6 +3663,93 @@ function buildSchemaV2(existingOutput, context = {}) {
     basis: schema._legacy.audit?.decision_basis ?? null
   };
 
+  schema.blockers = [];
+
+  if (
+    schema.blockers.length < 5
+    && !schema.blockers.some((blocker) => blocker?.id === "proof_gap")
+    && (
+      schema._legacy.audit?.engines?.proof_strength?.overall === "Low"
+      || schema._legacy.audit?.dimension_scores?.proof <= 7
+    )
+  ) {
+    schema.blockers.push({
+      id: "proof_gap",
+      title: "Claims outpace verifiable proof",
+      severity: "high",
+      description: schema._legacy.audit?.engines?.proof_strength?.proof_gap ?? null,
+      impact: "Trust collapses before belief is earned"
+    });
+  }
+
+  if (
+    schema.blockers.length < 5
+    && !schema.blockers.some((blocker) => blocker?.id === "compliance_risk")
+    && (
+      schema._legacy.audit?.engines?.claim_exposure?.overall_claim_risk === "High"
+      || schema._legacy.audit?.engines?.claim_exposure?.overall_claim_risk === "Critical"
+    )
+  ) {
+    schema.blockers.push({
+      id: "compliance_risk",
+      title: "Claims create compliance exposure",
+      severity: "high",
+      description: schema._legacy.audit?.primary_blocker ?? null,
+      impact: "High legal and trust risk before traffic"
+    });
+  }
+
+  if (
+    schema.blockers.length < 5
+    && !schema.blockers.some((blocker) => blocker?.id === "mechanism_opacity")
+    && (
+      schema._legacy.audit?.dimension_scores?.mechanism <= 7
+      || schema._legacy.audit?.weakest_dimension === "mechanism"
+    )
+  ) {
+    schema.blockers.push({
+      id: "mechanism_opacity",
+      title: "Mechanism is not clearly demonstrated",
+      severity: "medium",
+      description: schema._legacy.audit?.mechanism_summary ?? null,
+      impact: "Reader cannot validate how the outcome is achieved"
+    });
+  }
+
+  if (
+    schema.blockers.length < 5
+    && !schema.blockers.some((blocker) => blocker?.id === "cta_misalignment")
+    && (
+      schema._legacy.audit?.dimension_scores?.cta <= 7
+      || schema._legacy.audit?.engines?.persuasion?.weakest_area === "cta"
+    )
+  ) {
+    schema.blockers.push({
+      id: "cta_misalignment",
+      title: "CTA does not match belief level",
+      severity: "medium",
+      description: schema._legacy.audit?.cta_summary ?? null,
+      impact: "Readers hesitate instead of acting"
+    });
+  }
+
+  if (
+    schema.blockers.length < 5
+    && !schema.blockers.some((blocker) => blocker?.id === "body_incoherence")
+    && (
+      schema._legacy.audit?.dimension_scores?.body <= 7
+      || schema._legacy.audit?.weakest_dimension === "body"
+    )
+  ) {
+    schema.blockers.push({
+      id: "body_incoherence",
+      title: "Body does not sustain the promise",
+      severity: "medium",
+      description: schema._legacy.audit?.engines?.persuasion?.reasoning_summary ?? null,
+      impact: "Momentum breaks before conversion"
+    });
+  }
+
   schema.risk_scores = {
     hook: schema._legacy.audit?.dimension_scores?.hook ?? null,
     body: schema._legacy.audit?.dimension_scores?.body ?? null,
