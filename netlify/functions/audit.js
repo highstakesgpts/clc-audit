@@ -3647,6 +3647,22 @@ function buildSchemaV2(existingOutput, context = {}) {
     _legacy: existingOutput
   };
 
+  schema.verdict = {
+    status: schema._legacy.audit?.resolved_launch_verdict ?? schema._legacy.audit?.launch_verdict ?? null,
+    raw_status: schema._legacy.audit?.launch_verdict ?? null,
+    score: schema._legacy.audit?.total_score ?? null
+  };
+
+  schema.primary_reason = {
+    summary: schema._legacy.audit?.reason || null,
+    primary_blocker: schema._legacy.audit?.primary_blocker || null
+  };
+
+  schema.confidence = {
+    level: schema._legacy.audit?.verdict_confidence ?? null,
+    basis: schema._legacy.audit?.decision_basis ?? null
+  };
+
   schema.risk_scores = {
     hook: schema._legacy.audit?.dimension_scores?.hook ?? null,
     body: schema._legacy.audit?.dimension_scores?.body ?? null,
