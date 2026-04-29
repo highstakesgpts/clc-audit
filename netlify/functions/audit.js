@@ -3750,6 +3750,57 @@ function buildSchemaV2(existingOutput, context = {}) {
     });
   }
 
+  schema.repair_plan = [];
+
+  for (const blocker of schema.blockers) {
+    if (schema.repair_plan.length >= 5) break;
+
+    if (blocker?.id === "proof_gap") {
+      schema.repair_plan.push({
+        blocker_id: "proof_gap",
+        action: schema._legacy.audit?.engines?.proof_strength?.fix_instruction ?? null,
+        priority: 1,
+        expected_impact: "Restores trust by aligning claims with credible proof"
+      });
+    }
+
+    if (blocker?.id === "compliance_risk") {
+      schema.repair_plan.push({
+        blocker_id: "compliance_risk",
+        action: schema._legacy.audit?.engines?.claim_exposure?.fix_instruction ?? null,
+        priority: 1,
+        expected_impact: "Reduces legal and trust risk before traffic"
+      });
+    }
+
+    if (blocker?.id === "mechanism_opacity") {
+      schema.repair_plan.push({
+        blocker_id: "mechanism_opacity",
+        action: schema._legacy.audit?.mechanism_summary ?? null,
+        priority: 2,
+        expected_impact: "Improves believability by clarifying how results are achieved"
+      });
+    }
+
+    if (blocker?.id === "cta_misalignment") {
+      schema.repair_plan.push({
+        blocker_id: "cta_misalignment",
+        action: schema._legacy.audit?.cta_summary ?? null,
+        priority: 2,
+        expected_impact: "Increases conversion by aligning action with readiness"
+      });
+    }
+
+    if (blocker?.id === "body_incoherence") {
+      schema.repair_plan.push({
+        blocker_id: "body_incoherence",
+        action: schema._legacy.audit?.engines?.persuasion?.fix_instruction ?? schema._legacy.audit?.fix_instruction ?? null,
+        priority: 2,
+        expected_impact: "Improves flow and maintains momentum toward conversion"
+      });
+    }
+  }
+
   schema.risk_scores = {
     hook: schema._legacy.audit?.dimension_scores?.hook ?? null,
     body: schema._legacy.audit?.dimension_scores?.body ?? null,
