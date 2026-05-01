@@ -3840,7 +3840,10 @@ export default async (req) => {
 
       console.log("SCHEMA V2:", schema);
 
-      return jsonResponse(existingOutput);
+      return jsonResponse({
+        ...existingOutput,
+        schema
+      });
     }
 
     const assetAudits = {};
@@ -3877,7 +3880,10 @@ export default async (req) => {
 
     console.log("SCHEMA V2:", schema);
 
-    return jsonResponse(existingOutput);
+    return jsonResponse({
+      ...existingOutput,
+      schema
+    });
   } catch (error) {
     console.error("AUDIT ERROR", {
       message: error?.message,

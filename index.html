@@ -3982,30 +3982,76 @@
       const dashboard = normalizeAuditToDashboard(data, submitted);
       latestDashboard = dashboard;
       latestSubmission = submitted;
+      const schema = data?.schema;
+      const audit = dashboard?.meta?.raw?.audit;
 
       const submittedText = getSubmittedCorpus(submitted);
       const compliance = analyzeComplianceSignals(submittedText);
       const complianceView = getCompliancePresentation(dashboard?.meta?.raw?.audit, compliance);
-      const blockingSignals = normalizeArray(dashboard.topFixes).slice(0, 3).map((item) => ({
-        title: item.title,
-        problem: item.problem,
-        action: item.action,
-        meta: item.impact || item.impactPreview || "",
-        severity: "high"
-      }));
+      const label =
+        schema?.verdict?.status ||
+        audit?.launch_verdict ||
+        audit?.resolved_launch_verdict ||
+        dashboard?.hero?.decision?.label;
+      const reason =
+        schema?.primary_reason?.summary ||
+        audit?.reason ||
+        dashboard?.hero?.decision?.sub ||
+        dashboard?.hero?.summary;
+      const confidenceLevel =
+        schema?.confidence?.level ||
+        dashboard?.hero?.decision?.confidence;
+      const confidenceBasis =
+        schema?.confidence?.basis ||
+        dashboard?.hero?.decision?.decisionBasis;
+      const schemaBlockers = normalizeArray(schema?.blockers);
+      const schemaRepairPlan = normalizeArray(schema?.repair_plan);
+      const schemaAwareHero = {
+        ...dashboard.hero,
+        summary: reason || dashboard?.hero?.summary,
+        decision: {
+          ...dashboard.hero?.decision,
+          label: label || dashboard?.hero?.decision?.label,
+          sub: reason || dashboard?.hero?.decision?.sub,
+          confidence: confidenceLevel || dashboard?.hero?.decision?.confidence,
+          decisionBasis: confidenceBasis || dashboard?.hero?.decision?.decisionBasis
+        }
+      };
+      const blockingSignals = schemaBlockers.length
+        ? schemaBlockers.map((item, index) => ({
+          title: item?.title || `Blocker ${index + 1}`,
+          problem: item?.description || "",
+          action: "",
+          meta: item?.severity ? `Severity: ${item.severity}` : "",
+          severity: item?.severity || "high"
+        }))
+        : normalizeArray(dashboard.topFixes).slice(0, 3).map((item) => ({
+          title: item.title,
+          problem: item.problem,
+          action: item.action,
+          meta: item.impact || item.impactPreview || "",
+          severity: "high"
+        }));
       const watchSignals = normalizeArray(dashboard.evidence?.improvementDirection).slice(0, 3).map((item) => ({
         title: "Watch signal",
         problem: item,
         action: "Address this after the blocking signals are handled.",
         severity: "warning"
       }));
-      const financialRisk = normalizeArray(dashboard.evidence?.risks)[0]?.impact || dashboard.primaryBottleneck?.impact || "Commercial risk framing will appear here after the audit completes.";
+      const primaryBottleneck = schemaBlockers.length
+        ? {
+          title: schemaBlockers[0]?.title || "Primary blocker identified",
+          body: schemaBlockers[0]?.description || reason || dashboard?.primaryBottleneck?.body || "",
+          impact: schemaBlockers[0]?.severity ? `Severity: ${schemaBlockers[0].severity}` : (dashboard?.primaryBottleneck?.impact || "")
+        }
+        : dashboard.primaryBottleneck;
+      const financialRisk = normalizeArray(dashboard.evidence?.risks)[0]?.impact || primaryBottleneck?.impact || "Commercial risk framing will appear here after the audit completes.";
 
       scoreValue.textContent = String(Number.isFinite(dashboard.hero.score) ? dashboard.hero.score : 0);
       scoreVerdict.textContent = dashboard?.hero?.scoreLabel || getScoreState(dashboard.hero.score).verdict;
-      renderDecision(dashboard.hero, complianceView.overall, blockingSignals.length);
+      renderDecision(schemaAwareHero, complianceView.overall, blockingSignals.length);
       claimExposureCount.textContent = complianceView.exposures.incomeClaims || "Pending";
-      renderBottleneck(dashboard.primaryBottleneck);
+      renderBottleneck(primaryBottleneck);
       renderPriorityRepairPlan(dashboard);
       renderSignalList(blockingSignalsList, blockingSignals, "No material blocking signals returned", "The current audit did not surface a blocking issue strong enough to stop controlled launch on its own.");
       renderPrimaryBlockersSidebar(blockingSignals);
@@ -4014,7 +4060,22 @@
       renderCompliance(dashboard, compliance);
       renderGoalMismatch(dashboard.goalMismatch);
       renderCertification(dashboard.toAchieveCertification);
-      renderPriorityFixes(dashboard.topFixes);
+      if (schemaRepairPlan.length) {
+        priorityActionTableBody.innerHTML = "";
+        schemaRepairPlan.forEach((item, index) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${escapeHtml(String(item?.priority ?? index + 1))}</td>
+            <td>${escapeHtml(item?.action || "—")}</td>
+            <td>Schema v2</td>
+            <td>${escapeHtml(item?.expected_impact || "—")}</td>
+            <td>${escapeHtml(item?.expected_impact || "—")}</td>
+          `;
+          priorityActionTableBody.appendChild(tr);
+        });
+      } else {
+        renderPriorityFixes(dashboard.topFixes);
+      }
       renderSupportStrip(dashboard.support);
       renderRoleContext(dashboard);
       renderNextAction(dashboard);
